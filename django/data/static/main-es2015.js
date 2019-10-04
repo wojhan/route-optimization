@@ -32,7 +32,20 @@ webpackEmptyAsyncContext.id = "./$$_lazy_route_resource lazy recursive";
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"row\" *ngIf=\"!_userService.token\">\n    JESTES NIEZALOGOWANY\n</div>\n<div class=\"row\" *ngIf=\"_userService.token\">\n    JESTES ZALOGOWANY\n</div>\n\n<router-outlet></router-outlet>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"row\" *ngIf=\"!_userService.token\">\n  JESTES NIEZALOGOWANY\n</div>\n<div class=\"row\" *ngIf=\"_userService.token\">\n  JESTES ZALOGOWANY {{ user.username }}\n</div>\n\n<router-outlet></router-outlet>\n");
+
+/***/ }),
+
+/***/ "./node_modules/raw-loader/dist/cjs.js!./src/app/dashboard/dashboard.component.html":
+/*!******************************************************************************************!*\
+  !*** ./node_modules/raw-loader/dist/cjs.js!./src/app/dashboard/dashboard.component.html ***!
+  \******************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ("<p>dashboard works!</p>\n<a routerLink=\"/logout\">Wyloguj</a>\n");
 
 /***/ }),
 
@@ -292,11 +305,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm2015/router.js");
 /* harmony import */ var _login_login_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./login/login.component */ "./src/app/login/login.component.ts");
+/* harmony import */ var _dashboard_dashboard_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./dashboard/dashboard.component */ "./src/app/dashboard/dashboard.component.ts");
+/* harmony import */ var _auth_guard__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./auth.guard */ "./src/app/auth.guard.ts");
 
 
 
 
-const routes = [{ path: "login", component: _login_login_component__WEBPACK_IMPORTED_MODULE_3__["LoginComponent"] }];
+
+
+const routes = [
+    { path: "logout", component: _login_login_component__WEBPACK_IMPORTED_MODULE_3__["LoginComponent"] },
+    { path: "login", component: _login_login_component__WEBPACK_IMPORTED_MODULE_3__["LoginComponent"] },
+    { path: "dashboard", component: _dashboard_dashboard_component__WEBPACK_IMPORTED_MODULE_4__["DashboardComponent"], canActivate: [_auth_guard__WEBPACK_IMPORTED_MODULE_5__["AuthGuard"]] }
+];
 let AppRoutingModule = class AppRoutingModule {
 };
 AppRoutingModule = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
@@ -336,28 +357,37 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
 /* harmony import */ var _user_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./user.service */ "./src/app/user.service.ts");
+/* harmony import */ var _auth_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./auth.service */ "./src/app/auth.service.ts");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm2015/router.js");
+
+
 
 
 
 let AppComponent = class AppComponent {
-    constructor(_userService) {
+    constructor(_userService, _authService, router) {
         this._userService = _userService;
+        this._authService = _authService;
+        this.router = router;
     }
     ngOnInit() {
         this.user = {
-            username: "",
-            password: ""
+            username: ""
         };
-        if (this._userService.token) {
-            console.log("zalogowany");
+        if (this._authService.getIsAuthenticated()) {
+            this._userService.getUsername().subscribe(username => (this.user = { username }), err => console.log(err), () => {
+                this.router.navigate(["dashboard"]);
+            });
         }
         else {
-            console.log("niezalogowany");
+            this.router.navigate(["login"]);
         }
     }
 };
 AppComponent.ctorParameters = () => [
-    { type: _user_service__WEBPACK_IMPORTED_MODULE_2__["UserService"] }
+    { type: _user_service__WEBPACK_IMPORTED_MODULE_2__["UserService"] },
+    { type: _auth_service__WEBPACK_IMPORTED_MODULE_3__["AuthService"] },
+    { type: _angular_router__WEBPACK_IMPORTED_MODULE_4__["Router"] }
 ];
 AppComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
@@ -390,6 +420,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./app.component */ "./src/app/app.component.ts");
 /* harmony import */ var _login_login_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./login/login.component */ "./src/app/login/login.component.ts");
 /* harmony import */ var _user_service__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./user.service */ "./src/app/user.service.ts");
+/* harmony import */ var _auth_guard__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./auth.guard */ "./src/app/auth.guard.ts");
+/* harmony import */ var _dashboard_dashboard_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./dashboard/dashboard.component */ "./src/app/dashboard/dashboard.component.ts");
+
+
 
 
 
@@ -403,12 +437,141 @@ let AppModule = class AppModule {
 };
 AppModule = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_2__["NgModule"])({
-        declarations: [_app_component__WEBPACK_IMPORTED_MODULE_6__["AppComponent"], _login_login_component__WEBPACK_IMPORTED_MODULE_7__["LoginComponent"]],
+        declarations: [_app_component__WEBPACK_IMPORTED_MODULE_6__["AppComponent"], _login_login_component__WEBPACK_IMPORTED_MODULE_7__["LoginComponent"], _dashboard_dashboard_component__WEBPACK_IMPORTED_MODULE_10__["DashboardComponent"]],
         imports: [_angular_platform_browser__WEBPACK_IMPORTED_MODULE_1__["BrowserModule"], _app_routing_module__WEBPACK_IMPORTED_MODULE_5__["AppRoutingModule"], _angular_common_http__WEBPACK_IMPORTED_MODULE_3__["HttpClientModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_4__["FormsModule"]],
-        providers: [_user_service__WEBPACK_IMPORTED_MODULE_8__["UserService"]],
+        providers: [_user_service__WEBPACK_IMPORTED_MODULE_8__["UserService"], _auth_guard__WEBPACK_IMPORTED_MODULE_9__["AuthGuard"]],
         bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_6__["AppComponent"]]
     })
 ], AppModule);
+
+
+
+/***/ }),
+
+/***/ "./src/app/auth.guard.ts":
+/*!*******************************!*\
+  !*** ./src/app/auth.guard.ts ***!
+  \*******************************/
+/*! exports provided: AuthGuard */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AuthGuard", function() { return AuthGuard; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm2015/router.js");
+/* harmony import */ var _auth_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./auth.service */ "./src/app/auth.service.ts");
+
+
+
+
+let AuthGuard = class AuthGuard {
+    constructor(auth, router) {
+        this.auth = auth;
+        this.router = router;
+    }
+    canActivate(next, state) {
+        if (!this.auth.getIsAuthenticated()) {
+            this.router.navigate(["login"]);
+            return false;
+        }
+        return true;
+    }
+};
+AuthGuard.ctorParameters = () => [
+    { type: _auth_service__WEBPACK_IMPORTED_MODULE_3__["AuthService"] },
+    { type: _angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"] }
+];
+AuthGuard = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+        providedIn: "root"
+    })
+], AuthGuard);
+
+
+
+/***/ }),
+
+/***/ "./src/app/auth.service.ts":
+/*!*********************************!*\
+  !*** ./src/app/auth.service.ts ***!
+  \*********************************/
+/*! exports provided: AuthService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AuthService", function() { return AuthService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var _user_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./user.service */ "./src/app/user.service.ts");
+
+
+
+let AuthService = class AuthService {
+    constructor(_userService) {
+        this._userService = _userService;
+        this.isAuthenticated = this.getIsAuthenticated();
+    }
+    getIsAuthenticated() {
+        const token = localStorage.getItem("token");
+        this._userService.token = token;
+        return token !== null;
+    }
+};
+AuthService.ctorParameters = () => [
+    { type: _user_service__WEBPACK_IMPORTED_MODULE_2__["UserService"] }
+];
+AuthService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+        providedIn: "root"
+    })
+], AuthService);
+
+
+
+/***/ }),
+
+/***/ "./src/app/dashboard/dashboard.component.scss":
+/*!****************************************************!*\
+  !*** ./src/app/dashboard/dashboard.component.scss ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ("\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJzcmMvYXBwL2Rhc2hib2FyZC9kYXNoYm9hcmQuY29tcG9uZW50LnNjc3MifQ== */");
+
+/***/ }),
+
+/***/ "./src/app/dashboard/dashboard.component.ts":
+/*!**************************************************!*\
+  !*** ./src/app/dashboard/dashboard.component.ts ***!
+  \**************************************************/
+/*! exports provided: DashboardComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DashboardComponent", function() { return DashboardComponent; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+
+
+let DashboardComponent = class DashboardComponent {
+    constructor() { }
+    ngOnInit() {
+    }
+};
+DashboardComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
+        selector: 'app-dashboard',
+        template: tslib__WEBPACK_IMPORTED_MODULE_0__["__importDefault"](__webpack_require__(/*! raw-loader!./dashboard.component.html */ "./node_modules/raw-loader/dist/cjs.js!./src/app/dashboard/dashboard.component.html")).default,
+        styles: [tslib__WEBPACK_IMPORTED_MODULE_0__["__importDefault"](__webpack_require__(/*! ./dashboard.component.scss */ "./src/app/dashboard/dashboard.component.scss")).default]
+    })
+], DashboardComponent);
 
 
 
@@ -455,6 +618,9 @@ let LoginComponent = class LoginComponent {
             username: "",
             password: ""
         };
+        if (this.router.url.endsWith("logout")) {
+            this.logout();
+        }
     }
     login() {
         this._userService.login({
@@ -463,11 +629,9 @@ let LoginComponent = class LoginComponent {
         });
         this.router.navigateByUrl("/");
     }
-    refreshToken() {
-        this._userService.refreshToken();
-    }
     logout() {
         this._userService.logout();
+        this.router.navigateByUrl("/");
     }
 };
 LoginComponent.ctorParameters = () => [
@@ -499,6 +663,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
 /* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm2015/http.js");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm2015/operators/index.js");
+
 
 
 
@@ -508,7 +674,9 @@ let UserService = class UserService {
         // error messages received from the login attempt
         this.errors = [];
         this.httpOptions = {
-            headers: new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpHeaders"]({ "Content-Type": "application/json" })
+            headers: new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpHeaders"]({
+                "Content-Type": "application/json"
+            })
         };
     }
     // Uses http.post() to get an auth token from djangorestframework-jwt endpoint
@@ -516,34 +684,27 @@ let UserService = class UserService {
         this.http
             .post("/api-token-auth/", JSON.stringify(user), this.httpOptions)
             .subscribe(data => {
-            this.updateData(data["token"]);
+            this.token = data["token"];
+            localStorage.setItem("token", this.token);
         }, err => {
             this.errors = err["error"];
         });
     }
-    // Refreshes the JWT token, to extend the time the user is logged in
-    refreshToken() {
-        this.http
-            .post("/api-token-refresh/", JSON.stringify({ token: this.token }), this.httpOptions)
-            .subscribe(data => {
-            this.updateData(data["token"]);
-        }, err => {
-            this.errors = err["error"];
-        });
+    getUsername() {
+        return this.http
+            .get(`/api/users/current`, {
+            responseType: "json",
+            headers: new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpHeaders"]({
+                "Content-Type": "application/json",
+                Authorization: `Token ${this.token}`
+            })
+        })
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])((data) => data["username"]));
     }
     logout() {
         this.token = null;
-        this.token_expires = null;
+        localStorage.removeItem("token");
         this.username = null;
-    }
-    updateData(token) {
-        this.token = token;
-        this.errors = [];
-        // decode the token to read the username and expiration timestamp
-        const token_parts = this.token.split(/\./);
-        const token_decoded = JSON.parse(window.atob(token_parts[1]));
-        this.token_expires = new Date(token_decoded.exp * 1000);
-        this.username = token_decoded.username;
     }
 };
 UserService.ctorParameters = () => [

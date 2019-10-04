@@ -1,0 +1,15 @@
+<div class="bg-light border-right" id="sidebar-wrapper">
+  <div class="sidebar-heading">Start Bootstrap </div>
+  <div class="list-group list-group-flush">
+    <a [routerLink]="['/dashboard']" routerLinkActive="router-link-active"
+      class="list-group-item list-group-item-action bg-light">Dashboard</a>
+    <a [routerLink]="['/dashboard/company']" routerLinkActive="router-link-active"
+      class="list-group-item list-group-item-action bg-light">Firmy</a>
+    <div class="list-group list-group-flush">
+      <a [routerLink]="['/dashboard/company']" routerLinkActive="router-link-active"
+        class="list-group-item list-group-item-action bg-light">Przeglądaj</a>
+      <a [routerLink]="['/dashboard/company/add']" href="#"
+        class="list-group-item list-group-item-action bg-light">Dodaj firmę</a>
+    </div>
+  </div>
+</div>

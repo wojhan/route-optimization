@@ -1,3 +1,11 @@
-// -----------------------------------------------------------------------------
-// This file contains all styles related to the header of the site/application.
-// -----------------------------------------------------------------------------
+#user-info {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  .nav-text {
+    vertical-align: middle;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+}

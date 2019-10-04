@@ -1,27 +1,42 @@
-import { Component } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { UserService } from "./user.service";
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, AfterViewInit } from '@angular/core';
+import { UserService } from './shared/services/user.service';
+import { AuthService } from './shared/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.scss"]
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent {
-  public user: any;
+export class AppComponent implements OnInit, AfterViewInit {
+  public currentUser: any;
 
-  constructor(private _userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+    private router: Router,
+    private cdRef: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    this.user = {
-      username: "",
-      password: ""
+    this.currentUser = {
+      username: ''
     };
-
-    if (this._userService.token) {
-      console.log("zalogowany");
+    if (this.authService.getIsAuthenticated()) {
+      this.userService.getUsername().subscribe(
+        username => {
+          this.currentUser = { username };
+          this.router.navigate(['dashboard']);
+        },
+        err => console.log(err)
+      );
     } else {
-      console.log("niezalogowany");
+      this.router.navigate(['login']);
     }
+  }
+
+  ngAfterViewInit() {
+    this.cdRef.detectChanges();
   }
 }

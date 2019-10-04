@@ -6,6 +6,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from data import views
 from rest_framework import routers
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 
 # Serializers define the API representation.
@@ -17,6 +19,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'username', 'email', 'is_staff']
 
 # ViewSets define the view behavior.
+
+
+class CurrentUserView(APIView):
+    def get(self, request):
+        serializer = UserSerializer(request.user, context={'request': request})
+        return Response(serializer.data)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -31,6 +39,7 @@ router.register(r'api/users', UserViewSet)
 urlpatterns = router.urls
 
 urlpatterns += [
+    url(r'^api/users/current$', CurrentUserView.as_view()),
     url(r'^(?!api).*$', views.HomePageView.as_view()),
 ]
 

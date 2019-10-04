@@ -1,0 +1,75 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <h1>Lista firm</h1>
+    </div>
+  </div>
+  <!-- <div class="row">#TODO: Filtry</div> -->
+  <div class="row">
+    <div class="col">
+      <button class="btn btn-primary">Dodaj firmę</button>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngFor="let item of pageOfItems" class="col-lg-12 col-xl-6 my-2">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="company-item">
+            <div class="row d-sm-none d-lg-flex">
+              <div class="col-lg-5 col-xl-5">
+                <h1>Nazwa firmy</h1>
+              </div>
+              <div class="col-lg-5 col-xl-4">
+                <h1>Dane firmy</h1>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 col-lg-5 col-xl-5 d-flex">
+                <div class="company-name-container">
+                  <h1 class="d-lg-none">Nazwa firmy</h1>
+                  <p class="company-name">{{ item.name }}</p>
+                </div>
+              </div>
+              <div class="col-md-12 col-lg-5 col-xl-5 d-lg-flex">
+                <div class="company-details">
+                  <h1 class="d-lg-none">Dane firmy</h1>
+                  <p>{{ item.nip }}</p>
+                  <p>ul. {{ item.street }} {{ item.no }}</p>
+                  <p>{{ item.postcode }} {{ item.city }}</p>
+                </div>
+              </div>
+              <div class="col-md-12 col-lg-2 col-xl-2 company-actions-container">
+                <div class="company-actions">
+                  <button class="btn btn-info btn-sm">
+                    <fa-icon [icon]="faInfoCircle"></fa-icon>
+                  </button>
+                  <button class="btn btn-warning btn-sm">
+                    <fa-icon [icon]="faEdit"></fa-icon>
+                  </button>
+                  <button class="btn btn-danger btn-sm">
+                    <fa-icon [icon]="faThrash"></fa-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <jw-pagination [items]="companies" (changePage)="onChangePage($event)"></jw-pagination>
+    </div>
+  </div>
+</div>
+
+
+<!-- <div class="card text-center m-3">
+  <h3 class="card-header">Angular 8 Pagination Example</h3>
+  <div class="card-body">
+    <div *ngFor="let item of pageOfItems">{{item.name}}</div>
+  </div>
+  <div class="card-footer pb-0 pt-3">
+  </div>
+</div> -->
