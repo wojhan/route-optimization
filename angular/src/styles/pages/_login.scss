@@ -1,0 +1,40 @@
+#login {
+  /* The image used */
+  background-image: image("bg.png");
+
+  /* Full height */
+  height: 100%;
+  width: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#login-box {
+  background-color: #eaeaea;
+  padding: 50px 70px;
+
+  h1 {
+    font-size: 1.7rem;
+    color: $brand-color;
+    text-align: center;
+  }
+
+  #login-form {
+    margin: 20px 0;
+
+    input,
+    button {
+      margin: 15px 0;
+    }
+  }
+
+  .login-helper {
+    font-size: 0.8rem;
+    color: $text-color;
+    margin: 3px 0;
+    padding: 0;
+  }
+}
