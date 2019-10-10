@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Company, DashboardService } from '../../dashboard.service';
+import { Company, DashboardService } from '../../dashboard/dashboard.service';
 import { faInfoCircle, faTrash, faEdit, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-dashboard-company-list',
-  templateUrl: './dashboard-company-list.component.html',
-  styleUrls: ['./dashboard-company-list.component.scss']
+  selector: 'app-company-list',
+  templateUrl: './company-list.component.html',
+  styleUrls: ['./company-list.component.scss']
 })
-export class DashboardCompanyListComponent implements OnInit {
+export class CompanyListComponent implements OnInit {
   faInfoCircle: IconDefinition = faInfoCircle;
   faThrash: IconDefinition = faTrash;
   faEdit: IconDefinition = faEdit;

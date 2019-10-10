@@ -1,12 +1,12 @@
 import { Component, OnInit, Output, OnChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService, User } from 'src/app/shared/services/user.service';
-import { DashboardService } from '../../dashboard.service';
+import { DashboardService } from './dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
-  templateUrl: './dashboard.page.html',
-  styleUrls: ['./dashboard.page.scss']
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
   user: User;
