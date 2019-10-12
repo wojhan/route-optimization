@@ -7,6 +7,7 @@ import { SharedModule } from '../shared/shared.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { CompaniesService } from './companies.service';
 
 @NgModule({
   declarations: [CompaniesComponent, CompanyListComponent, CompanyDetailsComponent, CompanyAddComponent],
