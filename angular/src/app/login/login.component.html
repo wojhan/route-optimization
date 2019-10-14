@@ -9,17 +9,17 @@
       <div class="col">
         <input class="form-control form-control-lg" type="text" placeholder="login" [(ngModel)]="user.username"
           name="login-username">
-        <!-- <span *ngFor="let error of userService.errors.username"><br />
+        <!-- <span *ngFor="let error of LoginService.errors.username"><br />
           {{ error }}</span> -->
         <input class="form-control form-control-lg" type="password" placeholder="hasło" [(ngModel)]="user.password"
           name="login-password">
-        <!-- <span *ngFor="let error of userService.errors.password"><br />
+        <!-- <span *ngFor="let error of LoginService.errors.password"><br />
           {{ error }}</span> -->
         <button (click)="login()" class="btn btn-block btn-primary">Submit</button>
       </div>
     </div>
     <!-- <div class="row">
-      <span *ngFor="let error of userService.errors.non_field_errors">{{ error }}<br /></span>
+      <span *ngFor="let error of LoginService.errors.non_field_errors">{{ error }}<br /></span>
     </div> -->
     <div class="row">
       <div class="col text-right">

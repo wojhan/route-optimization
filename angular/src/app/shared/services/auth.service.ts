@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UserService } from './user.service';
+import { LoginService } from '../../login/login.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,13 +7,13 @@ import { UserService } from './user.service';
 export class AuthService {
   public isAuthenticated: boolean;
 
-  constructor(private userService: UserService) {
+  constructor(private loginService: LoginService) {
     this.isAuthenticated = this.getIsAuthenticated();
   }
 
   public getIsAuthenticated(): boolean {
     const token = localStorage.getItem('token');
-    this.userService.token = token;
+    this.loginService.token = token;
 
     return token != null && token.length > 0;
   }

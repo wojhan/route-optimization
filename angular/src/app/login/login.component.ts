@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { UserService, User } from 'src/app/shared/services/user.service';
+import { LoginService, User } from './login.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   @Input()
   user: User = new User();
 
-  constructor(public userService: UserService, private router: Router) {}
+  constructor(public loginService: LoginService, private router: Router) { }
 
   ngOnInit() {
     // this.username = '';
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
-    this.userService.login({
+    this.loginService.login({
       username: this.user.username,
       password: this.user.password
     });

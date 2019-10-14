@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, OnChanges } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService, User } from 'src/app/shared/services/user.service';
+import { LoginService, User } from '../login/login.service';
 import { DashboardService } from './dashboard.service';
 
 @Component({
@@ -13,11 +13,11 @@ export class DashboardComponent implements OnInit {
   isSidebarHidden: boolean;
   wrapperClasses: any;
 
-  constructor(private userService: UserService, private dashboardService: DashboardService, private router: Router) {}
+  constructor(private loginService: LoginService, private dashboardService: DashboardService, private router: Router) { }
 
   ngOnInit() {
     this.user = new User();
-    this.userService.getUsername().subscribe(username => (this.user.username = username));
+    this.loginService.getUsername().subscribe(username => (this.user.username = username));
 
     this.isSidebarHidden = this.dashboardService.getIsSidebarHidden();
     console.log(this.isSidebarHidden);
@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit {
   }
 
   logout() {
-    this.userService.logout();
+    this.loginService.logout();
     this.router.navigate(['login']);
   }
 }
