@@ -1,0 +1,30 @@
+#field-container {
+  display: flex;
+  flex-direction: column;
+
+  mat-form-field {
+    margin-top: 10px;
+    &:first {
+      margin-top: 0px;
+    }
+  }
+
+  #postcode-group {
+    display: flex;
+    #postcode {
+      width: 127px;
+      margin-right: 10px;
+    }
+    #city {
+      flex: 1;
+    }
+  }
+}
+
+agm-map {
+  height: 100%;
+
+  @media (max-width: 1199px) {
+    height: 300px;
+  }
+}

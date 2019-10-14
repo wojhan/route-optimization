@@ -1,23 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { Company, DashboardService } from '../../dashboard.service';
 import { faInfoCircle, faTrash, faEdit, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { CompaniesService, Company } from '../companies.service';
 
 @Component({
-  selector: 'app-dashboard-company-list',
-  templateUrl: './dashboard-company-list.component.html',
-  styleUrls: ['./dashboard-company-list.component.scss']
+  selector: 'app-company-list',
+  templateUrl: './company-list.component.html',
+  styleUrls: ['./company-list.component.scss']
 })
-export class DashboardCompanyListComponent implements OnInit {
+export class CompanyListComponent implements OnInit {
   faInfoCircle: IconDefinition = faInfoCircle;
   faThrash: IconDefinition = faTrash;
   faEdit: IconDefinition = faEdit;
   companies: Company[];
   pageOfItems: Array<any>;
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private companiesService: CompaniesService) {}
 
   ngOnInit() {
-    this.dashboardService.getAllCompanies().subscribe(companies => (this.companies = companies));
+    this.companiesService.getAllCompanies().subscribe(companies => (this.companies = companies));
     // an example array of 150 items to be paged
     // this.items = Array(150)
     //   .fill(0)

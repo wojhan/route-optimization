@@ -1,0 +1,43 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1>Dodaj firmę do bazy</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 col-xl-6">
+      <form [formGroup]="companyForm" id="field-container">
+        <mat-form-field>
+          <input matInput placeholder="Nazwa firmy" formControlName="name">
+          <mat-error *ngIf="companyForm.get('name').invalid">
+            Wprowadź nazwę
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Nip" formControlName="nip">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Adres" formControlName="address">
+        </mat-form-field>
+        <div id="postcode-group">
+          <mat-form-field id="postcode">
+            <input matInput placeholder="Kod pocztowy" formControlName="postcode" maxlength="6">
+          </mat-form-field>
+          <mat-form-field id="city">
+            <input matInput placeholder="Miejscowość" formControlName="city">
+          </mat-form-field>
+        </div>
+        <mat-form-field>
+          <input matInput placeholder="Województwo" formControlName="state">
+        </mat-form-field>
+        <button type="submit" class="btn btn-block btn-primary" [disabled]="!companyForm.valid"
+          (click)="addCompany()">Dodaj</button>
+      </form>
+    </div>
+    <div class="col-sm-12 col-xl-6">
+      <agm-map [longitude]="lng" [latitude]="lat" [zoom]="zoom">
+        <agm-marker [longitude]="lng" [latitude]="lat"></agm-marker>
+      </agm-map>
+    </div>
+  </div>
+</div>

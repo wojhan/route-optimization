@@ -4,7 +4,7 @@
 @import 'abstracts/variables', 'abstracts/functions', 'abstracts/mixins';
 
 // 2. Vendors
-@import 'vendors/normalize', 'vendors/bootstrap/bootstrap';
+@import 'vendors/normalize', 'vendors/bootstrap/bootstrap', '~@angular/material/prebuilt-themes/indigo-pink.css';
 
 // 3. Base stuff
 @import 'base/base', 'base/fonts', 'base/typography', 'base/helpers';
@@ -16,7 +16,7 @@
 @import 'components/button', 'components/list_group', 'components/company_item';
 
 // 6. Page-specific styles
-@import 'pages/home', 'pages/login';
+@import 'pages/home', 'pages/login', 'pages/company_add';
 
 // 7. Themes
 @import 'themes/default';
