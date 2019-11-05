@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from django.urls import path, include
 from django.contrib.auth.models import User
+from data.models import Company
 from rest_framework import routers, serializers, viewsets
 from django.conf import settings
 from django.conf.urls.static import static
@@ -18,6 +19,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ['url', 'username', 'email', 'is_staff']
 
+
+class CompanySerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Company
+        fields = ['id', 'name', 'name_short', 'nip', 'street',
+                  'house_no', 'postcode', 'city', 'latitude', 'longitude']
+
 # ViewSets define the view behavior.
 
 
@@ -32,16 +41,20 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
+class CompanyViewSet(viewsets.ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
+
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.SimpleRouter()
 router.register(r'api/users', UserViewSet)
+router.register(r'api/companies', CompanyViewSet)
 
 urlpatterns = router.urls
 
 urlpatterns += [
     url(r'^api/users/current$', CurrentUserView.as_view()),
-    url(r'^(?!api).*$', views.HomePageView.as_view()),
 ]
 
-# urlpatterns += router.urls
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
