@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls.static import static
 from django.conf.urls import url, include
 from rest_framework.authtoken import views
-
+from .settings import STATIC_ROOT, STATIC_URL
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -25,4 +26,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^', include('data.urls')),
     url(r'^api-token-auth/', views.obtain_auth_token)
-]
+] + static(STATIC_URL, document_root=STATIC_ROOT)

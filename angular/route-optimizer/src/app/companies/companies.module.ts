@@ -8,9 +8,16 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CompaniesService } from './companies.service';
+import { PaginatorComponent } from '../paginator/paginator.component';
 
 @NgModule({
-  declarations: [CompaniesComponent, CompanyListComponent, CompanyDetailsComponent, CompanyAddComponent],
+  declarations: [
+    CompaniesComponent,
+    CompanyListComponent,
+    CompanyDetailsComponent,
+    CompanyAddComponent,
+    PaginatorComponent
+  ],
   imports: [SharedModule, RouterModule]
 })
 export class CompaniesModule {}

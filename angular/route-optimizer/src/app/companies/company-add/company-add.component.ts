@@ -46,15 +46,37 @@ export class CompanyAddComponent implements OnInit {
   }
 
   addCompany(): void {
-    const company = new Company(
-      this.companyForm.get('name').value,
-      this.companyForm.get('nip').value,
-      this.companyForm.get('address').value,
-      this.companyForm.get('postcode').value,
-      this.companyForm.get('city').value,
-      this.companyForm.get('state').value
-    );
-    this.companiesService.addCompany(company);
+    const addressValue = this.companyForm.get('address').value;
+    const postcodeValue = this.companyForm.get('postcode').value;
+    const cityValue = this.companyForm.get('city').value;
+
+    const address = `${addressValue}, ${postcodeValue} ${cityValue}`;
+    this.getCoordsFromAddress(address).subscribe(coords => {
+      let latitude = null;
+      let longitude = null;
+
+      if (coords.status === 'OK') {
+        latitude = coords.results[0].geometry.location.lat;
+        longitude = coords.results[0].geometry.location.lng;
+      }
+
+      const values = {
+        name: this.companyForm.get('name').value,
+        nameShort: this.companyForm.get('name').value,
+        nip: this.companyForm.get('nip').value,
+        street: this.companyForm.get('address').value.split(' ')[0],
+        houseNo: this.companyForm.get('address').value.split(' ')[1],
+        postcode: this.companyForm.get('postcode').value,
+        city: this.companyForm.get('city').value,
+        latitude,
+        longitude
+      };
+      const company: Company = Object.assign(new Company(), values);
+
+      this.companiesService.addCompany(company).subscribe(newCompany => {
+        console.log(newCompany);
+      });
+    });
   }
 
   getCoordsFromAddress(address: string): Observable<any> {

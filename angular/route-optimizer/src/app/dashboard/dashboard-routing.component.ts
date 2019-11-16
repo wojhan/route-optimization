@@ -13,7 +13,7 @@ const dashboardRoutes: Routes = [
     children: [
       {
         path: '',
-        component: CompanyAddComponent
+        component: CompanyListComponent
       },
       {
         path: 'company',

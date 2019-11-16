@@ -11,7 +11,12 @@
     </div>
   </div>
   <div class="row">
-    <div *ngFor="let item of pageOfItems" class="col-lg-12 col-xl-6 my-2">
+    <div class="search-bar" [formGroup]="filterForm">
+      <input formControlName="search" placeholder="Szukaj po nazwie">
+    </div>
+  </div>
+  <div class="row">
+    <div *ngFor="let company of (page | async)?.results" class="col-lg-12 col-xl-6 my-2">
       <div class="card h-100">
         <div class="card-body">
           <div class="company-item">
@@ -27,15 +32,15 @@
               <div class="col-md-12 col-lg-5 col-xl-5 d-flex">
                 <div class="company-name-container">
                   <h1 class="d-lg-none">Nazwa firmy</h1>
-                  <p class="company-name">{{ item.name }}</p>
+                  <p class="company-name">{{ company.nameShort }}</p>
                 </div>
               </div>
               <div class="col-md-12 col-lg-5 col-xl-5 d-lg-flex">
                 <div class="company-details">
                   <h1 class="d-lg-none">Dane firmy</h1>
-                  <p>{{ item.nip }}</p>
-                  <p>ul. {{ item.street }} {{ item.no }}</p>
-                  <p>{{ item.postcode }} {{ item.city }}</p>
+                  <p>{{ company.nip }}</p>
+                  <p>ul. {{ company.street }} {{ company.houseNo }}</p>
+                  <p>{{ company.postcode }} {{ company.city }}</p>
                 </div>
               </div>
               <div class="col-md-12 col-lg-2 col-xl-2 company-actions-container">
@@ -59,17 +64,7 @@
   </div>
   <div class="row">
     <div class="col">
-      <jw-pagination [items]="companies" (changePage)="onChangePage($event)"></jw-pagination>
+      <app-paginator [page]="page | async" (pageChange)="onPageChanged($event)"></app-paginator>
     </div>
   </div>
 </div>
-
-
-<!-- <div class="card text-center m-3">
-  <h3 class="card-header">Angular 8 Pagination Example</h3>
-  <div class="card-body">
-    <div *ngFor="let item of pageOfItems">{{item.name}}</div>
-  </div>
-  <div class="card-footer pb-0 pt-3">
-  </div>
-</div> -->
