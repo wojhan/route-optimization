@@ -12,10 +12,19 @@ import { CompaniesModule } from './companies/companies.module';
 import { JwPaginationComponent } from 'jw-angular-pagination';
 import { SharedModule } from './shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { PaginatorComponent } from './paginator/paginator.component';
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, AppRoutingModule, HttpClientModule, DashboardModule, LoginModule, CompaniesModule, BrowserAnimationsModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    DashboardModule,
+    LoginModule,
+    CompaniesModule,
+    BrowserAnimationsModule
+  ],
   providers: [UserService, AuthGuard],
   bootstrap: [AppComponent]
 })

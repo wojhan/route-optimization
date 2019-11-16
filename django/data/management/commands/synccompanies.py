@@ -1,10 +1,7 @@
 import json
-import pprint
 import logging
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from data.models import Company
-import requests
-import time
 
 logger = logging.getLogger('data')
 
