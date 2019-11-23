@@ -1,19 +1,17 @@
-import { Injectable } from '@angular/core';
-import { of, Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { Injectable } from "@angular/core";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class DashboardService {
   private isSidebarHidden: boolean;
 
   constructor() {
-    this.isSidebarHidden = localStorage.getItem('isSidebarHidden') === 'false' ? false : true;
+    this.isSidebarHidden =
+      localStorage.getItem("isSidebarHidden") === "false" ? false : true;
     if (!this.isSidebarHidden) {
       this.isSidebarHidden = false;
     }
-    console.log(this.isSidebarHidden);
   }
 
   setIsSidebarHidden(value: boolean): void {

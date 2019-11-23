@@ -1,82 +1,73 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+import { Injectable } from "@angular/core";
+import {
+  HttpClient,
+  HttpHeaders,
+  HttpErrorResponse
+} from "@angular/common/http";
+import { Observable, of, Subject } from "rxjs";
+import { map } from "rxjs/operators";
+import { environment } from "src/environments/environment";
+import { CookieService } from "ngx-cookie-service";
+import { Router } from "@angular/router";
 
 @Injectable()
 export class UserService {
-  // http options used for making API calls
   private httpOptions: any;
-
-  // the actual JWT token
   public token: string;
-
-  // the username of the logged in user
-  public username: string;
-
-  // error messages received from the login attempt
+  public username: Subject<string> = new Subject();
   public errors: HttpErrorResponse[] = [];
+  public userHyperlink: Subject<string> = new Subject();
 
-  constructor(private http: HttpClient) {
-    this.httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin:': '*'
-      }),
-      responsesType: 'text'
-    };
+  constructor(
+    public http: HttpClient,
+    public cookieService: CookieService,
+    private router: Router
+  ) {
+    console.log(this.http);
+    this.userHyperlink.subscribe(this.setUsername);
   }
 
-  // Uses http.post() to get an auth token from djangorestframework-jwt endpoint
   public login(user: User): void {
-    if (!environment.apiEnabled) {
-      this.token = user.username === 'admin' ? environment.adminToken : environment.userToken;
-      localStorage.setItem('token', this.token);
-      return;
-    }
     this.http
       .post(`${environment.apiUrl}api-token-auth/`, JSON.stringify(user), {
-        responseType: 'json',
+        responseType: "json",
         headers: new HttpHeaders({
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         })
       })
       .pipe(map((data: IAuthToken) => data.token))
       .subscribe(
         (data: string) => {
           this.token = data;
-          localStorage.setItem('token', this.token);
+          this.cookieService.set("access_token", this.token);
+          this.router.navigate(["/dashboard"]);
         },
         (err: HttpErrorResponse) => {
+          console.log(err);
           this.errors = err.error;
         }
       );
   }
 
-  public getUsername(): Observable<string> {
-    if (!environment.apiEnabled) {
-      if (this.token === environment.adminToken) {
-        return of('admin');
-      } else if (this.token === environment.userToken) {
-        return of('user');
-      }
-    }
-    return this.http
-      .get(`${environment.apiUrl}api/users/current`, {
-        responseType: 'json',
+  setUsername = (userLink): void => {
+    const token = this.cookieService.get("access_token");
+    this.http
+      .get(userLink, {
+        responseType: "json",
         headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-          Authorization: `Token ${this.token}`,
-          'Access-Control-Allow-Origin:': '*'
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`
         })
       })
-      .pipe(map((data: User) => data.username));
-  }
+      .pipe(map((data: User) => data.username))
+      .subscribe(user => {
+        this.username.next(user);
+      });
+  };
 
   public logout() {
     this.token = null;
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     this.username = null;
   }
 }
@@ -86,12 +77,12 @@ export class User {
   password: string;
 
   constructor() {
-    this.username = '';
-    this.password = '';
+    this.username = "";
+    this.password = "";
   }
 
   toString(): string {
-    return this.username + ' ' + this.password;
+    return this.username + " " + this.password;
   }
 }
 

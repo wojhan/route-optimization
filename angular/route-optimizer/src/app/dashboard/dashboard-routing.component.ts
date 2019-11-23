@@ -1,35 +1,38 @@
-import { Routes, RouterModule } from '@angular/router';
-import { NgModule } from '@angular/core';
-import { DashboardComponent } from './dashboard.component';
-import { DashboardHomeComponent } from './dashboard-home.component';
-import { CompanyAddComponent } from '../companies/company-add/company-add.component';
-import { CompanyListComponent } from '../companies/company-list/company-list.component';
-import { CompaniesComponent } from '../companies/companies.component';
+import { Routes, RouterModule } from "@angular/router";
+import { NgModule } from "@angular/core";
+import { DashboardComponent } from "./dashboard.component";
+import { DashboardHomeComponent } from "./dashboard-home.component";
+import { CompanyAddComponent } from "../companies/company-add/company-add.component";
+import { CompanyListComponent } from "../companies/company-list/company-list.component";
+import { CompaniesComponent } from "../companies/companies.component";
+import { AuthGuard } from "../shared/guards/auth.guard";
 
 const dashboardRoutes: Routes = [
   {
-    path: 'dashboard',
+    path: "dashboard",
     component: DashboardComponent,
     children: [
       {
-        path: '',
-        component: CompanyListComponent
+        path: "",
+        component: DashboardHomeComponent
       },
       {
-        path: 'company',
+        path: "company",
         component: CompaniesComponent,
         children: [
           {
-            path: '',
+            path: "",
             component: CompanyListComponent
           },
           {
-            path: 'add',
+            path: "add",
             component: CompanyAddComponent
           }
-        ]
+        ],
+        canActivate: [AuthGuard]
       }
-    ]
+    ],
+    canActivate: [AuthGuard]
   }
 ];
 

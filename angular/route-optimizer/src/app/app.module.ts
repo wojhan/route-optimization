@@ -1,18 +1,16 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { BrowserModule } from "@angular/platform-browser";
+import { NgModule } from "@angular/core";
+import { HttpClientModule } from "@angular/common/http";
+import { CookieService } from "ngx-cookie-service";
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { UserService } from './shared/services/user.service';
-import { AuthGuard } from './shared/guards/auth.guard';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { LoginModule } from './login/login.module';
-import { CompaniesModule } from './companies/companies.module';
-import { JwPaginationComponent } from 'jw-angular-pagination';
-import { SharedModule } from './shared/shared.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { PaginatorComponent } from './paginator/paginator.component';
+import { AppRoutingModule } from "./app-routing.module";
+import { AppComponent } from "./app.component";
+import { UserService } from "./shared/services/user.service";
+import { AuthGuard } from "./shared/guards/auth.guard";
+import { DashboardModule } from "./dashboard/dashboard.module";
+import { LoginModule } from "./login/login.module";
+import { CompaniesModule } from "./companies/companies.module";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 @NgModule({
   declarations: [AppComponent],
@@ -25,7 +23,7 @@ import { PaginatorComponent } from './paginator/paginator.component';
     CompaniesModule,
     BrowserAnimationsModule
   ],
-  providers: [UserService, AuthGuard],
+  providers: [UserService, AuthGuard, CookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
