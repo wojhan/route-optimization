@@ -1,13 +1,29 @@
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
 from rest_framework import serializers
-from data.models import Company
+from rest_framework.authtoken.models import Token
+
+from data.models import BusinessTrip, Company, Profile, Requistion
+from django.contrib.auth.models import User
+
+
+class BasicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'is_staff']
+        fields = ['url', 'username', 'first_name',
+                  'last_name', 'email', 'is_staff']
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    user = BasicUserSerializer()
+
+    class Meta:
+        model = Profile
+        fields = ['user']
 
 
 class CompanySerializer(serializers.HyperlinkedModelSerializer):
@@ -23,3 +39,24 @@ class TokenSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Token
         fields = ['key', 'user']
+
+
+class RequistionSerializer(serializers.HyperlinkedModelSerializer):
+    company = CompanySerializer()
+
+    class Meta:
+        model = Requistion
+        fields = ['estimated_profit', 'company',
+                  'assignment_date']
+
+
+class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
+    assignee = ProfileSerializer()
+    requistions = RequistionSerializer(many=True)
+    estimated_profit = serializers.ReadOnlyField()
+    duration = serializers.ReadOnlyField()
+
+    class Meta:
+        model = BusinessTrip
+        fields = ['start_date', 'finish_date', 'duration',
+                  'assignee', 'requistions', 'estimated_profit']
