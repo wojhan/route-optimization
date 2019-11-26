@@ -1,19 +1,53 @@
 import random
 import copy
+import math
+import json
 
 
-class Population:
-    population = []
+class RouteOptimizer:
+    def __init__(self, depots, companies, hotels, tmax):
+        self.depots = depots
+        self.companies = companies
+        self.hotels = hotels
+        self.tmax = tmax
+        self.population = []
+
+        self.generate_random_routes(100)
+
+    def generate_random_routes(self, n):
+        self.population.append([])
+        for i in range(200):
+            route = Route([self.depots[0], self.hotels[0]])
+            tmp_vertices = self.companies.copy()
+
+            while route.distance <= self.tmax and tmp_vertices:
+                random_insert_index = random.randint(
+                    1, len(route.route) - 2) if len(route.route) > 2 else 1
+                random_vertex_index = random.randint(0, len(tmp_vertices) - 1)
+
+                vertex = tmp_vertices[random_vertex_index]
+
+                route.add_stop(random_insert_index, vertex)
+
+                if route.distance > self.tmax:
+                    route.remove_stop(vertex)
+                    break
+                else:
+                    tmp_vertices.remove(vertex)
+            self.population[0].append(route)
+        self.population[0] = sorted(
+            self.population[0], key=lambda x: x.profit, reverse=True)
 
 
 class Vertex:
-    def __init__(self, name, x):
+    def __init__(self, name, coords):
         self.name = name
-        self.x = x
+        self.lat = coords['lat']
+        self.lng = coords['lng']
         self.profit = 0
 
     def __repr__(self):
-        return self.name + ' at ' + str(self.x)
+        return self.name
 
     def __str__(self):
         return self.name
@@ -24,12 +58,12 @@ class Depot(Vertex):
 
 
 class Company(Vertex):
-    def __init__(self, name, x, profit):
-        super().__init__(name, x)
+    def __init__(self, name, coords, profit):
+        super().__init__(name, coords)
         self.profit = profit
 
     def __repr__(self):
-        return self.name + ' at ' + str(self.x) + ' profit - ' + str(self.profit)
+        return self.name + ' profit - ' + str(self.profit)
 
 
 class Hotel(Vertex):
@@ -49,7 +83,8 @@ class Route:
             self.distance += self.count_distance(route[index - 1], v)
 
     def count_distance(self, company_from, company_to):
-        return abs(company_to.x - company_from.x)
+        return math.sqrt(((company_to.lat - company_from.lat)**2) + ((math.cos((company_from.lat * math.pi)/180) * (company_to.lng - company_from.lng))**2)) * (40075.704 / 360)
+        # return abs(company_to.x - company_from.x)
 
     def recount_route(self):
         self.distance = 0
@@ -75,6 +110,9 @@ class Route:
         self.route[b] = tmp
         self.recount_route()
 
+    def get_route(self):
+        return json.dumps(self.route)
+
     def __repr__(self):
         string = ''
         for r in self.route:
@@ -84,20 +122,22 @@ class Route:
 
 
 class Breeding:
-    def __init__(self, population, mutation_rate=0.1, crossover_rate=1, elitism=0.01):
+    def __init__(self, vertices, population, tmax, mutation_rate=0.1, crossover_rate=1, elitism=0.01):
         self.population = population
         self.mutation_rate = mutation_rate
         self.crossover_rate = crossover_rate
         self.elitism = elitism
+        self.tmax = tmax
+        self.vertices = vertices
 
     def tournament_choose(self, k):
-        tmp_pop = population.copy()
+        tmp_pop = self.population.copy()
         parents = []
         for i in range(2):
             rand_indexes = random.sample(range(0, len(tmp_pop)), k)
             chosen = []
             for j in range(1, k):
-                chosen.append(population[rand_indexes[j]])
+                chosen.append(self.population[rand_indexes[j]])
             chosen = sorted(chosen, key=lambda x: x.profit, reverse=True)
             # tmp_pop.remove(chosen[0])
             parents.append(chosen[0])
@@ -135,10 +175,10 @@ class Breeding:
             # child_b = Route(
             #     parents[1].route[:cross_indexes[1]] + parents[0].route[cross_indexes[0]:])
 
-            if child_a.distance <= tmax and (child_a.profit > parents[0].profit or child_a.profit > parents[1].profit):
+            if child_a.distance <= self.tmax and (child_a.profit > parents[0].profit or child_a.profit > parents[1].profit):
                 children.append(child_a)
 
-            if child_b.distance <= tmax and (child_b.profit > parents[0].profit or child_b.profit > parents[1].profit):
+            if child_b.distance <= self.tmax and (child_b.profit > parents[0].profit or child_b.profit > parents[1].profit):
                 children.append(child_b)
 
         return children
@@ -154,7 +194,7 @@ class Breeding:
             # insert a new company
             if random_mutate_method == 0 and len(chosen_child.route) > 2:
                 vertices_to_select = [
-                    v for v in vertices if v not in chosen_child.route]
+                    v for v in self.vertices if v not in chosen_child.route]
                 random_insert_index = random.randint(
                     1, len(chosen_child.route) - 2)
                 # TODO validate if vertices exist
@@ -162,14 +202,14 @@ class Breeding:
                     0, len(vertices_to_select) - 1)]
                 chosen_child.add_stop(random_insert_index, random_vertex)
 
-                if chosen_child.distance <= tmax:
+                if chosen_child.distance <= self.tmax:
                     crossovered_children[random_children_index] = chosen_child
             elif random_mutate_method == 1 and len(chosen_child.route) > 3:
                 swap_indexes = random.sample(
                     range(1, len(chosen_child.route) - 2), 2)
                 chosen_child.swap_stops(swap_indexes[0], swap_indexes[1])
 
-                if chosen_child.distance <= tmax:
+                if chosen_child.distance <= self.tmax:
                     crossovered_children[random_children_index] = chosen_child
         return crossovered_children
 
@@ -183,58 +223,62 @@ class Breeding:
         self.population = self.population[:100]
 
 
-Population.population.append([])
-depots = []
-vertices = []
-hotels = []
+# def generate_random_vertices(vertices_no, hotels_no):
+#     for j in range(20):
+#         random_lat = random.randint(20, 30)
+#         random_lng = random.randint(15, 20)
+#         random_profit = random.randint(2, 10)
+#         coords = dict(lat=random_lat, lng=random_lng)
 
-# generate graph
-for j in range(20):
-    random_x = random.randint(5, 40)
-    random_profit = random.randint(2, 10)
+#         if j == 0:
+#             depots.append(Depot(str(j), coords))
+#         elif j == 19 or j == 4:
+#             hotels.append(Hotel(str(j), coords))
+#         else:
+#             vertices.append(
+#                 Company(str(j), coords, random_profit))
 
-    if j == 0:
-        depots.append(Depot(str(j), random_x))
-    elif j == 19 or j == 4:
-        hotels.append(Hotel(str(j), random_x))
-    else:
-        vertices.append(
-            Company(str(j), random_x, random_profit))
 
-tmax = 20
-# generate random routes
-for i in range(200):
-    route = Route([depots[0], hotels[0]])
-    tmp_vertices = vertices.copy()
+# Population.population.append([])
+# depots = []
+# vertices = []
+# hotels = []
 
-    while route.distance <= tmax and tmp_vertices:
-        random_insert_index = random.randint(
-            1, len(route.route) - 2) if len(route.route) > 2 else 1
-        random_vertex_index = random.randint(0, len(tmp_vertices) - 1)
 
-        vertex = tmp_vertices[random_vertex_index]
+# tmax = 20
+# # generate random routes
+# for i in range(200):
+#     route = Route([depots[0], hotels[0]])
+#     tmp_vertices = vertices.copy()
 
-        route.add_stop(random_insert_index, vertex)
+#     while route.distance <= tmax and tmp_vertices:
+#         random_insert_index = random.randint(
+#             1, len(route.route) - 2) if len(route.route) > 2 else 1
+#         random_vertex_index = random.randint(0, len(tmp_vertices) - 1)
 
-        if route.distance > tmax:
-            route.remove_stop(vertex)
-            break
-        else:
-            tmp_vertices.remove(vertex)
-    Population.population[0].append(route)
-Population.population[0] = sorted(
-    Population.population[0], key=lambda x: x.profit, reverse=True)
+#         vertex = tmp_vertices[random_vertex_index]
 
-# print(Population.population[0])
+#         route.add_stop(random_insert_index, vertex)
 
-for i in range(1, 5000):
-    population = Population.population[i-1].copy()
-    Population.population.append(population)
-    b = Breeding(Population.population[i])
-    b.breed()
-    Population.population[i] = sorted(
-        Population.population[i], key=lambda x: x.profit, reverse=True)
-    # print(Population.population[i])
+#         if route.distance > tmax:
+#             route.remove_stop(vertex)
+#             break
+#         else:
+#             tmp_vertices.remove(vertex)
+#     Population.population[0].append(route)
+# Population.population[0] = sorted(
+#     Population.population[0], key=lambda x: x.profit, reverse=True)
 
-print(Population.population[-1][0].profit,
-      Population.population[-1][0].distance)
+# # print(Population.population[0])
+
+# for i in range(1, 5000):
+#     population = Population.population[i-1].copy()
+#     Population.population.append(population)
+#     b = Breeding(Population.population[i])
+#     b.breed()
+#     Population.population[i] = sorted(
+#         Population.population[i], key=lambda x: x.profit, reverse=True)
+#     # print(Population.population[i])
+
+# print(Population.population[-1][0].profit,
+#       Population.population[-1][0].distance)
