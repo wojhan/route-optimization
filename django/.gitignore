@@ -185,5 +185,6 @@ dmypy.json
 
 
 staticfiles/
+rejestriodata/*/*.json
 
 # End of https://www.gitignore.io/api/react,python,django,visualstudiocode

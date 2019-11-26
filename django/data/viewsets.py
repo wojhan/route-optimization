@@ -6,8 +6,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Company
-from .serializers import UserSerializer, CompanySerializer, TokenSerializer
+from .models import Company, BusinessTrip, Requistion
+from .serializers import UserSerializer, CompanySerializer, TokenSerializer, BusinessTripSerializer, RequistionSerializer
 import json
 
 
@@ -43,6 +43,16 @@ class ObtainUserFromTokenView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class BusinessTripViewSet(viewsets.ModelViewSet):
+    queryset = BusinessTrip.objects.all()
+    serializer_class = BusinessTripSerializer
+
+
+class RequistionViewSet(viewsets.ModelViewSet):
+    queryset = Requistion.objects.all()
+    serializer_class = RequistionSerializer
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
