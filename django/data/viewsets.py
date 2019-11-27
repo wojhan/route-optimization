@@ -31,24 +31,24 @@ class RouteView(APIView):
         requistions = Requistion.objects.all()
 
         depot_company = Company.objects.get(pk=5)
-        depots = [genetic.Depot(depot_company.name, dict(
+        depots = [genetic.Depot(str(depot_company.pk), dict(
             lat=depot_company.latitude, lng=depot_company.longitude))]
 
         hotel_companies = (Company.objects.get(pk=2),
                            Company.objects.get(pk=3))
         hotels = [
-            genetic.Hotel(hotel_companies[0].name, dict(
+            genetic.Hotel(str(hotel_companies[0].pk), dict(
                 lat=hotel_companies[0].latitude, lng=hotel_companies[0].longitude)),
-            genetic.Hotel(hotel_companies[1].name, dict(lat=hotel_companies[1].latitude, lng=hotel_companies[1].longitude))]
+            genetic.Hotel(str(hotel_companies[1].pk), dict(lat=hotel_companies[1].latitude, lng=hotel_companies[1].longitude))]
 
         companies = []
         for requstion in requistions:
-            company = genetic.Company(requstion.company.name, dict(
+            company = genetic.Company(str(requstion.company.pk), dict(
                 lat=requstion.company.latitude, lng=requstion.company.longitude), requstion.estimated_profit)
             companies.append(company)
 
-        ro = genetic.RouteOptimizer(depots, companies, hotels, 150)
-        routes = []
+        ro = genetic.RouteOptimizer(depots, companies, hotels, 250)
+        routes = [[], []]
         for r in ro.population[0]:
             # print(route.route)
             route = []
@@ -61,7 +61,22 @@ class RouteView(APIView):
                             'lng': stop.lng
                         }
                     })
-            routes.append(route)
+            routes[0].append(route)
+        ro.run(2000)
+        for r in ro.population[-1]:
+            # print(route.route)
+            route = []
+            for stop in r.route:
+                route.append(
+                    {
+                        'name': stop.name,
+                        'coords': {
+                            'lat': stop.lat,
+                            'lng': stop.lng
+                        }
+                    })
+            routes[1].append(route)
+        # routes[1].append(route)
         return Response(json.dumps(routes, ensure_ascii=False))
 
 

@@ -23,6 +23,7 @@ export class DashboardHomeComponent implements OnInit, OnChanges {
   lng = 23.1467987;
 
   public dir = undefined;
+  public dir1 = undefined;
 
   constructor(
     public http: HttpClient,
@@ -49,9 +50,35 @@ export class DashboardHomeComponent implements OnInit, OnChanges {
       })
       .subscribe((data: any) => {
         const routes = JSON.parse(data);
-        const correct_route = routes[0];
+        const correct_route = routes[1][0];
+        const start_route = routes[0][0];
+
+        console.log(correct_route);
+        console.log(start_route);
 
         let waypoints = [];
+        for (let i = 1; i < start_route.length - 1; i++) {
+          waypoints.push({
+            location: {
+              lat: +start_route[i].coords.lng.toFixed(7),
+              lng: +start_route[i].coords.lat.toFixed(7)
+            }
+          });
+        }
+
+        this.dir = {};
+        this.dir.waypoints = waypoints;
+        this.dir.origin = {
+          lat: +start_route[0].coords.lng.toFixed(7),
+          lng: +start_route[0].coords.lat.toFixed(7)
+        };
+
+        this.dir.destination = {
+          lat: +start_route[start_route.length - 1].coords.lng.toFixed(7),
+          lng: +start_route[start_route.length - 1].coords.lat.toFixed(7)
+        };
+
+        waypoints = [];
         for (let i = 1; i < correct_route.length - 1; i++) {
           waypoints.push({
             location: {
@@ -61,18 +88,18 @@ export class DashboardHomeComponent implements OnInit, OnChanges {
           });
         }
 
-        this.dir = {};
-        this.dir.origin = {
+        this.dir1 = {};
+        this.dir1.waypoints = waypoints;
+        this.dir1.origin = {
           lat: +correct_route[0].coords.lng.toFixed(7),
           lng: +correct_route[0].coords.lat.toFixed(7)
         };
 
-        this.dir.destination = {
+        this.dir1.destination = {
           lat: +correct_route[correct_route.length - 1].coords.lng.toFixed(7),
           lng: +correct_route[correct_route.length - 1].coords.lat.toFixed(7)
         };
 
-        this.dir.waypoints = waypoints;
         this.cdRef.detectChanges();
       });
   }

@@ -8,3 +8,13 @@
     (status)="test($event)"
   ></agm-direction>
 </agm-map>
+<agm-map [latitude]="lat" [longitude]="lng">
+  <agm-direction
+    *ngIf="dir1"
+    [origin]="dir1.origin"
+    [destination]="dir1.destination"
+    [waypoints]="dir1.waypoints"
+    [optimizeWaypoints]="false"
+    (status)="test($event)"
+  ></agm-direction>
+</agm-map>

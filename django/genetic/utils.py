@@ -38,6 +38,20 @@ class RouteOptimizer:
         self.population[0] = sorted(
             self.population[0], key=lambda x: x.profit, reverse=True)
 
+    def run(self, iterations):
+        for i in range(1, iterations):
+            population = self.population[i-1].copy()
+            self.population.append(population)
+            b = Breeding(self.companies, self.population[i], self.tmax)
+            b.breed()
+            self.population[i] = sorted(
+                self.population[i], key=lambda x: x.profit, reverse=True)
+            # print(self.population[i])
+            # print(Population.population[i])
+
+        # print(Population.population[-1][0].profit,
+        #     Population.population[-1][0].distance)
+
 
 class Vertex:
     def __init__(self, name, coords):
@@ -89,8 +103,17 @@ class Route:
     def recount_route(self):
         self.distance = 0
         self.profit = 0
-        for index, v in enumerate(list(set(self.route))):
-            self.profit += v.profit
+        # for index, v in enumerate(list(set(self.route))):
+        #     self.profit += v.profit
+        profited = []
+        for index, v in enumerate(self.route):
+            if v not in profited:
+                profited.append(v)
+                self.profit += v.profit
+            else:
+                print("jeb")
+                self.profit -= v.profit
+        # print(profited)
         for index, v in enumerate(self.route):
             if index == 0:
                 continue
@@ -156,35 +179,35 @@ class Breeding:
             cross_indexes = [parent.route.index(
                 common_genes[rand_gene]) for parent in parents]
 
-            part_route = parents[0].route[:cross_indexes[0]]
-            joining_part_route = [
-                v for v in parents[1].route[cross_indexes[1]:-1] if v not in part_route]
+            # part_route = parents[0].route[:cross_indexes[0]]
+            # joining_part_route = [
+            #     v for v in parents[1].route[cross_indexes[1]:-1] if v not in part_route]
 
-            child_a = Route(part_route + joining_part_route +
-                            [parents[1].route[-1]])
+            # child_a = Route(part_route + joining_part_route +
+            #                 [parents[1].route[-1]])
 
-            part_route = parents[1].route[:cross_indexes[1]]
-            joining_part_route = [
-                v for v in parents[0].route[cross_indexes[0]:-1] if v not in part_route]
+            # part_route = parents[1].route[:cross_indexes[1]]
+            # joining_part_route = [
+            #     v for v in parents[0].route[cross_indexes[0]:-1] if v not in part_route]
 
-            child_b = Route(part_route + joining_part_route +
-                            [parents[0].route[-1]])
+            # child_b = Route(part_route + joining_part_route +
+            #                 [parents[0].route[-1]])
 
-            # child_a = Route(
-            #     parents[0].route[:cross_indexes[0]] + parents[1].route[cross_indexes[1]:])
-            # child_b = Route(
-            #     parents[1].route[:cross_indexes[1]] + parents[0].route[cross_indexes[0]:])
+            child_a = Route(
+                parents[0].route[:cross_indexes[0]] + parents[1].route[cross_indexes[1]:])
+            child_b = Route(
+                parents[1].route[:cross_indexes[1]] + parents[0].route[cross_indexes[0]:])
 
-            if child_a.distance <= self.tmax and (child_a.profit > parents[0].profit or child_a.profit > parents[1].profit):
+            if child_a.distance <= self.tmax:
                 children.append(child_a)
 
-            if child_b.distance <= self.tmax and (child_b.profit > parents[0].profit or child_b.profit > parents[1].profit):
+            if child_b.distance <= self.tmax:
                 children.append(child_b)
 
         return children
 
     def mutate(self, crossovered_children):
-        print(crossovered_children)
+        # print(crossovered_children)
         if crossovered_children:
             random_children_index = random.randint(
                 0, len(crossovered_children) - 1)
@@ -220,6 +243,8 @@ class Breeding:
             children = self.mutate(children)
 
         self.population += children
+        self.population = sorted(
+            self.population, key=lambda x: x.profit, reverse=True)
         self.population = self.population[:100]
 
 
