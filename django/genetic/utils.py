@@ -238,7 +238,6 @@ class Breeding:
 
                 child_a.recount_route()
                 child_b.recount_route()
-                
                 if child_a.distance <= self.tmax:
                     children.append(child_a)
 
@@ -273,10 +272,11 @@ class Breeding:
         # print(crossovered_children)
         population = population[:100]
         for i, chosen_child in enumerate(population):
-            child = copy.copy(chosen_child)
+            child = copy.deepcopy(chosen_child)
+            # import pdb;pdb.set_trace()
             # random_children_index = random.randint(
             #     0, len(population) - 1)
-            random_mutate_method = random.randint(0, 0)
+            random_mutate_method = random.randint(1, 1)
 
             # chosen_child = crossovered_children.copy()[random_children_index]
             # insert a new company
@@ -297,7 +297,7 @@ class Breeding:
                     chosen_child.recount_route()
             elif random_mutate_method == 1 and len(chosen_child.route) > 3:
                 swap_indexes = random.sample(
-                    range(1, len(chosen_child.route) - 2), 2)
+                    range(1, len(chosen_child.route) - 1), 2)
                 child.swap_stops(swap_indexes[0], swap_indexes[1])
 
                 if child.distance <= self.tmax:

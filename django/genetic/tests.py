@@ -91,5 +91,5 @@ class CreatingPopulationTestCase(TestCase):
         expected_profit = 0
         for company in ro.population[-1][0].route:
             expected_profit += company.profit
-
+        print(expected_profit)
         self.assertEqual(ro.population[-1][0].profit, expected_profit)

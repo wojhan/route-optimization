@@ -55,7 +55,8 @@ class RouteView(APIView):
                 'profit': r.profit,
                 'distance': r.distance,
                 'route': [],
-                'fitness': r.fitness
+                'fitness': r.fitness,
+                'max_profit': r.max_profit
             }
             for stop in r.route:
                 route['route'].append(
@@ -74,7 +75,9 @@ class RouteView(APIView):
                 'profit': r.profit,
                 'distance': r.distance,
                 'route': [],
-                'fitness': r.fitness
+                'fitness': r.fitness,
+                'max_profit': r.max_profit
+
             }
             for stop in r.route:
                 route['route'].append(
