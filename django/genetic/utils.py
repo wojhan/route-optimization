@@ -2,6 +2,7 @@ import random
 import copy
 import math
 import json
+import ipdb
 
 
 class RouteOptimizer:
@@ -36,7 +37,7 @@ class RouteOptimizer:
                     tmp_vertices.remove(vertex)
             self.population[0].append(route)
         self.population[0] = sorted(
-            self.population[0], key=lambda x: x.profit, reverse=True)
+            self.population[0], key=lambda x: (x.profit, -x.distance), reverse=True)
 
     def run(self, iterations):
         for i in range(1, iterations):
@@ -45,7 +46,7 @@ class RouteOptimizer:
             b = Breeding(self.companies, self.population[i], self.tmax)
             b.breed()
             self.population[i] = sorted(
-                self.population[i], key=lambda x: x.profit, reverse=True)
+                self.population[i], key=lambda x: (x.profit, -x.distance), reverse=True)
             # print(self.population[i])
             # print(Population.population[i])
 
@@ -90,7 +91,15 @@ class Route:
         self.distance = 0
         self.profit = 0
 
-        for index, v in enumerate(route):
+        # max_profit = 0
+        # min_profit = 10000
+        # max_distance = 0
+        # min_distance = 10000
+        # for index, v in enumerate(list(set(route))):
+        #     max_profit = max(max_profit, v.profit)
+        #     min_profit = min(min_profit, v.profit)
+
+        for index, v in enumerate(list(set(route))):
             self.profit += v.profit
             if index == 0:
                 continue
@@ -111,13 +120,16 @@ class Route:
                 profited.append(v)
                 self.profit += v.profit
             else:
-                print("jeb")
-                self.profit -= v.profit
+                pass
+                # print("jeb")
+                # self.profit -= v.profit
         # print(profited)
         for index, v in enumerate(self.route):
             if index == 0:
                 continue
             self.distance += self.count_distance(self.route[index - 1], v)
+
+        self.profit -= 0.4 * self.distance
 
     def add_stop(self, index, company):
         self.route.insert(index, company)
@@ -161,59 +173,100 @@ class Breeding:
             chosen = []
             for j in range(1, k):
                 chosen.append(self.population[rand_indexes[j]])
-            chosen = sorted(chosen, key=lambda x: x.profit, reverse=True)
+            chosen = sorted(chosen, key=lambda x: (
+                x.profit, -x.distance), reverse=True)
             # tmp_pop.remove(chosen[0])
             parents.append(chosen[0])
         return parents
 
     def crossover(self):
-        # parents = (self.population[0],
-        #            self.population[1])  # Route objects
-        parents = self.tournament_choose(10)
-        children = []
-        common_genes = list(
-            set(parents[0].route[1:-1]).intersection(parents[1].route[1:-1]))
+        # contains a list of routes in current population
+        tmp_routes = self.population.copy()
 
-        if len(common_genes) > 1:
-            rand_gene = random.randint(0, len(common_genes) - 1)
-            cross_indexes = [parent.route.index(
-                common_genes[rand_gene]) for parent in parents]
+        # tupple of coupled routes to crossover
+        parents = []
 
-            # part_route = parents[0].route[:cross_indexes[0]]
-            # joining_part_route = [
-            #     v for v in parents[1].route[cross_indexes[1]:-1] if v not in part_route]
+        # for each route couple them into tupple and add to parents variable
+        for i in range(0, len(tmp_routes), 2):
+            random_indexes = random.sample(range(0, len(tmp_routes)), 2)
 
-            # child_a = Route(part_route + joining_part_route +
-            #                 [parents[1].route[-1]])
+            parents.append([tmp_routes[random_indexes[0]],
+                            tmp_routes[random_indexes[1]]])
 
-            # part_route = parents[1].route[:cross_indexes[1]]
-            # joining_part_route = [
-            #     v for v in parents[0].route[cross_indexes[0]:-1] if v not in part_route]
+            random_indexes[1] = random_indexes[1] - \
+                1 if random_indexes[1] > random_indexes[0] else random_indexes[1]
+            tmp_routes.remove(tmp_routes[random_indexes[0]])
+            tmp_routes.remove(tmp_routes[random_indexes[1]])
 
-            # child_b = Route(part_route + joining_part_route +
-            #                 [parents[0].route[-1]])
+        # for each route couple try to do crossover operation
+        for i, parent in enumerate(parents):
+            children = []
+            common_genes = list(
+                set(parent[0].route[1:-1]).intersection(parent[1].route[1:-1]))
 
-            child_a = Route(
-                parents[0].route[:cross_indexes[0]] + parents[1].route[cross_indexes[1]:])
-            child_b = Route(
-                parents[1].route[:cross_indexes[1]] + parents[0].route[cross_indexes[0]:])
+            if len(common_genes) > 1:
+                rand_gene = random.randint(0, len(common_genes) - 1)
+                cross_indexes = [p.route.index(
+                    common_genes[rand_gene]) for p in parent]
 
-            if child_a.distance <= self.tmax:
-                children.append(child_a)
+                # part_route = parents[0].route[:cross_indexes[0]]
+                # joining_part_route = [
+                #     v for v in parents[1].route[cross_indexes[1]:-1] if v not in part_route]
 
-            if child_b.distance <= self.tmax:
-                children.append(child_b)
+                # child_a = Route(part_route + joining_part_route +
+                #                 [parents[1].route[-1]])
 
-        return children
+                # part_route = parents[1].route[:cross_indexes[1]]
+                # joining_part_route = [
+                #     v for v in parents[0].route[cross_indexes[0]:-1] if v not in part_route]
 
-    def mutate(self, crossovered_children):
+                # child_b = Route(part_route + joining_part_route +
+                #                 [parents[0].route[-1]])
+
+                child_a = Route(
+                    parent[0].route[:cross_indexes[0]] + parent[1].route[cross_indexes[1]:])
+                child_b = Route(
+                    parent[1].route[:cross_indexes[1]] + parent[0].route[cross_indexes[0]:])
+
+                if child_a.distance <= self.tmax:
+                    children.append(child_a)
+
+                if child_b.distance <= self.tmax:
+                    children.append(child_b)
+
+                if child_a.distance > self.tmax and child_b.distance > self.tmax:
+                    tmp_routes.append(parent[0])
+                    tmp_routes.append(parent[1])
+                    continue
+                    # return parent
+
+                if child_a.distance > self.tmax:
+                    if parent[0].profit == parent[1].profit:
+                        child_a = parent[0] if parent[0].distance < parent[1].distance else parent[1]
+                    else:
+                        child_a = parent[0] if parent[0].profit > parent[1].profit else parent[1]
+
+                if child_b.distance > self.tmax:
+                    if parent[0].profit == parent[1].profit:
+                        child_b = parent[0] if parent[0].distance < parent[1].distance else parent[1]
+                    else:
+                        child_b = parent[0] if parent[0].profit > parent[1].profit else parent[1]
+
+                tmp_routes.append(child_a)
+                tmp_routes.append(child_b)
+
+        # return children
+        return tmp_routes
+
+    def mutate(self, population):
         # print(crossovered_children)
-        if crossovered_children:
+        population = population[:100]
+        for i, chosen_child in enumerate(population):
             random_children_index = random.randint(
-                0, len(crossovered_children) - 1)
+                0, len(population) - 1)
             random_mutate_method = random.randint(0, 0)
 
-            chosen_child = crossovered_children.copy()[random_children_index]
+            # chosen_child = crossovered_children.copy()[random_children_index]
             # insert a new company
             if random_mutate_method == 0 and len(chosen_child.route) > 2:
                 vertices_to_select = [
@@ -221,31 +274,37 @@ class Breeding:
                 random_insert_index = random.randint(
                     1, len(chosen_child.route) - 2)
                 # TODO validate if vertices exist
+                if not vertices_to_select:
+                    continue
                 random_vertex = vertices_to_select[random.randint(
                     0, len(vertices_to_select) - 1)]
                 chosen_child.add_stop(random_insert_index, random_vertex)
 
                 if chosen_child.distance <= self.tmax:
-                    crossovered_children[random_children_index] = chosen_child
+                    population[random_children_index] = chosen_child
             elif random_mutate_method == 1 and len(chosen_child.route) > 3:
                 swap_indexes = random.sample(
                     range(1, len(chosen_child.route) - 2), 2)
                 chosen_child.swap_stops(swap_indexes[0], swap_indexes[1])
 
                 if chosen_child.distance <= self.tmax:
-                    crossovered_children[random_children_index] = chosen_child
-        return crossovered_children
+                    population[random_children_index] = chosen_child
+        return population
 
     def breed(self):
-        children = self.crossover()
+        self.population = self.crossover()
+        self.population = self.mutate(self.population)
 
-        if random.random() < self.mutation_rate and children:
-            children = self.mutate(children)
+        # if random.random() < self.mutation_rate and children:
+        #     children = self.mutate(children)
 
-        self.population += children
+        # self.population += children
         self.population = sorted(
-            self.population, key=lambda x: x.profit, reverse=True)
+            self.population, key=lambda x: (x.profit, -x.distance), reverse=True)
         self.population = self.population[:100]
+        string = [str(p.distance) + ' ' + str(p.profit)
+                  for p in self.population]
+        print(string)
 
 
 # def generate_random_vertices(vertices_no, hotels_no):
