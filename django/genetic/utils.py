@@ -47,6 +47,7 @@ class RouteOptimizer:
             b.breed()
             self.population[i] = sorted(
                 self.population[i], key=lambda x: (x.profit, -x.distance), reverse=True)
+        # import pdb;pdb.set_trace()
             # print(self.population[i])
             # print(Population.population[i])
 
@@ -105,7 +106,7 @@ class Route:
                 continue
             self.distance += self.count_distance(route[index - 1], v)
 
-    def count_distance(self, company_from, company_to):
+    def count_distance(self, company_from: Vertex, company_to: Vertex) -> float:
         return math.sqrt(((company_to.lat - company_from.lat)**2) + ((math.cos((company_from.lat * math.pi)/180) * (company_to.lng - company_from.lng))**2)) * (40075.704 / 360)
         # return abs(company_to.x - company_from.x)
 
@@ -129,7 +130,7 @@ class Route:
                 continue
             self.distance += self.count_distance(self.route[index - 1], v)
 
-        self.profit -= 0.4 * self.distance
+        self.profit -= self.distance
 
     def add_stop(self, index, company):
         self.route.insert(index, company)
@@ -262,8 +263,9 @@ class Breeding:
         # print(crossovered_children)
         population = population[:100]
         for i, chosen_child in enumerate(population):
-            random_children_index = random.randint(
-                0, len(population) - 1)
+            child = copy.copy(chosen_child)
+            # random_children_index = random.randint(
+            #     0, len(population) - 1)
             random_mutate_method = random.randint(0, 0)
 
             # chosen_child = crossovered_children.copy()[random_children_index]
@@ -278,17 +280,17 @@ class Breeding:
                     continue
                 random_vertex = vertices_to_select[random.randint(
                     0, len(vertices_to_select) - 1)]
-                chosen_child.add_stop(random_insert_index, random_vertex)
+                child.add_stop(random_insert_index, random_vertex)
 
-                if chosen_child.distance <= self.tmax:
-                    population[random_children_index] = chosen_child
+                if child.distance <= self.tmax:
+                    chosen_child = child
             elif random_mutate_method == 1 and len(chosen_child.route) > 3:
                 swap_indexes = random.sample(
                     range(1, len(chosen_child.route) - 2), 2)
-                chosen_child.swap_stops(swap_indexes[0], swap_indexes[1])
+                child.swap_stops(swap_indexes[0], swap_indexes[1])
 
-                if chosen_child.distance <= self.tmax:
-                    population[random_children_index] = chosen_child
+                if child.distance <= self.tmax:
+                    chosen_child = child
         return population
 
     def breed(self):
@@ -302,9 +304,9 @@ class Breeding:
         self.population = sorted(
             self.population, key=lambda x: (x.profit, -x.distance), reverse=True)
         self.population = self.population[:100]
-        string = [str(p.distance) + ' ' + str(p.profit)
-                  for p in self.population]
-        print(string)
+        # string = [str(p.distance) + ' ' + str(p.profit)
+        #           for p in self.population]
+        # print(string)
 
 
 # def generate_random_vertices(vertices_no, hotels_no):

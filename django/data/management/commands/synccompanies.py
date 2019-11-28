@@ -19,7 +19,7 @@ class Command(BaseCommand):
             logger.info(
                 'Syncing companies for {} in progress...'.format(voivodeship))
             for page in range(1, pages[voivodeship] + 1):
-                with open('{}_page{}.json'.format(voivodeship, page), 'r') as f:
+                with open('rejestriodata/{}/{}_page{}.json'.format(voivodeship, voivodeship, page), 'r') as f:
                     companies = json.loads(f.read())
 
                     for company in companies:

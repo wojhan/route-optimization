@@ -15,6 +15,7 @@ class Command(BaseCommand):
         parser.add_argument('requistions_count', nargs='+', type=int)
 
     def handle(self, *args, **options):
+        print(Company.objects.count())
         for i in range(options['requistions_count'][0]):
             random_company_id = random.randint(1, Company.objects.count())
             random_business_trip_id = random.randint(
@@ -22,6 +23,7 @@ class Command(BaseCommand):
             random_estimated_profit = random.randint(10, 200)
 
             company = Company.objects.get(pk=random_company_id)
+            # print(Company.objects.all()[0].pk)
             business_trip = BusinessTrip.objects.get(
                 pk=random_business_trip_id)
 

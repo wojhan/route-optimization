@@ -47,7 +47,7 @@ class RouteView(APIView):
                 lat=requstion.company.latitude, lng=requstion.company.longitude), requstion.estimated_profit)
             companies.append(company)
 
-        ro = genetic.RouteOptimizer(depots, companies, hotels, 200)
+        ro = genetic.RouteOptimizer(depots, companies, hotels, 140)
         routes = [[], []]
         for r in ro.population[0]:
             # print(route.route)
