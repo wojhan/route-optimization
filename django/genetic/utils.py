@@ -12,13 +12,20 @@ class RouteOptimizer:
         self.hotels = hotels
         self.tmax = tmax
         self.population = []
+        self.max_profit = self.count_max_profit(companies)
 
-        self.generate_random_routes(100)
+        self.generate_random_routes(200)
+
+    def count_max_profit(self, companies):
+        max_profit = 0
+        for company in companies:
+            max_profit = max(max_profit, company.profit)
+        return max_profit
 
     def generate_random_routes(self, n):
         self.population.append([])
-        for i in range(200):
-            route = Route([self.depots[0], self.hotels[0]])
+        for _ in range(n):
+            route = Route([self.depots[0], self.hotels[0]], self.max_profit)
             tmp_vertices = self.companies.copy()
 
             while route.distance <= self.tmax and tmp_vertices:
@@ -39,11 +46,25 @@ class RouteOptimizer:
         self.population[0] = sorted(
             self.population[0], key=lambda x: (x.profit, -x.distance), reverse=True)
 
+    def tournament_choose(self, population, t_size):
+        random_indexes = random.sample(range(0, len(population)), 3)
+        routes = []
+        for index in random_indexes:
+            routes.append(population[index])
+        routes.sort(key=lambda x: x.fitness, reverse=True)
+
+        return routes[0]
+
     def run(self, iterations):
         for i in range(1, iterations):
-            population = self.population[i-1].copy()
+            population = []
+            for j in range(200):
+                population.append(self.tournament_choose(
+                    self.population[i-1], 3))
+            # population = self.population[i-1].copy()
             self.population.append(population)
-            b = Breeding(self.companies, self.population[i], self.tmax)
+            b = Breeding(self.companies,
+                         self.population[i], self.tmax, self.max_profit)
             b.breed()
             self.population[i] = sorted(
                 self.population[i], key=lambda x: (x.profit, -x.distance), reverse=True)
@@ -87,18 +108,12 @@ class Hotel(Vertex):
 
 
 class Route:
-    def __init__(self, route):
+    def __init__(self, route, max_profit):
         self.route = route
+        self.max_profit = max_profit
         self.distance = 0
         self.profit = 0
-
-        # max_profit = 0
-        # min_profit = 10000
-        # max_distance = 0
-        # min_distance = 10000
-        # for index, v in enumerate(list(set(route))):
-        #     max_profit = max(max_profit, v.profit)
-        #     min_profit = min(min_profit, v.profit)
+        self.fitness = 0
 
         for index, v in enumerate(list(set(route))):
             self.profit += v.profit
@@ -108,29 +123,23 @@ class Route:
 
     def count_distance(self, company_from: Vertex, company_to: Vertex) -> float:
         return math.sqrt(((company_to.lat - company_from.lat)**2) + ((math.cos((company_from.lat * math.pi)/180) * (company_to.lng - company_from.lng))**2)) * (40075.704 / 360)
-        # return abs(company_to.x - company_from.x)
 
     def recount_route(self):
         self.distance = 0
         self.profit = 0
-        # for index, v in enumerate(list(set(self.route))):
-        #     self.profit += v.profit
-        profited = []
-        for index, v in enumerate(self.route):
-            if v not in profited:
-                profited.append(v)
-                self.profit += v.profit
-            else:
-                pass
-                # print("jeb")
-                # self.profit -= v.profit
-        # print(profited)
+
+        for index, v in enumerate(list(set(self.route))):
+            self.profit += v.profit
+
+        self.fitness = (self.profit / self.max_profit) * 0.5
+
         for index, v in enumerate(self.route):
             if index == 0:
                 continue
-            self.distance += self.count_distance(self.route[index - 1], v)
-
-        self.profit -= self.distance
+            distance = self.count_distance(self.route[index - 1], v)
+            # distance_fitness = (1 - (distance / self.distance)) * 0.5
+            self.distance += distance
+            # self.fitness += distance_fitness
 
     def add_stop(self, index, company):
         self.route.insert(index, company)
@@ -158,12 +167,10 @@ class Route:
 
 
 class Breeding:
-    def __init__(self, vertices, population, tmax, mutation_rate=0.1, crossover_rate=1, elitism=0.01):
+    def __init__(self, vertices, population, tmax, max_profit):
         self.population = population
-        self.mutation_rate = mutation_rate
-        self.crossover_rate = crossover_rate
-        self.elitism = elitism
         self.tmax = tmax
+        self.max_profit = max_profit
         self.vertices = vertices
 
     def tournament_choose(self, k):
@@ -225,10 +232,13 @@ class Breeding:
                 #                 [parents[0].route[-1]])
 
                 child_a = Route(
-                    parent[0].route[:cross_indexes[0]] + parent[1].route[cross_indexes[1]:])
+                    parent[0].route[:cross_indexes[0]] + parent[1].route[cross_indexes[1]:], self.max_profit)
                 child_b = Route(
-                    parent[1].route[:cross_indexes[1]] + parent[0].route[cross_indexes[0]:])
+                    parent[1].route[:cross_indexes[1]] + parent[0].route[cross_indexes[0]:], self.max_profit)
 
+                child_a.recount_route()
+                child_b.recount_route()
+                
                 if child_a.distance <= self.tmax:
                     children.append(child_a)
 
@@ -284,6 +294,7 @@ class Breeding:
 
                 if child.distance <= self.tmax:
                     chosen_child = child
+                    chosen_child.recount_route()
             elif random_mutate_method == 1 and len(chosen_child.route) > 3:
                 swap_indexes = random.sample(
                     range(1, len(chosen_child.route) - 2), 2)
@@ -291,6 +302,7 @@ class Breeding:
 
                 if child.distance <= self.tmax:
                     chosen_child = child
+                    chosen_child.recount_route()
         return population
 
     def breed(self):

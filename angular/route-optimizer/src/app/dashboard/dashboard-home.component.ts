@@ -50,11 +50,12 @@ export class DashboardHomeComponent implements OnInit, OnChanges {
       })
       .subscribe((data: any) => {
         const routes = JSON.parse(data);
-        const correct_route = routes[1][0];
-        const start_route = routes[0][0];
+        console.log(routes);
+        const correct_route = routes[1][0].route;
+        const start_route = routes[0][0].route;
 
-        console.log(correct_route);
-        console.log(start_route);
+        console.log(routes);
+        console.log(routes);
 
         let waypoints = [];
         for (let i = 1; i < start_route.length - 1; i++) {

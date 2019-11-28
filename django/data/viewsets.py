@@ -51,9 +51,14 @@ class RouteView(APIView):
         routes = [[], []]
         for r in ro.population[0]:
             # print(route.route)
-            route = []
+            route = {
+                'profit': r.profit,
+                'distance': r.distance,
+                'route': [],
+                'fitness': r.fitness
+            }
             for stop in r.route:
-                route.append(
+                route['route'].append(
                     {
                         'name': stop.name,
                         'coords': {
@@ -62,12 +67,17 @@ class RouteView(APIView):
                         }
                     })
             routes[0].append(route)
-        ro.run(2000)
+        ro.run(500)
         for r in ro.population[-1]:
             # print(route.route)
-            route = []
+            route = {
+                'profit': r.profit,
+                'distance': r.distance,
+                'route': [],
+                'fitness': r.fitness
+            }
             for stop in r.route:
-                route.append(
+                route['route'].append(
                     {
                         'name': stop.name,
                         'coords': {

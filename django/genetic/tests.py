@@ -79,3 +79,17 @@ class CreatingPopulationTestCase(TestCase):
             for route in population:
                 # self.assertGreaterEqual(route.distance, 0)
                 self.assertLessEqual(route.distance, self.tmax)
+
+        # When the best route found
+        # There are no duplicates
+        expected_len_of_route = len(list(set(ro.population[-1][0].route)))
+        self.assertEqual(
+            len(ro.population[-1][0].route), expected_len_of_route)
+
+        # When the best route found
+        # Then its profit and profit's fitness are correct
+        expected_profit = 0
+        for company in ro.population[-1][0].route:
+            expected_profit += company.profit
+
+        self.assertEqual(ro.population[-1][0].profit, expected_profit)
