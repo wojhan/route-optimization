@@ -30,12 +30,12 @@ class RouteView(APIView):
     def get(self, request):
         requistions = Requistion.objects.all()
 
-        depot_company = Company.objects.get(pk=5)
+        depot_company = Company.objects.get(pk=4)
         depots = [genetic.Depot(str(depot_company.pk), dict(
             lat=depot_company.latitude, lng=depot_company.longitude))]
 
-        hotel_companies = (Company.objects.get(pk=2),
-                           Company.objects.get(pk=3))
+        hotel_companies = (Company.objects.get(pk=7),
+                           Company.objects.get(pk=10))
         hotels = [
             genetic.Hotel(str(hotel_companies[0].pk), dict(
                 lat=hotel_companies[0].latitude, lng=hotel_companies[0].longitude)),
@@ -47,7 +47,7 @@ class RouteView(APIView):
                 lat=requstion.company.latitude, lng=requstion.company.longitude), requstion.estimated_profit)
             companies.append(company)
 
-        ro = genetic.RouteOptimizer(depots, companies, hotels, 140)
+        ro = genetic.RouteOptimizer(depots, companies, hotels, 140, 2)
         routes = [[], []]
         for r in ro.population[0]:
             # print(route.route)
@@ -58,7 +58,7 @@ class RouteView(APIView):
                 'fitness': r.fitness,
                 'max_profit': r.max_profit
             }
-            for stop in r.route:
+            for stop in r.get_route():
                 route['route'].append(
                     {
                         'name': stop.name,
@@ -68,7 +68,7 @@ class RouteView(APIView):
                         }
                     })
             routes[0].append(route)
-        ro.run(500)
+        # ro.run(500)
         for r in ro.population[-1]:
             # print(route.route)
             route = {
@@ -79,7 +79,7 @@ class RouteView(APIView):
                 'max_profit': r.max_profit
 
             }
-            for stop in r.route:
+            for stop in r.get_route():
                 route['route'].append(
                     {
                         'name': stop.name,
