@@ -242,12 +242,15 @@ class Vertex:
 
 
 class Depot(Vertex):
-    pass
+    def __init__(self, name, coords):
+        super().__init__(name, coords)
+        self.stop_type = 'depot'
 
 
 class Company(Vertex):
     def __init__(self, name, coords, profit):
         super().__init__(name, coords)
+        self.stop_type = 'company'
         self.profit = profit
 
     def __repr__(self):
@@ -255,7 +258,9 @@ class Company(Vertex):
 
 
 class Hotel(Vertex):
-    pass
+    def __init__(self, name, coords):
+        super().__init__(name, coords)
+        self.stop_type = 'hotel'
 
 class SubRoute:
     def __init__(self, route, max_profit):

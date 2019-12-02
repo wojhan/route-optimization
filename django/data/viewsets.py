@@ -1,15 +1,19 @@
-from django.contrib.auth.models import User
-from rest_framework import viewsets
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Company, BusinessTrip, Requistion
-from .serializers import UserSerializer, CompanySerializer, TokenSerializer, BusinessTripSerializer, RequistionSerializer
 import json
+
+from rest_framework import status, viewsets
+from rest_framework.authtoken.models import Token
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from django.contrib.auth.models import User
 from genetic import utils as genetic
+from genetic.serializers import RouteSerializer
+
+from .models import BusinessTrip, Company, Requistion
+from .serializers import (BusinessTripSerializer, CompanySerializer,
+                          RequistionSerializer, TokenSerializer,
+                          UserSerializer)
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -48,49 +52,8 @@ class RouteView(APIView):
             companies.append(company)
 
         ro = genetic.RouteOptimizer(depots, companies, hotels, 140, 2)
-        routes = [[], []]
-        for r in ro.population[0]:
-            # print(route.route)
-            route = {
-                'profit': r.profit,
-                'distance': r.distance,
-                'route': [],
-                'fitness': r.fitness,
-                'max_profit': r.max_profit
-            }
-            for stop in r.get_route():
-                route['route'].append(
-                    {
-                        'name': stop.name,
-                        'coords': {
-                            'lat': stop.lat,
-                            'lng': stop.lng
-                        }
-                    })
-            routes[0].append(route)
-        # ro.run(500)
-        for r in ro.population[-1]:
-            # print(route.route)
-            route = {
-                'profit': r.profit,
-                'distance': r.distance,
-                'route': [],
-                'fitness': r.fitness,
-                'max_profit': r.max_profit
-
-            }
-            for stop in r.get_route():
-                route['route'].append(
-                    {
-                        'name': stop.name,
-                        'coords': {
-                            'lat': stop.lat,
-                            'lng': stop.lng
-                        }
-                    })
-            routes[1].append(route)
-        # routes[1].append(route)
-        return Response(json.dumps(routes, ensure_ascii=False))
+        route_serializer = RouteSerializer(ro.population[-1][0])
+        return Response(route_serializer.data)
 
 
 class ObtainUserFromTokenView(APIView):
