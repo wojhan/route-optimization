@@ -52,6 +52,7 @@ class RouteView(APIView):
             companies.append(company)
 
         ro = genetic.RouteOptimizer(depots, companies, hotels, 140, 2)
+        ro.run(100)
         route_serializer = RouteSerializer(ro.population[-1][0])
         return Response(route_serializer.data)
 
