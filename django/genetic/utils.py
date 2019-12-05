@@ -83,6 +83,50 @@ class RouteOptimizer:
         random_index = random.randint(0, top if len(nearest) - 1 >= top else len(nearest) - 1)
         return nearest[random_index]
 
+    def add_new_random_company_to_route(self, route, possible_companies, next_company):
+        while route.distance <= self.tmax and possible_companies:
+
+            random_insert_index = random.randint(1, len(route.route) - 1)
+
+            vertex_before = next_company(
+                route.route[random_insert_index - 1], possible_companies)
+            vertex_after = next_company(
+                route.route[random_insert_index], possible_companies)
+
+            if vertex_after[1] > vertex_before[1]:
+                vertex = vertex_after[0]
+            else:
+                vertex = vertex_before[0]
+
+            route.add_stop(random_insert_index, vertex)
+            possible_companies.remove(vertex)
+
+            # if does not exceed constraint then repeat previous step
+            if route.distance > self.tmax:
+                route.remove_stop(vertex)
+                possible_companies.append(vertex)
+                break
+        return route
+
+    def two_opt(self, route):
+        best_route = route
+        if len(route.route) > 3:
+            opt_range = min(len(route.route), 20)
+            proceeding_route = copy.deepcopy(route)
+            for i in range(opt_range):
+                for j in range(1, len(route.route) - 1):
+                    for k in range(i + 1, len(route.route) - 1):
+                        current_route = copy.deepcopy(proceeding_route)
+                        to_reverse = current_route.route[j:k]
+                        to_reverse.reverse()
+                        new_route = SubRoute(current_route.route[:j] + to_reverse + current_route.route[k:], self.max_profit)
+                        if new_route.distance < proceeding_route.distance:
+                            proceeding_route = new_route
+                            best_route = new_route
+        best_route.recount_route()
+        return best_route
+
+
     def generate_random_routes(self, n):
         self.population.append([])
 
@@ -114,90 +158,41 @@ class RouteOptimizer:
             '''
             for day in range(self.days):
                 subroute = route.routes[day]
-                while subroute.distance <= self.tmax and tmp_vertices:
-                    '''
-                    First phase
-                    Get random the best profit/distance vertices, try to add them to route. Repeat until there are vertices remains
-                    '''
-                    random_insert_index = random.randint(1, len(subroute.route) - 1)
+                
+                '''
+                First phase
+                Get random the best profit/distance vertices, try to add them to route. Repeat until there are vertices remains
+                '''
+                subroute = self.add_new_random_company_to_route(subroute, tmp_vertices, self.get_random_profitable_next_company_for_vertex)
 
-                    vertex_before=self.get_random_profitable_next_company_for_vertex(
-                        subroute.route[random_insert_index - 1], tmp_vertices)
-                    vertex_after=self.get_random_profitable_next_company_for_vertex(
-                        subroute.route[random_insert_index], tmp_vertices)
-
-                    if vertex_after[1] > vertex_before[1]:
-                        vertex=vertex_after[0]
-                    else:
-                        vertex=vertex_before[0]
-
-                    subroute.add_stop(random_insert_index, vertex)
-                    tmp_vertices.remove(vertex)
-
-                    # if does not exceed constraint then repeat previous step
-                    if subroute.distance > self.tmax:
-                        subroute.remove_stop(vertex)
-                        tmp_vertices.append(vertex)
-                        break
-
-                while subroute.distance <= self.tmax and tmp_vertices:
-                    '''
-                    Second phase
-                    Get random near vertices, try to add them to route. Repeat until there are vertices remains
-                    '''
-                    random_insert_index = random.randint(1, len(subroute.route) - 1)
-
-                    vertex_before = self.get_random_nearest_next_company_for_vertex(subroute.route[random_insert_index - 1], tmp_vertices)
-                    vertex_after = self.get_random_nearest_next_company_for_vertex(subroute.route[random_insert_index], tmp_vertices)
-
-                    if vertex_after[1] > vertex_before[1]:
-                        vertex=vertex_after[0]
-                    else:
-                        vertex=vertex_before[0]
-
-                    subroute.add_stop(random_insert_index, vertex)
-        #             sub_tour_vertices_tried[sub_tour_index].append(vertex)
-                    tmp_vertices.remove(vertex)
-
-                    # if does not exceed constraint then repeat previous step
-                    if subroute.distance > self.tmax:
-                        subroute.remove_stop(vertex)
-                        tmp_vertices.append(vertex)
-                        break
+                '''
+                Second phase
+                Get random near vertices, try to add them to route. Repeat until there are vertices remains
+                '''
+                subroute = self.add_new_random_company_to_route(subroute, tmp_vertices, self.get_random_nearest_next_company_for_vertex)
 
                 '''
                 TODO:Consider using that
                 Try remove some of vertices with the lowest ratio to get some savings
                 '''
-                # the_worst_neighbour = [None, 100000]
-                # for index, r in enumerate(subtour.ro):
-                #     previous_vertex_index = self.get_vertex_index(sub_route[index - 1])
-                #     current_vertex_index = self.get_vertex_index(r)
-                #     profit_by_distance = self.profits_by_distances[previous_vertex_index][current_vertex_index]
+                the_worst_neighbour = [None, 100000]
+                for index, r in enumerate(subroute.route[1:-1]):
+                    previous_vertex_index = self.get_vertex_index(subroute.route[index - 1])
+                    current_vertex_index = self.get_vertex_index(r)
+                    profit_by_distance = self.profits_by_distances[previous_vertex_index][current_vertex_index]
 
-                #     if profit_by_distance < the_worst_neighbour[1]:
-                #         the_worst_neighbour = [r, profit_by_distance]
+                    if profit_by_distance < the_worst_neighbour[1]:
+                        the_worst_neighbour = [r, profit_by_distance]
+
+                if the_worst_neighbour[0] and len(subroute.route) > 3:
+                    subroute.remove_stop(the_worst_neighbour[0])
                 
                 '''
                 Third phase
                 Get 2-opt operations
                 '''
-                best_route = subroute
-                if len(subroute.route) > 3:
-                    opt_range = min(len(subroute.route), 20)
-                    proceeding_route = copy.deepcopy(subroute)
-                    for i in range(opt_range):
-                        for j in range(1, len(subroute.route) - 1):
-                            for k in range(i + 1, len(subroute.route) - 1):
-                                current_route = copy.deepcopy(proceeding_route)
-                                to_reverse = current_route.route[j:k]
-                                to_reverse.reverse()
-                                new_route = SubRoute(current_route.route[:j] + to_reverse + current_route.route[k:], self.max_profit)
-                                if new_route.distance < proceeding_route.distance:
-                                    proceeding_route = new_route
-                                    best_route = new_route
-
-                    routes[day] = best_route
+                subroute = self.two_opt(subroute)
+                route.routes[day] = subroute
             route.recount_route()
             self.population[0].append(route)
         self.population[0].sort(key=lambda x: x.profit, reverse=True)
