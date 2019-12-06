@@ -1,3 +1,7 @@
 // -----------------------------------------------------------------------------
 // This file contains all styles related to the button component.
 // -----------------------------------------------------------------------------
+
+.dropdown-toggle.no-caret::after {
+  content: none;
+}

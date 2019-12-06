@@ -1,13 +1,13 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      <h1>Dodaj firmę do bazy</h1>
+      <h1 *ngIf="company">{{company.nameShort}}</h1>
     </div>
   </div>
   <div class="row">
     <div class="col-sm-12 col-xl-6">
-      <app-company-form [companyForm]="companyForm" (formChanged)="updateForm($event)" (formSent)="addCompany($event)"
-        submitButton="Dodaj">
+      <app-company-form [companyForm]="companyForm" (formChanged)="updateForm($event)" (formSent)="editCompany($event)"
+        submitButton="Zapisz">
       </app-company-form>
     </div>
     <div class="col-sm-12 col-xl-6">

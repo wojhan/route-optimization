@@ -5,6 +5,7 @@ import {
   ChangeDetectorRef,
   SimpleChanges
 } from "@angular/core";
+import { faBars, IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { Router } from "@angular/router";
 import { UserService, User } from "src/app/shared/services/user.service";
 import { DashboardService } from "./dashboard.service";
@@ -18,6 +19,7 @@ export class DashboardComponent implements OnInit, OnChanges {
   user: User;
   isSidebarHidden: boolean;
   wrapperClasses: any;
+  faBars: IconDefinition = faBars;
 
   constructor(
     private userService: UserService,
@@ -38,7 +40,6 @@ export class DashboardComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
     this.cdRef.detectChanges();
   }
 
