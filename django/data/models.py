@@ -28,10 +28,10 @@ class Company(models.Model):
     name = models.CharField(max_length=300, verbose_name='nazwa pełna')
     name_short = models.CharField(
         max_length=250, verbose_name='nazwa skrócona')
-    nip = models.CharField(max_length=11, verbose_name='nip')
+    nip = models.CharField(max_length=11, verbose_name='nip', unique=True)
     street = models.CharField(max_length=60, verbose_name='ulica')
     house_no = models.CharField(max_length=10, verbose_name='numer budynku')
-    postcode = models.CharField(max_length=6, verbose_name='kod pocztowy')
+    postcode = models.CharField(max_length=8, verbose_name='kod pocztowy')
     city = models.CharField(max_length=40, verbose_name='miasto')
     voivodeship = models.CharField(max_length=20, verbose_name='województwo')
     latitude = models.FloatField(
@@ -50,6 +50,13 @@ class Company(models.Model):
     class Meta:
         verbose_name = 'firma'
         verbose_name_plural = 'firmy'
+
+
+class Hotel(Company):
+
+    class Meta:
+        verbose_name = 'hotel'
+        verbose_name_plural = 'hotele'
 
 
 class BusinessTrip(models.Model):

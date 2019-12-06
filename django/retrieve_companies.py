@@ -26,7 +26,7 @@ from requests.packages.urllib3.util.retry import Retry
 
 voivodeships = {
     # 'mazowieckie': '14',
-    'podlaskie': '20',
+    # 'podlaskie': '20',
 }
 
 session = requests.Session()
@@ -78,3 +78,26 @@ for voivodeship, terc in voivodeships.items():
         with open('{}_page{}.json'.format(voivodeship, page), 'w+', encoding='utf-8') as company_data_file:
             json.dump(companies, company_data_file,
                       indent=4, ensure_ascii=False)
+
+r = requests.get('https://rejestr.io/api/v1/krs?name=hotel&per_page=100',
+                 headers={"Authorization": os.environ.get('REJESTRIO_API_KEY')})
+request_json = r.json()
+hotels = request_json['items']
+total = request_json['total']
+pages = math.ceil(total / 100)
+
+hotels = update_company(hotels)
+
+with open('rejestriodata/hotels/hotels_page{}.json'.format(1), 'w+', encoding='utf-8') as hotel_data_file:
+    json.dump(hotels, hotel_data_file, indent=4, ensure_ascii=False)
+
+for page in range(2, pages+1):
+    r = requests.get('https://rejestr.io/api/v1/krs?name=hotel&page={}&per_page=100'.format(page),
+                     headers={"Authorization": os.environ.get('REJESTRIO_API_KEY')})
+    request_json = r.json()
+    hotels = request_json['items']
+
+    hotels = update_company(hotels)
+
+    with open('rejestriodata/hotels/hotels_page{}.json'.format(page), 'w+', encoding='utf-8') as hotel_data_file:
+        json.dump(hotels, hotel_data_file, indent=4, ensure_ascii=False)

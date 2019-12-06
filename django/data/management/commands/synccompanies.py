@@ -1,7 +1,7 @@
 import json
 import logging
 from django.core.management.base import BaseCommand
-from data.models import Company
+from data.models import Company, Hotel
 
 logger = logging.getLogger('data')
 
@@ -10,15 +10,17 @@ class Command(BaseCommand):
     help = 'Closes the specified poll for voting'
 
     def handle(self, *args, **options):
-        voivodeships = ['podlaskie']
+        voivodeships = ['hotels', 'podlaskie']
         pages = {
-            'podlaskie': 113
+            'podlaskie': 113,
+            'hotels': 9
         }
         logger.info('Started sync companies from json files')
         for voivodeship in voivodeships:
             logger.info(
                 'Syncing companies for {} in progress...'.format(voivodeship))
-            for page in range(1, pages[voivodeship] + 1):
+            model = Hotel if voivodeship == 'hotels' else Company
+            for page in range(2, pages[voivodeship] + 1):
                 with open('rejestriodata/{}/{}_page{}.json'.format(voivodeship, voivodeship, page), 'r') as f:
                     companies = json.loads(f.read())
 
@@ -32,14 +34,19 @@ class Command(BaseCommand):
                         nip = company['nip']
                         street = company['address']['street']
                         house_no = company['address']['house_no']
-                        postcode = company['address']['code']
+                        postcode = company['address']['code'] if len(
+                            company['address']['code']) <= 6 else ''
                         city = company['address']['city']
                         lat = company['lat']
                         lng = company['lng']
 
-                        c = Company(name=name, name_short=name_short, nip=nip, street=street, house_no=house_no,
-                                    postcode=postcode, city=city, voivodeship=voivodeship, latitude=lat, longitude=lng)
-                        c.save()
+                        try:
+                            c = model(name=name, name_short=name_short, nip=nip, street=street, house_no=house_no,
+                                      postcode=postcode, city=city, voivodeship=voivodeship, latitude=lat, longitude=lng)
+                            c.save()
+                        except:
+                            logger.info(
+                                '{} is already in database, skipping'.format(name))
                 logger.info('Syncing {}_page{}.json is completed'.format(
                     voivodeship, page))
             logger.info('Syncing for {} is completed'.format(voivodeship))

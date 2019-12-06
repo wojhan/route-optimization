@@ -21,8 +21,11 @@ class Command(BaseCommand):
             random_business_trip_id = random.randint(
                 1, BusinessTrip.objects.count())
             random_estimated_profit = random.randint(10, 200)
-
-            company = Company.objects.get(pk=random_company_id)
+            print(random_company_id)
+            try:
+                company = Company.objects.get(pk=random_company_id)
+            except:
+                continue
             # print(Company.objects.all()[0].pk)
             business_trip = BusinessTrip.objects.get(
                 pk=random_business_trip_id)

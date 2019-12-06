@@ -40,7 +40,7 @@ class RouteOptimizer:
                     continue
                 distance = mpu.haversine_distance(
                     (vertex.lat, vertex.lng), (another_vertex.lat, another_vertex.lng))
-                profit_by_distance = another_vertex.profit / distance
+                profit_by_distance = another_vertex.profit / distance if distance != 0 else 0
                 vertex_distances.append(distance)
                 vertex_profits_by_distances.append(profit_by_distance)
             self.distances.append(vertex_distances)
@@ -71,6 +71,16 @@ class RouteOptimizer:
             most_profitable) - 1 >= top else len(most_profitable) - 1)
         return most_profitable[random_index]
 
+    def get_nearest_hotel_for_vertex(self, vertex):
+        nearby = []
+        vertex_index = self.get_vertex_index(vertex)
+
+        for index, value in enumerate(self.hotels):
+            nearby.append((value, self.distances[vertex_index][len(self.depots) + len(self.companies) + index]))
+
+        nearby.sort(key=lambda x: x[1])
+        return nearby[0][0]
+
     def get_random_nearest_next_company_for_vertex(self, vertex, remain_vertex, top=5):
         nearest = []
         vertex_index = self.get_vertex_index(vertex)
@@ -83,7 +93,9 @@ class RouteOptimizer:
         random_index = random.randint(0, top if len(nearest) - 1 >= top else len(nearest) - 1)
         return nearest[random_index]
 
-    def add_new_random_company_to_route(self, route, possible_companies, next_company):
+    def add_new_random_company_to_route(self, route, possible_companies, next_company, day):
+        first_route = route.route[0] == route.route[1]
+
         while route.distance <= self.tmax and possible_companies:
 
             random_insert_index = random.randint(1, len(route.route) - 1)
@@ -100,6 +112,18 @@ class RouteOptimizer:
 
             route.add_stop(random_insert_index, vertex)
             possible_companies.remove(vertex)
+
+            if first_route and route.distance <= self.tmax:
+                if day == 0:
+                    route.route[-1] = self.get_nearest_hotel_for_vertex(route.route[1])
+                elif day == self.days - 1:
+                    route.route[0] = self.get_nearest_hotel_for_vertex(route.route[1])
+                elif self.days > 2:
+                    route.route[0] = self.get_nearest_hotel_for_vertex(route.route[1])
+                    route.route[-1] = self.get_nearest_hotel_for_vertex(route.route[-2])
+
+                first_route = False
+                route.recount_route()
 
             # if does not exceed constraint then repeat previous step
             if route.distance > self.tmax:
@@ -131,23 +155,10 @@ class RouteOptimizer:
         self.population.append([])
 
         for _ in range(n):
-            random_hotels = [self.hotels[hotel_index] for hotel_index in random.sample(
-                range(0, self.days), self.days - 1)]
             routes = []
-            # TODO: Add condition for one day trips without hotels
-            for i, hotel in enumerate(random_hotels):
-                # start from depot
-                if i == 0:
-                    route = SubRoute([self.depots[0], hotel], self.max_profit)
-                    routes.append(route)
-
-                if len(random_hotels) > 1:
-                    route = SubRoute([hotel, random_hotels[i+1]], self.max_profit)
-                    routes.append(route)
-
-                if i == len(random_hotels) - 1:
-                    route = SubRoute([hotel, self.depots[0]], self.max_profit)
-                    routes.append(route)
+            for i in range(self.days):
+                route = SubRoute([self.depots[0], self.depots[0]], self.max_profit)
+                routes.append(route)
 
             route = Route(routes, self.max_profit)
             tmp_vertices = self.companies.copy()
@@ -163,13 +174,13 @@ class RouteOptimizer:
                 First phase
                 Get random the best profit/distance vertices, try to add them to route. Repeat until there are vertices remains
                 '''
-                subroute = self.add_new_random_company_to_route(subroute, tmp_vertices, self.get_random_profitable_next_company_for_vertex)
+                subroute = self.add_new_random_company_to_route(subroute, tmp_vertices, self.get_random_profitable_next_company_for_vertex, day)
 
                 '''
                 Second phase
                 Get random near vertices, try to add them to route. Repeat until there are vertices remains
                 '''
-                subroute = self.add_new_random_company_to_route(subroute, tmp_vertices, self.get_random_nearest_next_company_for_vertex)
+                subroute = self.add_new_random_company_to_route(subroute, tmp_vertices, self.get_random_nearest_next_company_for_vertex, day)
 
                 '''
                 TODO:Consider using that
@@ -187,11 +198,6 @@ class RouteOptimizer:
                 if the_worst_neighbour[0] and len(subroute.route) > 3:
                     subroute.remove_stop(the_worst_neighbour[0])
                 
-                '''
-                Third phase
-                Get 2-opt operations
-                '''
-                subroute = self.two_opt(subroute)
                 route.routes[day] = subroute
             route.recount_route()
             self.population[0].append(route)
@@ -209,10 +215,9 @@ class RouteOptimizer:
     def run(self, iterations):
         for i in range(1, iterations):
             population=[]
-            for j in range(200):
+            for j in range(100):
                 population.append(self.tournament_choose(
                     self.population[i-1], 5))
-            # population = self.population[i-1].copy()
             self.population.append(population)
             b=Breeding(self.companies,
                          self.population[i], self.tmax, self.max_profit, self.days)
@@ -391,7 +396,6 @@ class Breeding:
 
         # for each route couple try to do crossover operation
         for i, parent in enumerate(parents):
-            routes_for_parent = [parent[0].routes, parent[1].routes]
             for day in range(self.days):
             # for subroute in parent.routes:
                 parent_a_subroute = parent[0].routes[day]
@@ -420,15 +424,15 @@ class Breeding:
 
                     if child_a.distance > self.tmax:
                         if parent[0].routes[day].profit == parent[1].routes[day].profit:
-                            child_a = SubRoute(parent[0].routes[day], self.tmax) if parent[0].routes[day].distance < parent[1].routes[day].distance else SubRoute(parent[1].routes[day], self.tmax)
+                            child_a = parent[0].routes[day] if parent[0].routes[day].distance < parent[1].routes[day].distance else parent[1].routes[day]
                         else:
-                            child_a = SubRoute(parent[0].routes[day], self.tmax) if parent[0].routes[day].profit > parent[1].routes[day].profit else SubRoute(parent[1].routes[day], self.tmax)
+                            child_a = parent[0].routes[day] if parent[0].routes[day].profit > parent[1].routes[day].profit else parent[1].routes[day]
 
                     if child_b.distance > self.tmax:
                         if parent[0].routes[day].profit == parent[1].routes[day].profit:
-                            child_b = SubRoute(parent[0].routes[day], self.tmax) if parent[0].routes[day].distance < parent[1].routes[day].distance else SubRoute(parent[1].routes[day], self.tmax)
+                            child_b = parent[0].routes[day] if parent[0].routes[day].distance < parent[1].routes[day].distance else parent[1].routes[day]
                         else:
-                            child_b = SubRoute(parent[0].routes[day], self.tmax) if parent[0].routes[day].profit > parent[1].routes[day].profit else SubRoute(parent[1].routes[day], self.tmax)
+                            child_b = parent[0].routes[day] if parent[0].routes[day].profit > parent[1].routes[day].profit else parent[1].routes[day]
 
                     parent[0].routes[day] = child_a
                     parent[1].routes[day] = child_b
@@ -444,34 +448,34 @@ class Breeding:
                 '''
                 DELETE first phase - remove duplicates
                 '''
-                appearence_vertices = {}
-                for i, current_route in enumerate(child.routes):
-                    for j, current_vertex in enumerate(current_route.route[1:-1]):
-                        if current_vertex not in appearence_vertices:
-                            appearence_vertices[current_vertex] = []
-                        pre_distance = child.routes[i].count_distance(child.routes[i].route[j-1], current_vertex)
-                        post_distance = child.routes[i].count_distance(current_vertex, child.routes[i].route[j+1])
-                        distance =  pre_distance + post_distance
-                        appearence_vertices[current_vertex].append((distance, i, j))
+                # appearence_vertices = {}
+                # for i, current_route in enumerate(child.routes):
+                #     for j, current_vertex in enumerate(current_route.route[1:-1]):
+                #         if current_vertex not in appearence_vertices:
+                #             appearence_vertices[current_vertex] = []
+                #         pre_distance = child.routes[i].count_distance(child.routes[i].route[j-1], current_vertex)
+                #         post_distance = child.routes[i].count_distance(current_vertex, child.routes[i].route[j+1])
+                #         distance =  pre_distance + post_distance
+                #         appearence_vertices[current_vertex].append((distance, i, j))
                 
-                for vertex in appearence_vertices:
-                    appearence_vertices[vertex].sort(key=lambda x: x[0])
+                # for vertex in appearence_vertices:
+                #     appearence_vertices[vertex].sort(key=lambda x: x[0])
 
-                new_route = Route([], self.max_profit)
-                for i, current_route in enumerate(child.routes):
-                    new_subroute = SubRoute([], self.max_profit)
-                    for j, current_vertex in enumerate(current_route.route):
-                        if current_vertex not in appearence_vertices:
-                            new_subroute.route.append(current_vertex)
-                            continue
-                        vertices_to_exclude = appearence_vertices[current_vertex][1:]
-                        if (current_vertex, i, j) in vertices_to_exclude:
-                            continue
-                        new_subroute.route.append(current_vertex)
-                    new_subroute.recount_route()
-                    new_route.routes.append(new_subroute)
-                new_route.recount_route()
-                child = new_route
+                # new_route = Route([], self.max_profit)
+                # for i, current_route in enumerate(child.routes):
+                #     new_subroute = SubRoute([], self.max_profit)
+                #     for j, current_vertex in enumerate(current_route.route):
+                #         if current_vertex not in appearence_vertices:
+                #             new_subroute.route.append(current_vertex)
+                #             continue
+                #         vertices_to_exclude = appearence_vertices[current_vertex][1:]
+                #         if (current_vertex, i, j) in vertices_to_exclude:
+                #             continue
+                #         new_subroute.route.append(current_vertex)
+                #     new_subroute.recount_route()
+                #     new_route.routes.append(new_subroute)
+                # new_route.recount_route()
+                # child = new_route
                 
                 for route in child.routes:
                     '''
@@ -502,6 +506,18 @@ class Breeding:
                             route.remove_stop(random_vertex)
                             vertices_to_select.append(random_vertex)
                             break
+                            
+                if len(child.routes) == 2:
+                    distance_one = child.routes[0].count_distance(child.routes[0].route[-2], child.routes[0].route[-1])
+                    distance_two = child.routes[0].count_distance(child.routes[0].route[-2], child.routes[1].route[1])
+                    distance_three = child.routes[1].count_distance(child.routes[1].route[0], child.routes[1].route[1])
+                    distance_four = child.routes[1].count_distance(child.routes[0].route[-2], child.routes[1].route[1])
+
+                    if distance_one + distance_four < distance_three + distance_two:
+                        child.routes[1].route[0] = copy.deepcopy(child.routes[0].route[-1])
+                    else:
+                        child.routes[0].route[-1] = copy.deepcopy(child.routes[1].route[0])
+
                 parent = child
         
         population = []

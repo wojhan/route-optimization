@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from data.models import BusinessTrip, Company, Profile, Requistion
+from data.models import BusinessTrip, Company, Hotel, Profile, Requistion
 from django.contrib.auth.models import User
 
 
@@ -30,6 +30,14 @@ class CompanySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Company
+        fields = ['id', 'name', 'name_short', 'nip', 'street',
+                  'house_no', 'postcode', 'city', 'latitude', 'longitude']
+
+
+class HotelSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta(CompanySerializer):
+        model = Hotel
         fields = ['id', 'name', 'name_short', 'nip', 'street',
                   'house_no', 'postcode', 'city', 'latitude', 'longitude']
 
