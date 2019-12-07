@@ -1,20 +1,11 @@
-import {
-  Component,
-  OnInit,
-  Output,
-  Input,
-  EventEmitter,
-  AfterViewInit,
-  SimpleChanges,
-  OnChanges
-} from "@angular/core";
-import { FormGroup } from "@angular/forms";
-import { debounceTime } from "rxjs/operators";
+import { Component, OnInit, Output, Input, EventEmitter, AfterViewInit, SimpleChanges, OnChanges } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
-  selector: "app-company-form",
-  templateUrl: "./company-form.component.html",
-  styleUrls: ["./company-form.component.scss"]
+  selector: 'app-company-form',
+  templateUrl: './company-form.component.html',
+  styleUrls: ['./company-form.component.scss']
 })
 export class CompanyFormComponent implements OnInit, OnChanges {
   @Output()
@@ -38,11 +29,9 @@ export class CompanyFormComponent implements OnInit, OnChanges {
       const change = changes.companyForm;
 
       if (change.currentValue) {
-        this.companyForm.valueChanges
-          .pipe(debounceTime(300))
-          .subscribe((data: any) => {
-            this.formChanged.emit(data);
-          });
+        this.companyForm.valueChanges.pipe(debounceTime(300)).subscribe((data: any) => {
+          this.formChanged.emit(data);
+        });
       }
     }
   }

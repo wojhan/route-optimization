@@ -1,30 +1,22 @@
-import { Injectable } from "@angular/core";
-import { of, Observable } from "rxjs";
-import { map } from "rxjs/operators";
-import { environment } from "src/environments/environment";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Page, queryPaginated } from "../pagination";
-import { UserService } from "../shared/services/user.service";
+import { Injectable } from '@angular/core';
+import { of, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Page, queryPaginated } from '../pagination';
+import { UserService } from '../shared/services/user.service';
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root'
 })
 export class CompaniesService {
-  apiUrl = "http://localhost:8000/api/companies/";
+  apiUrl = 'http://localhost:8000/api/companies/';
   perPage = 40;
 
-  constructor(
-    private readonly http: HttpClient,
-    private userService: UserService
-  ) {}
+  constructor(private readonly http: HttpClient, private userService: UserService) {}
 
   list(urlOrFilter?: string | object): Observable<Page<Company>> {
-    return queryPaginated<Company>(
-      this.http,
-      this.apiUrl,
-      this.perPage,
-      urlOrFilter
-    );
+    return queryPaginated<Company>(this.http, this.apiUrl, this.perPage, urlOrFilter);
   }
 
   getCompany(companyId: number): Observable<Company> {
@@ -51,8 +43,8 @@ export class CompaniesService {
     });
   }
 
-  deleteCompany(company: Company): Observable<any> {
-    return this.http.delete(`${this.apiUrl}${company.id}/`, {
+  deleteCompany(companyId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}${companyId}/`, {
       headers: new HttpHeaders({
         Authorization: `Token ${this.userService.token}`
       })
@@ -60,11 +52,7 @@ export class CompaniesService {
   }
 
   getCoordsFromAddress(address: string): Observable<any> {
-    return this.http.get(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${localStorage.getItem(
-        "apiKey"
-      )}`
-    );
+    return this.http.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${localStorage.getItem('apiKey')}`);
   }
 }
 export class Company {
@@ -79,5 +67,3 @@ export class Company {
   latitude: number;
   longitude: number;
 }
-
-interface ApiMessage {}

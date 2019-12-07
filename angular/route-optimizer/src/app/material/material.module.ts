@@ -1,9 +1,9 @@
-import { NgModule } from "@angular/core";
-import { A11yModule } from "@angular/cdk/a11y";
-import { CdkStepperModule } from "@angular/cdk/stepper";
-import { CdkTableModule } from "@angular/cdk/table";
-import { CdkTreeModule } from "@angular/cdk/tree";
-import { DragDropModule } from "@angular/cdk/drag-drop";
+import { NgModule } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
+import { CdkStepperModule } from '@angular/cdk/stepper';
+import { CdkTableModule } from '@angular/cdk/table';
+import { CdkTreeModule } from '@angular/cdk/tree';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import {
   MatAutocompleteModule,
   MatBadgeModule,
@@ -40,9 +40,9 @@ import {
   MatToolbarModule,
   MatTooltipModule,
   MatTreeModule
-} from "@angular/material";
-import { PortalModule } from "@angular/cdk/portal";
-import { ScrollingModule } from "@angular/cdk/scrolling";
+} from '@angular/material';
+import { PortalModule } from '@angular/cdk/portal';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   exports: [

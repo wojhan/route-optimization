@@ -1,16 +1,17 @@
-import { BrowserModule } from "@angular/platform-browser";
-import { NgModule } from "@angular/core";
-import { HttpClientModule } from "@angular/common/http";
-import { CookieService } from "ngx-cookie-service";
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { CookieService } from 'ngx-cookie-service';
 
-import { AppRoutingModule } from "./app-routing.module";
-import { AppComponent } from "./app.component";
-import { UserService } from "./shared/services/user.service";
-import { AuthGuard } from "./shared/guards/auth.guard";
-import { DashboardModule } from "./dashboard/dashboard.module";
-import { LoginModule } from "./login/login.module";
-import { CompaniesModule } from "./companies/companies.module";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { UserService } from './shared/services/user.service';
+import { AuthGuard } from './shared/guards/auth.guard';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { LoginModule } from './login/login.module';
+import { CompaniesModule } from './companies/companies.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { EmployeesModule } from './employees/employees.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -21,7 +22,8 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
     DashboardModule,
     LoginModule,
     CompaniesModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    EmployeesModule
   ],
   providers: [UserService, AuthGuard, CookieService],
   bootstrap: [AppComponent]

@@ -13,9 +13,11 @@
       <a [routerLink]="['/dashboard/company/add']" href="#"
         class="list-group-item list-group-item-action bg-light">Dodaj firmę</a>
     </div>
-    <a class="list-group-item list-group-item-action bg-light">Pracownicy</a>
+    <a class="list-group-item list-group-item-action bg-light" [routerLink]="['/dashboard/employee']"
+      routerLinkActive="router-link-active">Pracownicy</a>
     <div class="list-group list-group-flush">
-      <a class="list-group-item list-group-item-action bg-light">Przeglądaj</a>
+      <a class="list-group-item list-group-item-action bg-light" [routerLink]="['/dashboard/employee']"
+        routerLinkActive="router-link-active">Przeglądaj</a>
       <a class="list-group-item list-group-item-action bg-light">Delegacje</a>
     </div>
   </div>
