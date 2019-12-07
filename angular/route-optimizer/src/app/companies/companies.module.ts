@@ -7,7 +7,7 @@ import { SharedModule } from "../shared/shared.module";
 import { RouterModule } from "@angular/router";
 import { PaginatorComponent } from "../paginator/paginator.component";
 import { CompanyEditComponent } from "./company-edit/company-edit.component";
-import { CompanyFormComponent } from './company-form/company-form.component';
+import { CompanyFormComponent } from "./company-form/company-form.component";
 
 @NgModule({
   declarations: [
@@ -16,7 +16,6 @@ import { CompanyFormComponent } from './company-form/company-form.component';
     CompanyDetailsComponent,
     CompanyAddComponent,
     CompanyEditComponent,
-    PaginatorComponent,
     CompanyFormComponent
   ],
   imports: [SharedModule, RouterModule]

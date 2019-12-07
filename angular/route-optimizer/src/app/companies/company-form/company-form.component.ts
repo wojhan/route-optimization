@@ -31,13 +31,7 @@ export class CompanyFormComponent implements OnInit, OnChanges {
 
   constructor() {}
 
-  ngOnInit() {
-    // this.companyForm.valueChanges
-    //   .pipe(debounceTime(300))
-    //   .subscribe((data: any) => {
-    //     this.formChanged.emit(data);
-    //   });
-  }
+  ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.companyForm) {

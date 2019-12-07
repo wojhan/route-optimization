@@ -8,9 +8,14 @@ import { AgmCoreModule } from "@agm/core";
 import { environment } from "src/environments/environment";
 import { DeleteModalComponent } from "./components/delete-modal/delete-modal.component";
 import { MaterialModule } from "../material/material.module";
+import { PaginatorComponent } from "../paginator/paginator.component";
 
 @NgModule({
-  declarations: [JwPaginationComponent, DeleteModalComponent],
+  declarations: [
+    JwPaginationComponent,
+    DeleteModalComponent,
+    PaginatorComponent
+  ],
   imports: [
     CommonModule,
     FontAwesomeModule,
@@ -33,7 +38,8 @@ import { MaterialModule } from "../material/material.module";
     MatFormFieldModule,
     MatInputModule,
     MaterialModule,
-    DeleteModalComponent
+    DeleteModalComponent,
+    PaginatorComponent
   ]
 })
 export class SharedModule {}
