@@ -34,7 +34,6 @@ export class AuthService {
           )
           .subscribe(
             (data: UserToken) => {
-              console.log(data);
               this.userService.userHyperlink.next(data.user);
               this.userService.token = data.key;
               subscriber.next(true);

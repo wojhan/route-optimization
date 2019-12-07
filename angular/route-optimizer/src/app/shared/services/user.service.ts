@@ -23,7 +23,6 @@ export class UserService {
     public cookieService: CookieService,
     private router: Router
   ) {
-    console.log(this.http);
     this.userHyperlink.subscribe(this.setUsername);
   }
 

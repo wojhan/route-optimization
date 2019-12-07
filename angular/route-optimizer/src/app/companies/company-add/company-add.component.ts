@@ -2,7 +2,6 @@ import { Component, OnInit } from "@angular/core";
 import { FormControl, Validators, FormGroup } from "@angular/forms";
 import { Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
-import { debounceTime } from "rxjs/operators";
 import { CompaniesService, Company } from "../companies.service";
 
 @Component({
@@ -25,31 +24,36 @@ export class CompanyAddComponent implements OnInit {
   ngOnInit() {
     this.companyForm = new FormGroup({
       name: new FormControl("", [Validators.required]),
+      nameShort: new FormControl("", [Validators.required]),
       nip: new FormControl("", [Validators.required]),
-      address: new FormControl("", [Validators.required]),
+      street: new FormControl(""),
+      houseNo: new FormControl("", [Validators.required]),
       postcode: new FormControl("", [Validators.required]),
-      city: new FormControl("", [Validators.required]),
-      state: new FormControl("", [Validators.required])
+      city: new FormControl("", [Validators.required])
     });
-    this.companyForm.valueChanges
-      .pipe(debounceTime(300))
-      .subscribe((data: any) => {
-        if (data.city && data.address) {
-          this.getCoordsFromAddress(`${data.address}, ${data.city}`).subscribe(
-            address => {
-              const results = address.results[0];
-              const location = results.geometry.location;
-              this.lng = location.lng;
-              this.lat = location.lat;
-            },
-            err => console.error(err)
-          );
-        }
-      });
+  }
+
+  updateForm(formData): void {
+    if (formData.city && formData.street && formData.houseNo) {
+      this.getCoordsFromAddress(
+        `${formData.street} ${formData.houseNo}, ${formData.city}`
+      ).subscribe(
+        address => {
+          const results = address.results[0];
+          const location = results.geometry.location;
+          this.lng = location.lng;
+          this.lat = location.lat;
+        },
+        err => console.error(err)
+      );
+    }
   }
 
   addCompany(): void {
-    const addressValue = this.companyForm.get("address").value;
+    const addressValue =
+      this.companyForm.get("street").value +
+      " " +
+      this.companyForm.get("houseNo").value;
     const postcodeValue = this.companyForm.get("postcode").value;
     const cityValue = this.companyForm.get("city").value;
 
@@ -65,10 +69,10 @@ export class CompanyAddComponent implements OnInit {
 
       const values = {
         name: this.companyForm.get("name").value,
-        nameShort: this.companyForm.get("name").value,
+        nameShort: this.companyForm.get("nameShort").value,
         nip: this.companyForm.get("nip").value,
-        street: this.companyForm.get("address").value.split(" ")[0],
-        houseNo: this.companyForm.get("address").value.split(" ")[1],
+        street: this.companyForm.get("street").value,
+        houseNo: this.companyForm.get("houseNo").value,
         postcode: this.companyForm.get("postcode").value,
         city: this.companyForm.get("city").value,
         latitude,
@@ -77,17 +81,13 @@ export class CompanyAddComponent implements OnInit {
       const company: Company = Object.assign(new Company(), values);
 
       this.companiesService.addCompany(company).subscribe(newCompany => {
-        console.log(newCompany);
+        //TODO: Verify response
       });
     });
   }
 
   getCoordsFromAddress(address: string): Observable<any> {
-    return this.http.get(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${localStorage.getItem(
-        "apiKey"
-      )}`
-    );
+    return this.companiesService.getCoordsFromAddress(address);
   }
 }
 

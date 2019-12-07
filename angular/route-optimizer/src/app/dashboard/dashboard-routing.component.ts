@@ -6,6 +6,8 @@ import { CompanyAddComponent } from "../companies/company-add/company-add.compon
 import { CompanyListComponent } from "../companies/company-list/company-list.component";
 import { CompaniesComponent } from "../companies/companies.component";
 import { AuthGuard } from "../shared/guards/auth.guard";
+import { CompanyEditComponent } from "../companies/company-edit/company-edit.component";
+import { CompanyDetailsComponent } from "../companies/company-details/company-details.component";
 
 const dashboardRoutes: Routes = [
   {
@@ -27,6 +29,14 @@ const dashboardRoutes: Routes = [
           {
             path: "add",
             component: CompanyAddComponent
+          },
+          {
+            path: "edit/:id",
+            component: CompanyEditComponent
+          },
+          {
+            path: ":id",
+            component: CompanyDetailsComponent
           }
         ],
         canActivate: [AuthGuard]
