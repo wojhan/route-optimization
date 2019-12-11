@@ -1,11 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from "@angular/core";
-import { CompaniesService, Company } from "../companies.service";
-import { ActivatedRoute } from "@angular/router";
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CompaniesService, Company } from '../companies.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: "app-company-details",
-  templateUrl: "./company-details.component.html",
-  styleUrls: ["./company-details.component.scss"]
+  selector: 'app-company-details',
+  templateUrl: './company-details.component.html',
+  styleUrls: ['./company-details.component.scss']
 })
 export class CompanyDetailsComponent implements OnInit {
   company: Company;
@@ -13,14 +13,10 @@ export class CompanyDetailsComponent implements OnInit {
   lng;
   zoom = 12;
 
-  constructor(
-    private companiesService: CompaniesService,
-    private route: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
-  ) {}
+  constructor(private companiesService: CompaniesService, private route: ActivatedRoute, private cdRef: ChangeDetectorRef) {}
 
   ngOnInit() {
-    const id = +this.route.snapshot.paramMap.get("id");
+    const id = +this.route.snapshot.paramMap.get('id');
 
     this.companiesService.getCompany(id).subscribe(company => {
       this.company = company;

@@ -1,14 +1,17 @@
-from django.contrib.auth.models import User
-from rest_framework import viewsets
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Company, BusinessTrip, Requistion
-from .serializers import UserSerializer, CompanySerializer, TokenSerializer, BusinessTripSerializer, RequistionSerializer
 import json
+
+from rest_framework import status, viewsets
+from rest_framework.authtoken.models import Token
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from django.contrib.auth.models import User
+
+from .models import BusinessTrip, Company, Requistion
+from .serializers import (BasicUserSerializer, BusinessTripSerializer,
+                          CompanySerializer, RequistionSerializer,
+                          TokenSerializer, UserSerializer)
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -36,6 +39,7 @@ class ObtainUserFromTokenView(APIView):
             else:
                 serializer = TokenSerializer(
                     token_obj, context={'request': request})
+                print(serializer.data)
                 return Response(serializer.data)
         return Response(json.dumps({'message': 'Token was not provided'}), status=status.HTTP_400_BAD_REQUEST)
 
@@ -43,6 +47,12 @@ class ObtainUserFromTokenView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class EmployeeViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.filter(is_staff=False)
+    serializer_class = BasicUserSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class BusinessTripViewSet(viewsets.ModelViewSet):
