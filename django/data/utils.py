@@ -1,7 +1,7 @@
 from .models import Company, Hotel, Requistion
 
 
-def generate_data_for_route(business_trip_id, data):
+def generate_data_for_route(business_trip, data):
     requistions = [Requistion.objects.get(
         id=requistion_data['id']) for requistion_data in data['requistions']]
 
@@ -20,5 +20,5 @@ def generate_data_for_route(business_trip_id, data):
     hotels = [dict(name=str(hotel.pk), coords=dict(
         lat=hotel.latitude, lng=hotel.longitude)) for hotel in Hotel.objects.all()]
 
-    return dict(business_trip_id=business_trip_id, depots=depots,
-                companies=companies, hotels=hotels, tmax=50, days=2)
+    return dict(business_trip_id=business_trip.id, depots=depots,
+                companies=companies, hotels=hotels, tmax=business_trip.distance_constraint, days=business_trip.duration)

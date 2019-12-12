@@ -1,6 +1,7 @@
 import copy
 import json
 import random
+from datetime import datetime
 
 import channels.layers
 import mpu
@@ -13,6 +14,7 @@ class RouteObserver:
         self.group_name = 'business_trip_%s' % business_trip_id
         self.channel_layer = channels.layers.get_channel_layer()
         self.progress = 0
+        self.last_time = datetime.now()
 
     def set_progress(self, current, total):
         self.total = total
@@ -25,7 +27,12 @@ class RouteObserver:
             self.update()
 
     def update(self):
-        async_to_sync(self.channel_layer.group_send)(self.group_name, {'type': 'progress_message', 'message': round((self.progress / self.total), 2)})        
+        now = datetime.now()
+        diff = now - self.last_time
+        left_progress = (1 - round(self.progress / self.total, 2))*100
+        time_left = left_progress*diff.seconds
+        self.last_time = datetime.now()
+        async_to_sync(self.channel_layer.group_send)(self.group_name, {'type': 'progress_message', 'message': round((self.progress / self.total), 2), 'timeLeft': time_left})        
 
 class RouteOptimizer:
     def __init__(self, business_trip_id, depots, companies, hotels, tmax, days):
@@ -39,7 +46,7 @@ class RouteOptimizer:
         self.business_trip_id = business_trip_id
         self.observer = RouteObserver(business_trip_id)
 
-        self.observer.set_progress(0, 1.01*((100*self.days) + (2000*(100 + (50*days) + (100*days) + (100*days) + 50))))
+        self.observer.set_progress(0, 1.01*((100*self.days) + (10*(100 + (50*days) + (100*days) + (100*days) + 50))))
 
         self.count_distances()
         self.generate_random_routes(100)

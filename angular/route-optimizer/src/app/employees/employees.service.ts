@@ -18,6 +18,14 @@ export class EmployeesService {
     return queryPaginated<Employee>(this.http, this.apiUrl, this.perPage, urlOrFilter);
   }
 
+  getAllEmployees(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.apiUrl}all`, {
+      headers: new HttpHeaders({
+        Authorization: `Token ${this.userService.token}`
+      })
+    });
+  }
+
   getEmployee(id: number): Observable<Employee> {
     return this.http.get<Employee>(`${this.apiUrl}${id}/`, {
       headers: new HttpHeaders({

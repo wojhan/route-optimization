@@ -1,7 +1,8 @@
 from rest_framework import routers
 
 from data.viewsets import (BusinessTripViewSet, CompanyViewSet,
-                           CurrentUserView, EmployeeViewSet, HotelViewSet,
+                           CurrentUserView, EmployeeBusinessTrips,
+                           EmployeeViewSet, HotelViewSet,
                            ObtainUserFromTokenView, RequistionViewSet,
                            UserViewSet)
 from django.conf.urls import include, url
@@ -14,6 +15,8 @@ router.register(r'api/business-trips', BusinessTripViewSet)
 router.register(r'api/requistions', RequistionViewSet)
 router.register(r'api/hotels', HotelViewSet)
 router.register(r'api/employees', EmployeeViewSet, 'employee')
+router.register(
+    r'api/employees/(?P<pk>[^/.])/business-trips', EmployeeBusinessTrips, 'employee_business_trips')
 
 urlpatterns = router.urls
 

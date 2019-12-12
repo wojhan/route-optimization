@@ -34,6 +34,7 @@ export class BusinessTripAddComponent implements OnInit {
       startDate: new FormControl('', [Validators.required]),
       finishDate: new FormControl('', [Validators.required]),
       assignee: new FormControl('', [Validators.required]),
+      maxDistance: new FormControl('', [Validators.required]),
       requistions: new FormArray([])
     });
 
@@ -52,7 +53,8 @@ export class BusinessTripAddComponent implements OnInit {
   addBusinessTrip(): void {
     const businessTrip = Object.assign(new BusinessTrip(), {
       startDate: this.businessTripForm.get('startDate').value,
-      finishDate: this.businessTripForm.get('finishDate').value
+      finishDate: this.businessTripForm.get('finishDate').value,
+      maxDistance: this.businessTripForm.get('maxDistance').value
     });
 
     const updateValues = {

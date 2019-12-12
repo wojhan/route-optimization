@@ -38,4 +38,5 @@ export class WebSocketService {
 export interface WebSocketMessage {
   type: string;
   message: string;
+  timeLeft: number;
 }

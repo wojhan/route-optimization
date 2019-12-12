@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserService } from '../shared/services/user.service';
 import { queryPaginated, Page } from '../pagination';
-import { WebSocketService } from '../shared/services/websocket.service';
+import { Requistion } from '../requistions/requistions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class BusinessTripsService {
   apiUrl = 'http://localhost:8000/api/business-trips/';
   perPage = 40;
 
-  constructor(private http: HttpClient, private userService: UserService, private wsService: WebSocketService) {}
+  constructor(private http: HttpClient, private userService: UserService) {}
 
   list(employeeId?: number, urlOrFilter?: string | object): Observable<Page<BusinessTrip>> {
     let apiUrl = this.apiUrl;
@@ -48,6 +48,14 @@ export class BusinessTripsService {
     });
   }
 
+  deleteBusinessTrip(businessTripId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}${businessTripId}/`, {
+      headers: new HttpHeaders({
+        Authorization: `Token ${this.userService.token}`
+      })
+    });
+  }
+
   // getBusinessTrip(businessTripId: number, employeeId?: number): Observable<BusinessTrip> {
   //   return this.http.get<BusinessTrip>(`http://localhost:8000/api/employees/2/business-trips/${businessTripId}`, {
   //     headers: new HttpHeaders({
@@ -74,4 +82,6 @@ export class BusinessTrip {
   assignee: Employee;
   estimatedProfit: number;
   routes: Route[];
+  requistions: Requistion[];
+  maxDistance: number;
 }

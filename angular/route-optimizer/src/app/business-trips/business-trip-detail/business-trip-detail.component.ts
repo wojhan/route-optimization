@@ -15,6 +15,7 @@ export class BusinessTripDetailComponent implements OnInit, OnDestroy {
   businessTrip: BusinessTrip;
 
   currentProgress = 0;
+  timeLeft;
 
   dir = null;
   dir1 = null;
@@ -169,6 +170,7 @@ export class BusinessTripDetailComponent implements OnInit, OnDestroy {
           this.cdRef.detectChanges();
         } else {
           this.currentProgress = parseFloat(data.message);
+          this.timeLeft = data.timeLeft;
           this.cdRef.detectChanges();
         }
         this.cdRef.detectChanges();

@@ -29,7 +29,7 @@ class Company(models.Model):
     name_short = models.CharField(
         max_length=250, verbose_name='nazwa skrócona')
     nip = models.CharField(max_length=11, verbose_name='nip', unique=True)
-    street = models.CharField(max_length=60, verbose_name='ulica')
+    street = models.CharField(max_length=60, verbose_name='ulica', blank=True)
     house_no = models.CharField(max_length=10, verbose_name='numer budynku')
     postcode = models.CharField(max_length=8, verbose_name='kod pocztowy')
     city = models.CharField(max_length=40, verbose_name='miasto')
@@ -63,12 +63,15 @@ class Hotel(Company):
 class BusinessTrip(models.Model):
     start_date = models.DateTimeField(verbose_name="data rozpoczęcia")
     finish_date = models.DateTimeField(verbose_name="data zakończenia")
+    route_version = models.IntegerField(verbose_name="Wersja", default=1)
+    distance_constraint = models.IntegerField(
+        verbose_name="Maksymalny limit kilometrów jednego dnia")
     assignee = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany")
+        Profile, on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
 
     @cached_property
     def duration(self):
-        return (self.finish_date - self.start_date).days
+        return (self.finish_date - self.start_date).days + 1
 
     @property
     def estimated_profit(self):
@@ -77,6 +80,16 @@ class BusinessTrip(models.Model):
             profit += requistion.estimated_profit
 
         return profit
+
+    def get_routes_for_version(self):
+        return self.routes.filter(route_version=self.route_version)
+
+    @cached_property
+    def distance(self):
+        distance = 0
+        for route in self.routes.all():
+            distance += route.distance
+        return distance
 
     def __str__(self):
         return self.start_date.strftime("%d-%m-%Y") + " - " + self.finish_date.strftime("%d-%m-%Y") + ", " + self.assignee.__str__()
@@ -101,6 +114,26 @@ class Requistion(models.Model):
     class Meta:
         verbose_name = 'zapotrzebowanie'
         verbose_name_plural = 'zapotrzebowania'
+
+
+class Route(models.Model):
+    start_point = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="+")
+    end_point = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="+")
+    distance = models.FloatField()
+    segment_order = models.IntegerField()
+    route_version = models.IntegerField(verbose_name="Wersja", default=1)
+    day = models.IntegerField()
+    business_trip = models.ForeignKey(
+        BusinessTrip, on_delete=models.CASCADE, related_name="routes")
+
+    @cached_property
+    def days(self):
+        return self.business_trip.duration
+
+    def __str__(self):
+        return str(self.start_point.pk) + " -> " + str(self.end_point.pk)
 
 
 @receiver(post_save, sender=User)

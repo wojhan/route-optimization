@@ -1,0 +1,9 @@
+#requistions {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-size: 0.9rem;
+  .mat-checkbox-label {
+    white-space: normal;
+  }
+}
