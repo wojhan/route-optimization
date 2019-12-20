@@ -1,20 +1,20 @@
 import json
 
-from rest_framework import status, viewsets
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
-from genetic import utils as genetic
-from genetic.serializers import RouteSerializer
+from genetic.tasks import do_generate_route
 
 from .models import BusinessTrip, Company, Hotel, Requistion
 from .serializers import (BasicUserSerializer, BusinessTripSerializer,
                           CompanySerializer, HotelSerializer,
                           RequistionSerializer, TokenSerializer,
                           UserSerializer)
+from .utils import generate_data_for_route
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -29,33 +29,6 @@ class CurrentUserView(APIView):
         print(request.user)
         serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
-
-
-class RouteView(APIView):
-    def get(self, request):
-        requistions = Requistion.objects.all()
-
-        depot_company = Company.objects.get(pk=4380)
-        depots = [genetic.Depot(str(depot_company.pk), dict(
-            lat=depot_company.latitude, lng=depot_company.longitude))]
-
-        # hotels = Hotel.objects.all()
-
-        companies = []
-        for requstion in requistions:
-            company = genetic.Company(str(requstion.company.pk), dict(
-                lat=requstion.company.latitude, lng=requstion.company.longitude), requstion.estimated_profit)
-            companies.append(company)
-
-        hotels = []
-        for hotel in Hotel.objects.all():
-            hotels.append(genetic.Hotel(str(hotel.pk), dict(
-                lat=hotel.latitude, lng=hotel.longitude)))
-
-        ro = genetic.RouteOptimizer(depots, companies, hotels, 50, 2)
-        ro.run(100)
-        route_serializer = RouteSerializer(ro.population[-1][0])
-        return Response(route_serializer.data)
 
 
 class ObtainUserFromTokenView(APIView):
@@ -83,11 +56,36 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = User.objects.filter(is_staff=False)
     serializer_class = BasicUserSerializer
     pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'first_name', 'last_name']
+
+
+class AllEmployeeViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.filter(is_staff=False)
+    serializer_class = BasicUserSerializer
+
+
+class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'business_trip_pk'
+    serializer_class = BusinessTripSerializer
+    pagination_class = StandardResultsSetPagination
+    http_method_names = ['get', 'options']
+
+    def get_queryset(self):
+        return BusinessTrip.objects.filter(assignee_id=self.kwargs.get('pk'))
 
 
 class BusinessTripViewSet(viewsets.ModelViewSet):
     queryset = BusinessTrip.objects.all()
     serializer_class = BusinessTripSerializer
+
+    def partial_update(self, request, pk=None):
+
+        data = generate_data_for_route(pk, request.data)
+        do_generate_route.delay(data)
+
+        return super().partial_update(request, pk=pk)
 
 
 class RequistionViewSet(viewsets.ModelViewSet):
