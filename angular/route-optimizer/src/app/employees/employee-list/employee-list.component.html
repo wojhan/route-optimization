@@ -9,7 +9,7 @@
       <a class="btn btn-primary btn-sm" [routerLink]="['/dashboard/employee/add']">Dodaj pracownika</a>
     </div>
   </div>
-  <div class="row" *ngIf="(page | async) as employees; else loading">
+  <div class="row" *ngIf="page | async as employees; else loading">
     <div class="col-12">
       <div class="table-responsive" *ngIf="employees.results.length > 0; else noEmployees">
         <table class="table">
@@ -26,23 +26,33 @@
             <tr *ngFor="let employee of employees.results">
               <td class="align-middle">
                 <div class="btn-group">
-                  <button class="btn btn-default btn-sm dropdown-toggle no-caret" type="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
+                  <button
+                    class="btn btn-default btn-sm dropdown-toggle no-caret"
+                    type="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
                     <fa-icon [icon]="faEllipsisV"></fa-icon>
                   </button>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" [routerLink]="['/dashboard/employee/', employee.id, 'business-trips']"
-                      routerLinkActive="router-link-active">Delegacje</a>
-                    <a class="dropdown-item" [routerLink]="['/dashboard/employee/edit', employee.id]"
-                      routerLinkActive="router-link-active">Edytuj</a>
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/dashboard/employee/', employee.id, 'business-trips']"
+                      routerLinkActive="router-link-active"
+                      >Delegacje</a
+                    >
+                    <a class="dropdown-item" [routerLink]="['/dashboard/employee/edit', employee.id]" routerLinkActive="router-link-active"
+                      >Edytuj</a
+                    >
                     <a class="dropdown-item" (click)="remove(employee)">Usuń</a>
                   </div>
                 </div>
               </td>
-              <td class="align-middle">{{employee.id}}</td>
-              <td class="align-middle">{{employee.firstName}}</td>
-              <td class="align-middle">{{employee.lastName}}</td>
-              <td class="align-middle">{{employee.email}}</td>
+              <td class="align-middle">{{ employee.id }}</td>
+              <td class="align-middle">{{ employee.firstName }}</td>
+              <td class="align-middle">{{ employee.lastName }}</td>
+              <td class="align-middle">{{ employee.email }}</td>
             </tr>
           </tbody>
         </table>

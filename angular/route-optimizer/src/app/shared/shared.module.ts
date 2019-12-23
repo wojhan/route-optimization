@@ -4,8 +4,9 @@ import { CommonModule } from '@angular/common';
 import { JwPaginationComponent } from 'jw-angular-pagination';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { AgmCoreModule } from '@agm/core';
-import { environment } from 'src/environments/environment';
+import { AgmCoreModule, GoogleMapsAPIWrapper } from '@agm/core';
+
+import { AgmDirectionModule } from 'agm-direction';
 import { DeleteModalComponent } from './components/delete-modal/delete-modal.component';
 import { MaterialModule } from '../material/material.module';
 import { PaginatorComponent } from '../paginator/paginator.component';
@@ -22,11 +23,13 @@ import { PaginatorComponent } from '../paginator/paginator.component';
     MaterialModule,
     AgmCoreModule.forRoot({
       apiKey: localStorage.getItem('apiKey')
-    })
+    }),
+    AgmDirectionModule
   ],
   entryComponents: [DeleteModalComponent],
   exports: [
     AgmCoreModule,
+    AgmDirectionModule,
     ReactiveFormsModule,
     JwPaginationComponent,
     CommonModule,
@@ -36,6 +39,7 @@ import { PaginatorComponent } from '../paginator/paginator.component';
     MaterialModule,
     DeleteModalComponent,
     PaginatorComponent
-  ]
+  ],
+  providers: [GoogleMapsAPIWrapper]
 })
 export class SharedModule {}

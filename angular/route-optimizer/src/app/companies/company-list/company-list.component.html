@@ -36,26 +36,33 @@
             <tr *ngFor="let company of (page | async)?.results">
               <td class="align-middle">
                 <div class="btn-group">
-                  <button class="btn btn-default btn-sm dropdown-toggle no-caret" type="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
+                  <button
+                    class="btn btn-default btn-sm dropdown-toggle no-caret"
+                    type="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
                     <fa-icon [icon]="faEllipsisV"></fa-icon>
                   </button>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" [routerLink]="['/dashboard/company/', company.id]"
-                      routerLinkActive="router-link-active">Informacje</a>
-                    <a class="dropdown-item" [routerLink]="['/dashboard/company/edit/', company.id]"
-                      routerLinkActive="router-link-active">Edytuj</a>
+                    <a class="dropdown-item" [routerLink]="['/dashboard/company/', company.id]" routerLinkActive="router-link-active"
+                      >Informacje</a
+                    >
+                    <a class="dropdown-item" [routerLink]="['/dashboard/company/edit/', company.id]" routerLinkActive="router-link-active"
+                      >Edytuj</a
+                    >
                     <a class="dropdown-item" (click)="remove(company)">Usuń</a>
                   </div>
                 </div>
               </td>
-              <td class="align-middle">{{company.id}}</td>
-              <td class="align-middle">{{company.nameShort}}</td>
-              <td class="align-middle">{{company.nip}}</td>
-              <td class="align-middle">{{company.street}}</td>
-              <td class="align-middle">{{company.houseNo}}</td>
-              <td class="align-middle">{{company.postcode}}</td>
-              <td class="align-middle">{{company.city}}</td>
+              <td class="align-middle">{{ company.id }}</td>
+              <td class="align-middle">{{ company.nameShort }}</td>
+              <td class="align-middle">{{ company.nip }}</td>
+              <td class="align-middle">{{ company.street }}</td>
+              <td class="align-middle">{{ company.houseNo }}</td>
+              <td class="align-middle">{{ company.postcode }}</td>
+              <td class="align-middle">{{ company.city }}</td>
             </tr>
           </tbody>
         </table>

@@ -8,10 +8,13 @@ services:
       - ./django/:/usr/src/app/
     ports:
       - 8000:8000
+      - 4444:4444
     env_file:
       - ./django/.env.dev
     depends_on:
       - db
+    stdin_open: true
+    tty: true
   db:
     image: postgres:12.0-alpine
     volumes:

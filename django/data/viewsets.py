@@ -7,11 +7,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
+from genetic import utils as genetic
+from genetic.serializers import RouteSerializer
 
-from .models import BusinessTrip, Company, Requistion
+from .models import BusinessTrip, Company, Hotel, Requistion
 from .serializers import (BasicUserSerializer, BusinessTripSerializer,
-                          CompanySerializer, RequistionSerializer,
-                          TokenSerializer, UserSerializer)
+                          CompanySerializer, HotelSerializer,
+                          RequistionSerializer, TokenSerializer,
+                          UserSerializer)
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -26,6 +29,33 @@ class CurrentUserView(APIView):
         print(request.user)
         serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
+
+
+class RouteView(APIView):
+    def get(self, request):
+        requistions = Requistion.objects.all()
+
+        depot_company = Company.objects.get(pk=4380)
+        depots = [genetic.Depot(str(depot_company.pk), dict(
+            lat=depot_company.latitude, lng=depot_company.longitude))]
+
+        # hotels = Hotel.objects.all()
+
+        companies = []
+        for requstion in requistions:
+            company = genetic.Company(str(requstion.company.pk), dict(
+                lat=requstion.company.latitude, lng=requstion.company.longitude), requstion.estimated_profit)
+            companies.append(company)
+
+        hotels = []
+        for hotel in Hotel.objects.all():
+            hotels.append(genetic.Hotel(str(hotel.pk), dict(
+                lat=hotel.latitude, lng=hotel.longitude)))
+
+        ro = genetic.RouteOptimizer(depots, companies, hotels, 50, 2)
+        ro.run(100)
+        route_serializer = RouteSerializer(ro.population[-1][0])
+        return Response(route_serializer.data)
 
 
 class ObtainUserFromTokenView(APIView):
@@ -68,4 +98,10 @@ class RequistionViewSet(viewsets.ModelViewSet):
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    pagination_class = StandardResultsSetPagination
+
+
+class HotelViewSet(viewsets.ModelViewSet):
+    queryset = Hotel.objects.all()
+    serializer_class = HotelSerializer
     pagination_class = StandardResultsSetPagination
