@@ -11,9 +11,10 @@ from genetic import utils as genetic
 from genetic.serializers import RouteSerializer
 
 from .models import BusinessTrip, Company, Hotel, Requistion
-from .serializers import (BusinessTripSerializer, CompanySerializer,
-                          HotelSerializer, RequistionSerializer,
-                          TokenSerializer, UserSerializer)
+from .serializers import (BasicUserSerializer, BusinessTripSerializer,
+                          CompanySerializer, HotelSerializer,
+                          RequistionSerializer, TokenSerializer,
+                          UserSerializer)
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -68,6 +69,7 @@ class ObtainUserFromTokenView(APIView):
             else:
                 serializer = TokenSerializer(
                     token_obj, context={'request': request})
+                print(serializer.data)
                 return Response(serializer.data)
         return Response(json.dumps({'message': 'Token was not provided'}), status=status.HTTP_400_BAD_REQUEST)
 
@@ -75,6 +77,12 @@ class ObtainUserFromTokenView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class EmployeeViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.filter(is_staff=False)
+    serializer_class = BasicUserSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class BusinessTripViewSet(viewsets.ModelViewSet):

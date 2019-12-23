@@ -48,6 +48,7 @@ class Company(models.Model):
         return self.name_short + ', ' + street + ' ' + self.postcode + ' ' + self.city
 
     class Meta:
+        ordering = ['pk']
         verbose_name = 'firma'
         verbose_name_plural = 'firmy'
 

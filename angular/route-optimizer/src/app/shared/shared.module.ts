@@ -1,16 +1,18 @@
-import { NgModule } from "@angular/core";
-import { MatFormFieldModule, MatInputModule } from "@angular/material";
-import { CommonModule } from "@angular/common";
-import { JwPaginationComponent } from "jw-angular-pagination";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { AgmCoreModule, GoogleMapsAPIWrapper } from "@agm/core";
-import { environment } from "src/environments/environment";
+import { NgModule } from '@angular/core';
+import { MatFormFieldModule, MatInputModule } from '@angular/material';
+import { CommonModule } from '@angular/common';
+import { JwPaginationComponent } from 'jw-angular-pagination';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { AgmCoreModule, GoogleMapsAPIWrapper } from '@agm/core';
 
-import { AgmDirectionModule } from "agm-direction";
+import { AgmDirectionModule } from 'agm-direction';
+import { DeleteModalComponent } from './components/delete-modal/delete-modal.component';
+import { MaterialModule } from '../material/material.module';
+import { PaginatorComponent } from '../paginator/paginator.component';
 
 @NgModule({
-  declarations: [JwPaginationComponent],
+  declarations: [JwPaginationComponent, DeleteModalComponent, PaginatorComponent],
   imports: [
     CommonModule,
     FontAwesomeModule,
@@ -18,11 +20,13 @@ import { AgmDirectionModule } from "agm-direction";
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
+    MaterialModule,
     AgmCoreModule.forRoot({
-      apiKey: localStorage.getItem("apiKey")
+      apiKey: localStorage.getItem('apiKey')
     }),
     AgmDirectionModule
   ],
+  entryComponents: [DeleteModalComponent],
   exports: [
     AgmCoreModule,
     AgmDirectionModule,
@@ -31,7 +35,10 @@ import { AgmDirectionModule } from "agm-direction";
     CommonModule,
     FontAwesomeModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MaterialModule,
+    DeleteModalComponent,
+    PaginatorComponent
   ],
   providers: [GoogleMapsAPIWrapper]
 })

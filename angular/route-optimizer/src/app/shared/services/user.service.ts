@@ -1,14 +1,10 @@
-import { Injectable } from "@angular/core";
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpErrorResponse
-} from "@angular/common/http";
-import { Observable, of, Subject } from "rxjs";
-import { map } from "rxjs/operators";
-import { environment } from "src/environments/environment";
-import { CookieService } from "ngx-cookie-service";
-import { Router } from "@angular/router";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Observable, of, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { CookieService } from 'ngx-cookie-service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class UserService {
@@ -18,29 +14,24 @@ export class UserService {
   public errors: HttpErrorResponse[] = [];
   public userHyperlink: Subject<string> = new Subject();
 
-  constructor(
-    public http: HttpClient,
-    public cookieService: CookieService,
-    private router: Router
-  ) {
-    console.log(this.http);
+  constructor(public http: HttpClient, public cookieService: CookieService, private router: Router) {
     this.userHyperlink.subscribe(this.setUsername);
   }
 
   public login(user: User): void {
     this.http
       .post(`${environment.apiUrl}api-token-auth/`, JSON.stringify(user), {
-        responseType: "json",
+        responseType: 'json',
         headers: new HttpHeaders({
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json'
         })
       })
       .pipe(map((data: IAuthToken) => data.token))
       .subscribe(
         (data: string) => {
           this.token = data;
-          this.cookieService.set("access_token", this.token);
-          this.router.navigate(["/dashboard"]);
+          this.cookieService.set('access_token', this.token);
+          this.router.navigate(['/dashboard']);
         },
         (err: HttpErrorResponse) => {
           console.log(err);
@@ -50,12 +41,13 @@ export class UserService {
   }
 
   setUsername = (userLink): void => {
-    const token = this.cookieService.get("access_token");
+    console.log(userLink);
+    const token = this.cookieService.get('access_token');
     this.http
       .get(userLink, {
-        responseType: "json",
+        responseType: 'json',
         headers: new HttpHeaders({
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Token ${token}`
         })
       })
@@ -67,7 +59,7 @@ export class UserService {
 
   public logout() {
     this.token = null;
-    localStorage.removeItem("token");
+    localStorage.removeItem('token');
     this.username = null;
   }
 }
@@ -77,12 +69,12 @@ export class User {
   password: string;
 
   constructor() {
-    this.username = "";
-    this.password = "";
+    this.username = '';
+    this.password = '';
   }
 
   toString(): string {
-    return this.username + " " + this.password;
+    return this.username + ' ' + this.password;
   }
 }
 

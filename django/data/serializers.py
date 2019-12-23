@@ -8,13 +8,17 @@ from django.contrib.auth.models import User
 class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='user-detail',
+    )
+
     class Meta:
         model = User
-        fields = ['url', 'username', 'first_name',
+        fields = ['url', 'id', 'username', 'first_name',
                   'last_name', 'email', 'is_staff']
 
 

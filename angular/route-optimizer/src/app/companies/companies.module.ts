@@ -4,11 +4,10 @@ import { CompanyListComponent } from './company-list/company-list.component';
 import { CompanyDetailsComponent } from './company-details/company-details.component';
 import { CompanyAddComponent } from './company-add/company-add.component';
 import { SharedModule } from '../shared/shared.module';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CompaniesService } from './companies.service';
 import { PaginatorComponent } from '../paginator/paginator.component';
+import { CompanyEditComponent } from './company-edit/company-edit.component';
+import { CompanyFormComponent } from './company-form/company-form.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +15,8 @@ import { PaginatorComponent } from '../paginator/paginator.component';
     CompanyListComponent,
     CompanyDetailsComponent,
     CompanyAddComponent,
-    PaginatorComponent
+    CompanyEditComponent,
+    CompanyFormComponent
   ],
   imports: [SharedModule, RouterModule]
 })

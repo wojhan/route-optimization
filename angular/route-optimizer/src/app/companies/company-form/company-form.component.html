@@ -1,0 +1,32 @@
+<form *ngIf="companyForm" [formGroup]="companyForm" id="field-container">
+  <mat-form-field>
+    <input matInput placeholder="Nazwa firmy" formControlName="name" />
+    <mat-error *ngIf="companyForm.get('name').invalid">
+      Wprowadź nazwę
+    </mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Nazwa firmy skrócona" formControlName="nameShort" />
+    <mat-error *ngIf="companyForm.get('nameShort').invalid">
+      Wprowadź nazwę
+    </mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Nip" formControlName="nip" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Ulica" formControlName="street" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Numer budynku" formControlName="houseNo" />
+  </mat-form-field>
+  <div id="postcode-group">
+    <mat-form-field id="postcode">
+      <input matInput placeholder="Kod pocztowy" formControlName="postcode" maxlength="6" />
+    </mat-form-field>
+    <mat-form-field id="city">
+      <input matInput placeholder="Miejscowość" formControlName="city" />
+    </mat-form-field>
+  </div>
+  <button type="submit" class="btn btn-block btn-primary" [disabled]="!companyForm.valid" (click)="sendForm()">{{ submitButton }}</button>
+</form>
