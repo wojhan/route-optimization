@@ -7,9 +7,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
+from genetic import utils as genetic
+from genetic.serializers import RouteSerializer
 from genetic.tasks import do_generate_route
 
-from .models import BusinessTrip, Company, Hotel, Requistion, Route
+from .models import BusinessTrip, Company, Hotel, Requistion
 from .serializers import (BasicUserSerializer, BusinessTripSerializer,
                           CompanySerializer, HotelSerializer,
                           RequistionSerializer, TokenSerializer,
@@ -74,22 +76,6 @@ class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def get_queryset(self):
         return BusinessTrip.objects.filter(assignee_id=self.kwargs.get('pk'))
-
-
-class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
-    lookup_field = 'pk'
-    lookup_url_kwarg = 'business_trip_pk'
-    serializer_class = BusinessTripSerializer
-    pagination_class = StandardResultsSetPagination
-    http_method_names = ['get', 'options']
-
-    def get_queryset(self):
-        return BusinessTrip.objects.filter(assignee_id=self.kwargs.get('pk'))
-
-    # def get_queryset(self):
-    #     # business_trip_pk = self.kwargs.get('business_trip_pk', None)
-    #     employee = User.objects.get(pk=self.lookup_url_kwarg)
-    #     return employee.profile.business_trips.all()
 
 
 class BusinessTripViewSet(viewsets.ModelViewSet):

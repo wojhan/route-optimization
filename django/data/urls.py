@@ -5,7 +5,7 @@ from data.viewsets import (BusinessTripViewSet, CompanyViewSet,
                            EmployeeViewSet, HotelViewSet,
                            ObtainUserFromTokenView, RequistionViewSet,
                            UserViewSet)
-from django.conf.urls import include, url
+from django.conf.urls import url
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.SimpleRouter()
