@@ -18,7 +18,7 @@ def do_generate_route(data):
 
     ro = RouteOptimizer(business_trip_id, depots,
                         companies, hotels, tmax, days)
-    ro.run(10)
+    ro.run(2000)
     for day, subroute in enumerate(ro.population[-1][0].routes):
         for index, point in enumerate(subroute.route):
             if index == 0:

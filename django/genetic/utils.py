@@ -2,6 +2,7 @@ import copy
 import json
 import random
 from datetime import datetime
+from typing import List
 
 import channels.layers
 import mpu
@@ -46,7 +47,7 @@ class RouteOptimizer:
         self.business_trip_id = business_trip_id
         self.observer = RouteObserver(business_trip_id)
 
-        self.observer.set_progress(0, 1.01*((100*self.days) + (10*(100 + (50*days) + (100*days) + (100*days) + 50))))
+        self.observer.set_progress(0, 1.01*((100*self.days) + (2000*(100 + (50*days) + (100*days) + (100*days) + 50))))
 
         self.count_distances()
         self.generate_random_routes(100)
@@ -386,6 +387,14 @@ class Route:
             route += subroute.route[1:]
         return route
 
+    def get_route_vertex_names(self) -> List[str]:
+        names = []
+        names.append(self.routes[0].route[0].name)
+        for subroute in self.routes:
+            for vertex in subroute.route[1:]:
+                names.append(vertex.name)
+        return names
+
     def __repr__(self):
         string = ''
         for r in self.routes:
@@ -415,7 +424,7 @@ class Breeding:
             parents.append(chosen[0])
         return parents
 
-    def crossover(self):
+    def __couple_routes(self) -> List[List[Route]]:
         # contains a list of routes in current population
         tmp_routes = self.population.copy()
 
@@ -433,10 +442,46 @@ class Breeding:
                 1 if random_indexes[1] > random_indexes[0] else random_indexes[1]
             tmp_routes.remove(tmp_routes[random_indexes[0]])
             tmp_routes.remove(tmp_routes[random_indexes[1]])
-        
+        return parents
 
-        
+    def __get_crossovered_children(self, day, parents, children) -> List[SubRoute]:
+        crossovered_children = []
+        if children[0].distance <= self.tmax:
+            crossovered_children.append(children[0])
 
+        if children[1].distance <= self.tmax:
+            crossovered_children.append(children[1])
+
+        if children[0].distance > self.tmax and children[1].distance > self.tmax:
+            return [parents[0].routes[day], parents[1].routes[day]]
+
+        if children[0].distance > self.tmax:
+            if parents[0].routes[day].profit == parents[1].routes[day].profit:
+                crossovered_children.append(parents[0].routes[day] if parents[0].routes[day].distance < parents[1].routes[day].distance else parents[1].routes[day])
+            else:
+                crossovered_children.append(parents[0].routes[day] if parents[0].routes[day].profit > parents[1].routes[day].profit else parents[1].routes[day])
+
+        if children[1].distance > self.tmax:
+            if parents[0].routes[day].profit == parents[1].routes[day].profit:
+                crossovered_children.append(parents[0].routes[day] if parents[0].routes[day].distance < parents[1].routes[day].distance else parents[1].routes[day])
+            else:
+                crossovered_children.append(parents[0].routes[day] if parents[0].routes[day].profit > parents[1].routes[day].profit else parents[1].routes[day])
+        return crossovered_children
+
+    def __delete_random_company_from_route(self, route: SubRoute) -> None:
+        if len(route.route) > 2:
+            random_company_index = random.randint(1, len(route.route) - 2)
+            del(route.route[random_company_index])
+    
+    def __remove_duplicates(self, origin):
+        result = []
+        for element in origin:
+            if element not in result:
+                result.append(element)
+        return result
+
+    def crossover(self):
+        parents = self.__couple_routes()
         # for each route couple try to do crossover operation
         for i, parent in enumerate(parents):
             for day in range(self.days):
@@ -445,93 +490,41 @@ class Breeding:
                 parent_b_subroute = parent[1].routes[day]
                 children = []
                 common_genes = list(set(parent_a_subroute.route[1:-1]).intersection(parent_b_subroute.route[1:-1]))
-
-                if len(common_genes) > 1:
+                if len(common_genes) > 0:
                     rand_gene = random.randint(0, len(common_genes) - 1)
                     cross_indexes = [p.routes[day].route.index(common_genes[rand_gene]) for p in parent]
 
                     child_a = SubRoute(parent[0].routes[day].route[:cross_indexes[0]] + parent[1].routes[day].route[cross_indexes[1]:], self.max_profit)
                     child_b = SubRoute(parent[1].routes[day].route[:cross_indexes[1]] + parent[0].routes[day].route[cross_indexes[0]:], self.max_profit)
 
-                    child_a.recount_route()
-                    child_b.recount_route()
-
-                    if child_a.distance <= self.tmax:
-                        children.append(child_a)
-
-                    if child_b.distance <= self.tmax:
-                        children.append(child_b)
-
-                    if child_a.distance > self.tmax and child_b.distance > self.tmax:
-                        continue
-
-                    if child_a.distance > self.tmax:
-                        if parent[0].routes[day].profit == parent[1].routes[day].profit:
-                            child_a = parent[0].routes[day] if parent[0].routes[day].distance < parent[1].routes[day].distance else parent[1].routes[day]
-                        else:
-                            child_a = parent[0].routes[day] if parent[0].routes[day].profit > parent[1].routes[day].profit else parent[1].routes[day]
-
-                    if child_b.distance > self.tmax:
-                        if parent[0].routes[day].profit == parent[1].routes[day].profit:
-                            child_b = parent[0].routes[day] if parent[0].routes[day].distance < parent[1].routes[day].distance else parent[1].routes[day]
-                        else:
-                            child_b = parent[0].routes[day] if parent[0].routes[day].profit > parent[1].routes[day].profit else parent[1].routes[day]
-
-                    parent[0].routes[day] = child_a
-                    parent[1].routes[day] = child_b
-                self.observer.increment() #100* days + iterations(100 + 100*days)
+                    children = self.__get_crossovered_children(day, parent, (child_a, child_b))
+                    parent[0].routes[day] = children[0]
+                    parent[1].routes[day] = children[1]
+                self.observer.increment()
             parent[0].recount_route()
             parent[1].recount_route()
         return parents
 
     def mutate(self, parents):
-        for parent_couple in parents:
-            for parent in parent_couple:
+        for i, parent_couple in enumerate(parents):
+            for j, parent in enumerate(parent_couple):
                 child = copy.deepcopy(parent)
+                vertices_to_select = [v for v in self.vertices if v.name not in child.get_route_vertex_names()]
 
-                '''
-                DELETE first phase - remove duplicates
-                '''
-                # appearence_vertices = {}
-                # for i, current_route in enumerate(child.routes):
-                #     for j, current_vertex in enumerate(current_route.route[1:-1]):
-                #         if current_vertex not in appearence_vertices:
-                #             appearence_vertices[current_vertex] = []
-                #         pre_distance = child.routes[i].count_distance(child.routes[i].route[j-1], current_vertex)
-                #         post_distance = child.routes[i].count_distance(current_vertex, child.routes[i].route[j+1])
-                #         distance =  pre_distance + post_distance
-                #         appearence_vertices[current_vertex].append((distance, i, j))
-                
-                # for vertex in appearence_vertices:
-                #     appearence_vertices[vertex].sort(key=lambda x: x[0])
-
-                # new_route = Route([], self.max_profit)
-                # for i, current_route in enumerate(child.routes):
-                #     new_subroute = SubRoute([], self.max_profit)
-                #     for j, current_vertex in enumerate(current_route.route):
-                #         if current_vertex not in appearence_vertices:
-                #             new_subroute.route.append(current_vertex)
-                #             continue
-                #         vertices_to_exclude = appearence_vertices[current_vertex][1:]
-                #         if (current_vertex, i, j) in vertices_to_exclude:
-                #             continue
-                #         new_subroute.route.append(current_vertex)
-                #     new_subroute.recount_route()
-                #     new_route.routes.append(new_subroute)
-                # new_route.recount_route()
-                # child = new_route
-                
                 for route in child.routes:
-                    '''
-                    DELETE second phase - remove random city
-                    '''
+                    # DELETE first phase - remove duplicates
                     if len(route.route) > 2:
-                        random_company_index = random.randint(1, len(route.route) - 1)
-                        del(route.route[random_company_index])
-                    self.observer.increment()#100* days + iterations(100 + 100*days + 100*days)
-                    
+                        exclude_edges = self.__remove_duplicates(route.route[1:-1])
+                        route.route = [route.route[0]] + exclude_edges + [route.route[-1]]
 
-                vertices_to_select = [v for v in self.vertices if v not in child.get_route()]
+                    # DELETE second phase - remove random city
+                    if vertices_to_select:
+                        self.__delete_random_company_from_route(route)
+                    route.recount_route()
+                    self.observer.increment()
+                        
+                #TODO: Check if deleted company is returned to available companies
+                vertices_to_select = [v for v in self.vertices if v.name not in child.get_route_vertex_names()]
                 
                 for route in child.routes:
                     '''
@@ -566,8 +559,8 @@ class Breeding:
                         child.routes[1].route[0] = copy.deepcopy(child.routes[0].route[-1])
                     else:
                         child.routes[0].route[-1] = copy.deepcopy(child.routes[1].route[0])
-
-                parent = child
+ 
+                parents[i][j] = child
         population = []
         for parent in parents:
             population.append(parent[0])
