@@ -3,7 +3,7 @@ from rest_framework import routers
 from data.viewsets import (BusinessTripViewSet, CompanyViewSet,
                            CurrentUserView, EmployeeViewSet, HotelViewSet,
                            ObtainUserFromTokenView, RequistionViewSet,
-                           RouteView, UserViewSet)
+                           UserViewSet)
 from django.conf.urls import include, url
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -20,5 +20,4 @@ urlpatterns = router.urls
 urlpatterns += [
     url(r'^api/token$', ObtainUserFromTokenView.as_view()),
     url(r'^api/users/current$', CurrentUserView.as_view()),
-    url(r'^api/route$', RouteView.as_view())
 ]

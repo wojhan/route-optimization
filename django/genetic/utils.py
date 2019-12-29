@@ -1,11 +1,34 @@
-import random
 import copy
 import json
-import mpu
+import random
 
+import channels.layers
+import mpu
+from asgiref.sync import async_to_sync
+
+
+class RouteObserver:
+
+    def __init__(self, business_trip_id):
+        self.group_name = 'business_trip_%s' % business_trip_id
+        self.channel_layer = channels.layers.get_channel_layer()
+        self.progress = 0
+
+    def set_progress(self, current, total):
+        self.total = total
+        self.progress = current
+        self.update()
+
+    def increment(self, value=1):
+        self.progress += value
+        if self.progress % int(self.total/200) == 0:
+            self.update()
+
+    def update(self):
+        async_to_sync(self.channel_layer.group_send)(self.group_name, {'type': 'progress_message', 'message': round((self.progress / self.total), 2)})        
 
 class RouteOptimizer:
-    def __init__(self, depots, companies, hotels, tmax, days):
+    def __init__(self, business_trip_id, depots, companies, hotels, tmax, days):
         self.depots = depots
         self.companies = companies
         self.hotels = hotels
@@ -13,9 +36,13 @@ class RouteOptimizer:
         self.population = []
         self.days = days
         self.max_profit = self.count_max_profit(companies)
+        self.business_trip_id = business_trip_id
+        self.observer = RouteObserver(business_trip_id)
+
+        self.observer.set_progress(0, 1.01*((100*self.days) + (2000*(100 + (50*days) + (100*days) + (100*days) + 50))))
 
         self.count_distances()
-        self.generate_random_routes(20)
+        self.generate_random_routes(100)
 
     def count_max_profit(self, companies):
         max_profit = 0
@@ -199,9 +226,11 @@ class RouteOptimizer:
                     subroute.remove_stop(the_worst_neighbour[0])
                 
                 route.routes[day] = subroute
+                self.observer.increment()
             route.recount_route()
             self.population[0].append(route)
         self.population[0].sort(key=lambda x: x.profit, reverse=True)
+
 
     def tournament_choose(self, population, t_size):
         random_indexes = random.sample(range(0, len(population)), t_size)
@@ -218,9 +247,11 @@ class RouteOptimizer:
             for j in range(100):
                 population.append(self.tournament_choose(
                     self.population[i-1], 5))
+                self.observer.increment()
+
             self.population.append(population)
             b=Breeding(self.companies,
-                         self.population[i], self.tmax, self.max_profit, self.days)
+                         self.population[i], self.tmax, self.max_profit, self.days, self.observer)
             b.breed()
             self.population[i]=sorted(
                 self.population[i], key=lambda x: x.profit, reverse=True)
@@ -356,12 +387,13 @@ class Route:
 
 
 class Breeding:
-    def __init__(self, vertices, population, tmax, max_profit, days):
+    def __init__(self, vertices, population, tmax, max_profit, days, observer):
         self.population = population
         self.tmax = tmax
         self.max_profit = max_profit
         self.vertices = vertices
         self.days = days
+        self.observer = observer
 
     def tournament_choose(self, k):
         tmp_pop = self.population.copy()
@@ -393,6 +425,7 @@ class Breeding:
                 1 if random_indexes[1] > random_indexes[0] else random_indexes[1]
             tmp_routes.remove(tmp_routes[random_indexes[0]])
             tmp_routes.remove(tmp_routes[random_indexes[1]])
+        
 
         # for each route couple try to do crossover operation
         for i, parent in enumerate(parents):
@@ -436,6 +469,7 @@ class Breeding:
 
                     parent[0].routes[day] = child_a
                     parent[1].routes[day] = child_b
+                self.observer.increment() #100* days + iterations(100 + 100*days)
             parent[0].recount_route()
             parent[1].recount_route()
         return parents
@@ -484,6 +518,8 @@ class Breeding:
                     if len(route.route) > 2:
                         random_company_index = random.randint(1, len(route.route) - 1)
                         del(route.route[random_company_index])
+                    self.observer.increment()#100* days + iterations(100 + 100*days + 100*days)
+                    
 
                 vertices_to_select = [v for v in self.vertices if v not in child.get_route()]
                 
@@ -491,6 +527,7 @@ class Breeding:
                     '''
                     ADD phase - add random cities
                     '''
+                    
                     while route.distance < self.tmax and vertices_to_select:
                         if len(route.route) == 2:
                             random_insert_index = 1
@@ -506,6 +543,8 @@ class Breeding:
                             route.remove_stop(random_vertex)
                             vertices_to_select.append(random_vertex)
                             break
+                    self.observer.increment() #100* days + iterations(100 + 100*days + 100*days + 100*days)
+                    
                             
                 if len(child.routes) == 2:
                     distance_one = child.routes[0].count_distance(child.routes[0].route[-2], child.routes[0].route[-1])
@@ -519,11 +558,11 @@ class Breeding:
                         child.routes[0].route[-1] = copy.deepcopy(child.routes[1].route[0])
 
                 parent = child
-        
         population = []
         for parent in parents:
             population.append(parent[0])
             population.append(parent[1])
+            self.observer.increment()
         return population
 
     def breed(self):

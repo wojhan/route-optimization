@@ -58,7 +58,7 @@ class RequistionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Requistion
-        fields = ['estimated_profit', 'company',
+        fields = ['id', 'estimated_profit', 'company',
                   'assignment_date']
 
 
