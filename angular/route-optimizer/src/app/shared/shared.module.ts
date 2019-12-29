@@ -10,9 +10,10 @@ import { AgmDirectionModule } from 'agm-direction';
 import { DeleteModalComponent } from './components/delete-modal/delete-modal.component';
 import { MaterialModule } from '../material/material.module';
 import { PaginatorComponent } from '../paginator/paginator.component';
+import { LdsRollerComponent } from './components/lds-roller/lds-roller.component';
 
 @NgModule({
-  declarations: [JwPaginationComponent, DeleteModalComponent, PaginatorComponent],
+  declarations: [JwPaginationComponent, DeleteModalComponent, PaginatorComponent, LdsRollerComponent],
   imports: [
     CommonModule,
     FontAwesomeModule,
@@ -38,7 +39,8 @@ import { PaginatorComponent } from '../paginator/paginator.component';
     MatInputModule,
     MaterialModule,
     DeleteModalComponent,
-    PaginatorComponent
+    PaginatorComponent,
+    LdsRollerComponent
   ],
   providers: [GoogleMapsAPIWrapper]
 })

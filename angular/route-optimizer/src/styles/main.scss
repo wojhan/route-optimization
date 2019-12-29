@@ -13,10 +13,10 @@
 @import 'layout/header', 'layout/footer', 'layout/sidebar';
 
 // 5. Components
-@import 'components/button', 'components/list_group', 'components/company_item';
+@import 'components/button', 'components/list_group', 'components/company_item', 'components/lds_roller';
 
 // 6. Page-specific styles
-@import 'pages/home', 'pages/login', 'pages/company_add';
+@import 'pages/home', 'pages/login', 'pages/company_add', 'pages/business_trip_add';
 
 // 7. Themes
 @import 'themes/default';

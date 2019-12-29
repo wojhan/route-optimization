@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from .models import BusinessTrip, Company, Profile, Requistion
+from .models import BusinessTrip, Company, Profile, Requistion, Route
 
 
 class CompanyAdmin(admin.ModelAdmin):
@@ -21,3 +21,4 @@ admin.site.register(Company, CompanyAdmin)
 admin.site.register(BusinessTrip)
 admin.site.register(Profile)
 admin.site.register(Requistion, RequistionAdmin)
+admin.site.register(Route)

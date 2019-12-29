@@ -12,6 +12,7 @@ import { LoginModule } from './login/login.module';
 import { CompaniesModule } from './companies/companies.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EmployeesModule } from './employees/employees.module';
+import { BusinessTripsModule } from './business-trips/business-trips.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,7 +24,8 @@ import { EmployeesModule } from './employees/employees.module';
     LoginModule,
     CompaniesModule,
     BrowserAnimationsModule,
-    EmployeesModule
+    EmployeesModule,
+    BusinessTripsModule
   ],
   providers: [UserService, AuthGuard, CookieService],
   bootstrap: [AppComponent]

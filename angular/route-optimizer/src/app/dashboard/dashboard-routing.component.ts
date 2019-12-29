@@ -12,6 +12,12 @@ import { EmployeesComponent } from '../employees/employees.component';
 import { EmployeeListComponent } from '../employees/employee-list/employee-list.component';
 import { EmployeeBusinessTripsComponent } from '../employees/employee-business-trips/employee-business-trips.component';
 import { EmployeeEditComponent } from '../employees/employee-edit/employee-edit.component';
+import { EmployeeBusinessTripsListComponent } from '../employees/employee-business-trips/employee-business-trips-list/employee-business-trips-list.component';
+import { BusinessTripsComponent } from '../business-trips/business-trips.component';
+import { BusinessTripsListComponent } from '../business-trips/business-trips-list/business-trips-list.component';
+import { BusinessTripAddComponent } from '../business-trips/business-trip-add/business-trip-add.component';
+import { BusinessTripDetailComponent } from '../business-trips/business-trip-detail/business-trip-detail.component';
+import { BusinessTripEditComponent } from '../business-trips/business-trip-edit/business-trip-edit.component';
 
 const dashboardRoutes: Routes = [
   {
@@ -57,8 +63,36 @@ const dashboardRoutes: Routes = [
             component: EmployeeEditComponent
           },
           {
-            path: ':id/business-trips',
-            component: EmployeeBusinessTripsComponent
+            path: ':employeeId/business-trips',
+            component: EmployeeBusinessTripsComponent,
+            children: [
+              {
+                path: '',
+                component: EmployeeBusinessTripsListComponent
+              }
+            ]
+          }
+        ]
+      },
+      {
+        path: 'business-trip',
+        component: BusinessTripsComponent,
+        children: [
+          {
+            path: '',
+            component: BusinessTripsListComponent
+          },
+          {
+            path: 'add',
+            component: BusinessTripAddComponent
+          },
+          {
+            path: ':id',
+            component: BusinessTripDetailComponent
+          },
+          {
+            path: ':id/edit',
+            component: BusinessTripEditComponent
           }
         ]
       }

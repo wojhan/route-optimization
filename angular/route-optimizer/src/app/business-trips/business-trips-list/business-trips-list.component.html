@@ -1,0 +1,87 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1>Delegacje</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <a class="btn btn-primary btn-sm" [routerLink]="['/dashboard/business-trip/add']">Dodaj delegację</a>
+    </div>
+  </div>
+  <div class="row" *ngIf="page | async as businessTrips; else loading">
+    <div class="col-12">
+      <div class="table-responsive" *ngIf="businessTrips.results.length > 0; else noBusinessTrips">
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th scope="col">#</th>
+              <th scope="col">Pracownik</th>
+              <th scope="col">Czas trwania</th>
+              <th scope="col">Data</th>
+              <th scope="col">Liczba firm</th>
+              <th scope="col">Dystans</th>
+              <th scope="col">Zysk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let businessTrip of businessTrips.results; let i = index">
+              <td class="align-middle">
+                <div class="btn-group">
+                  <button
+                    class="btn btn-default btn-sm dropdown-toggle no-caret"
+                    type="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <fa-icon [icon]="faEllipsisV"></fa-icon>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/dashboard/business-trip', businessTrip.id]"
+                      routerLinkActive="router-link-active"
+                      >Szczegóły</a
+                    >
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/dashboard/business-trip', businessTrip.id, 'edit']"
+                      routerLinkActive="router-link-active"
+                      >Edytuj</a
+                    >
+                    <a class="dropdown-item" (click)="remove(businessTrip)">Usuń</a>
+                  </div>
+                </div>
+              </td>
+              <td class="align-middle">{{ i + 1 }}</td>
+              <td class="align-middle">{{ businessTrip.assignee.username }}</td>
+              <td class="align-middle">
+                { businessTrip.duration, plural, =0 {1 dzień} =1 {1 dzień } other {
+                {{ businessTrip.duration | number }} dni }}
+              </td>
+              <td class="align-middle">{{ businessTrip.startDate | date: 'short' }} - {{ businessTrip.finishDate | date: 'short' }}</td>
+              <td class="align-middle">{{ businessTrip.routes.length }}</td>
+              <td class="align-middle">{{ businessTrip.distance | number }} km</td>
+              <td class="align-middle">{{ businessTrip.estimatedProfit }} zł</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-12" *ngIf="businessTrips.results.length > 0">
+      <app-paginator [page]="page | async" (pageChange)="onPageChanged($event)"></app-paginator>
+    </div>
+  </div>
+</div>
+
+<ng-template #loading>
+  LOADING
+</ng-template>
+
+<ng-template #noBusinessTrips>
+  <div class="alert alert-info">
+    Brak delegacji do wyświetlenia.
+  </div>
+</ng-template>

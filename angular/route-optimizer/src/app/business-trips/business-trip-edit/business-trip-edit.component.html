@@ -1,0 +1,27 @@
+<div class="container" *ngIf="pageLoaded; else loading">
+  <div class="row">
+    <div class="col">
+      <h1>Edycja</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <app-business-trip-form
+        [businessTripForm]="businessTripForm"
+        (formSent)="editBusinessTrip($event)"
+        [requistions]="requistions"
+        submitButton="Zapisz"
+        [submitButtonEnabled]="isFormEdited()"
+      >
+      </app-business-trip-form>
+    </div>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="container-fluid h-100">
+    <div class="d-flex justify-content-center align-items-center h-100">
+      <app-lds-roller></app-lds-roller>
+    </div>
+  </div>
+</ng-template>

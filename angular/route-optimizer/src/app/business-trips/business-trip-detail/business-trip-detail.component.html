@@ -2,24 +2,14 @@
   <div class="row" style="height: 600px" *ngIf="businessTrip.routes.length > 0; else processingData">
     <div class="col-6">
       <agm-map>
-        <agm-direction
-          *ngIf="dir"
-          [origin]="dir.origin"
-          [destination]="dir.destination"
-          [waypoints]="dir.waypoints"
-          [optimizeWaypoints]="false"
-        ></agm-direction>
+        <agm-direction *ngIf="dir" [origin]="dir.origin" [destination]="dir.destination" [waypoints]="dir.waypoints"
+          [optimizeWaypoints]="false"></agm-direction>
       </agm-map>
     </div>
     <div class="col-6">
       <agm-map>
-        <agm-direction
-          *ngIf="dir1"
-          [origin]="dir1.origin"
-          [destination]="dir1.destination"
-          [waypoints]="dir1.waypoints"
-          [optimizeWaypoints]="false"
-        ></agm-direction>
+        <agm-direction *ngIf="dir1" [origin]="dir1.origin" [destination]="dir1.destination" [waypoints]="dir1.waypoints"
+          [optimizeWaypoints]="false"></agm-direction>
       </agm-map>
     </div>
   </div>
@@ -35,19 +25,13 @@
   </div>
   <div class="col-12">
     <div class="progress">
-      <div
-        class="progress-bar"
-        role="progressbar"
-        [style.width]="currentProgress | percent: '1.0-1'"
-        [attr.aria-valuenow]="currentProgress"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
+      <div class="progress-bar" role="progressbar" [style.width]="currentProgress | percent: '1.0-1'"
+        [attr.aria-valuenow]="currentProgress" aria-valuemin="0" aria-valuemax="100">
         {{ currentProgress | percent: '1.0-1' }}
       </div>
     </div>
   </div>
   <div class="col-12">
-    <p>Szacowany czas:</p>
+    <p>Szacowany czas: {{ timeLeft | number }} sekund</p>
   </div>
 </ng-template>

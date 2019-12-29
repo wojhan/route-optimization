@@ -18,7 +18,7 @@ def do_generate_route(data):
 
     ro = RouteOptimizer(business_trip_id, depots,
                         companies, hotels, tmax, days)
-    ro.run(2000)
+    ro.run(10)
     for day, subroute in enumerate(ro.population[-1][0].routes):
         for index, point in enumerate(subroute.route):
             if index == 0:
@@ -31,7 +31,7 @@ def do_generate_route(data):
             business_trip = models.BusinessTrip.objects.get(
                 pk=int(business_trip_id))
             models.Route.objects.create(start_point=start_point, end_point=end_point,
-                                        distance=distance, segment_order=index, day=day, business_trip=business_trip)
+                                        distance=distance, segment_order=index, day=day, business_trip=business_trip, route_version=business_trip.route_version)
     ro.observer.set_progress(ro.observer.total, ro.observer.total)
 
     return 'ro'

@@ -22,7 +22,7 @@ export class EmployeeListComponent implements OnInit {
   page: Observable<Page<Employee>>;
   pageUrl: BehaviorSubject<string> = new BehaviorSubject<string>(`${environment.apiUrl}api/employees/?format=json&page=1&page_size=40`);
 
-  constructor(private employeesService: EmployeesService, private router: Router, public dialog: MatDialog) {}
+  constructor(private employeesService: EmployeesService, public dialog: MatDialog) {}
 
   ngOnInit() {
     this.filterForm = new FormGroup({

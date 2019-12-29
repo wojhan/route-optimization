@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from genetic.tasks import do_generate_route
 
-from .models import BusinessTrip, Company, Hotel, Requistion
+from .models import BusinessTrip, Company, Hotel, Requistion, Route
 from .serializers import (BasicUserSerializer, BusinessTripSerializer,
                           CompanySerializer, HotelSerializer,
                           RequistionSerializer, TokenSerializer,
@@ -76,21 +76,39 @@ class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
         return BusinessTrip.objects.filter(assignee_id=self.kwargs.get('pk'))
 
 
+class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'business_trip_pk'
+    serializer_class = BusinessTripSerializer
+    pagination_class = StandardResultsSetPagination
+    http_method_names = ['get', 'options']
+
+    def get_queryset(self):
+        return BusinessTrip.objects.filter(assignee_id=self.kwargs.get('pk'))
+
+    # def get_queryset(self):
+    #     # business_trip_pk = self.kwargs.get('business_trip_pk', None)
+    #     employee = User.objects.get(pk=self.lookup_url_kwarg)
+    #     return employee.profile.business_trips.all()
+
+
 class BusinessTripViewSet(viewsets.ModelViewSet):
     queryset = BusinessTrip.objects.all()
     serializer_class = BusinessTripSerializer
 
     def partial_update(self, request, pk=None):
+        business_trip = BusinessTrip.objects.get(pk=pk)
 
-        data = generate_data_for_route(pk, request.data)
+        data = generate_data_for_route(business_trip, request.data)
         do_generate_route.delay(data)
 
         return super().partial_update(request, pk=pk)
 
 
 class RequistionViewSet(viewsets.ModelViewSet):
-    queryset = Requistion.objects.all()
+    queryset = Requistion.objects.filter(business_trip=None)
     serializer_class = RequistionSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
