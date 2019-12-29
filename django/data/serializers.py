@@ -94,14 +94,10 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
     requistions = RequistionSerializer(many=True, partial=True, required=False)
     estimated_profit = serializers.ReadOnlyField()
     duration = serializers.ReadOnlyField()
+
     routes = RouteSerializer(many=True, partial=True,
                              required=False, source='get_routes_for_version')
     max_distance = serializers.IntegerField(source='distance_constraint')
-
-    # def validate(self, data):
-    #     print(data)
-    #     data = super().validate(data)
-    #     return data
 
     def _validate_company(self, value):
         company = {}
@@ -159,6 +155,7 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
 
         if 'requistions' in validated_data:
             requistions_data = validated_data.pop('requistions')
+            modify_version = True
 
             modify_version = True
 

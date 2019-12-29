@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserService } from '../shared/services/user.service';
 import { queryPaginated, Page } from '../pagination';
+import { WebSocketService } from '../shared/services/websocket.service';
 import { Requistion } from '../requistions/requistions.service';
 
 @Injectable({
@@ -14,7 +15,7 @@ export class BusinessTripsService {
   apiUrl = 'http://localhost:8000/api/business-trips/';
   perPage = 40;
 
-  constructor(private http: HttpClient, private userService: UserService) {}
+  constructor(private http: HttpClient, private userService: UserService, private wsService: WebSocketService) {}
 
   list(employeeId?: number, urlOrFilter?: string | object): Observable<Page<BusinessTrip>> {
     let apiUrl = this.apiUrl;

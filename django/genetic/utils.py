@@ -308,6 +308,7 @@ class SubRoute:
         self.fitness = 0
 
         self.recount_route()
+    
     def count_distance(self, company_from: Vertex, company_to: Vertex) -> float:
         return mpu.haversine_distance((company_from.lat, company_from.lng), (company_to.lat, company_to.lng))
 
@@ -328,28 +329,28 @@ class SubRoute:
         self.recount_profit()
 
     def add_stop(self, index, company):
+        #TODO: Validate if can be added
         self.route.insert(index, company)
         self.recount_route()
 
     def remove_stop(self, company):
+        #TODO: Validate if exists
         self.route.remove(company)
         self.recount_route()
 
     def swap_stops(self, a, b):
+        #TODO: Verify if can be swapped
         tmp = copy.copy(self.route[a])
         self.route[a] = self.route[b]
         self.route[b] = tmp
         self.recount_route()
 
-    def get_route(self):
-        return json.dumps(self.route)
-
     def __repr__(self):
         string = ''
-        for r in self.route:
+        for r in self.route[:-1]:
             string += r.name + '->'
 
-        return string
+        return string + self.route[-1].name
 
 class Route:
     def __init__(self, routes, max_profit):
@@ -432,6 +433,8 @@ class Breeding:
                 1 if random_indexes[1] > random_indexes[0] else random_indexes[1]
             tmp_routes.remove(tmp_routes[random_indexes[0]])
             tmp_routes.remove(tmp_routes[random_indexes[1]])
+        
+
         
 
         # for each route couple try to do crossover operation

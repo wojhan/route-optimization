@@ -6,13 +6,8 @@
   </div>
   <div class="row">
     <div class="col">
-      <app-business-trip-form
-        [businessTripForm]="businessTripForm"
-        (formSent)="editBusinessTrip($event)"
-        [requistions]="requistions"
-        submitButton="Zapisz"
-        [submitButtonEnabled]="isFormEdited()"
-      >
+      <app-business-trip-form [businessTripForm]="businessTripForm" (formSent)="editBusinessTrip($event)"
+        [requistions]="requistions" submitButton="Zapisz" [submitButtonEnabled]="isFormEdited()">
       </app-business-trip-form>
     </div>
   </div>
