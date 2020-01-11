@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   django:
@@ -27,7 +27,7 @@ services:
     container_name: ng
     build: ./angular
     ports:
-      - '80:80'
+      - "80:80"
     volumes:
       - ./angular/route-optimizer/:/usr/src/app/
     environment:
@@ -40,6 +40,16 @@ services:
       - 6379
     ports:
       - 6379:6379
+  #osrm:
+  #build:
+  #context: ./OSRM
+  #args:
+  #- PBF=http://download.geofabrik.de/europe/poland/podlaskie-latest.osm.pbf
+  #- STXXL_SIZE=200000
+  #ports:
+  #- 5000:5000
+  #volumes:
+  #- /run/media/wojciech/66509E74509E4AA7/OSRM/:.
 
 volumes:
   postgres_data:

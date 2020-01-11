@@ -40,10 +40,6 @@ export class BusinessTripEditComponent implements OnInit {
     this.requistions = [];
     const getRequistions = this.requistionsService.getRequistions().pipe(tap(requistion => this.requistions.push(requistion)));
     const getBusinessTrip = this.businessTripsService.getBusinessTrip(id).pipe(
-      map((businessTrip: any) => {
-        businessTrip.assignee = businessTrip.assignee.user;
-        return businessTrip;
-      }),
       mergeMap(businessTrip => {
         return concat(getRequistions, of(businessTrip));
       }),
