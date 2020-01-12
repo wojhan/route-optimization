@@ -7,6 +7,7 @@ import { UserService } from '../shared/services/user.service';
 import { queryPaginated, Page } from '../pagination';
 import { WebSocketService } from '../shared/services/websocket.service';
 import { Requistion } from '../requistions/requistions.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -26,11 +27,18 @@ export class BusinessTripsService {
   }
 
   getBusinessTrip(id: number): Observable<BusinessTrip> {
-    return this.http.get<BusinessTrip>(`${this.apiUrl}${id}/`, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
+    return this.http
+      .get<BusinessTrip>(`${this.apiUrl}${id}/`, {
+        headers: new HttpHeaders({
+          Authorization: `Token ${this.userService.token}`
+        })
       })
-    });
+      .pipe(
+        map((businessTrip: any) => {
+          businessTrip.assignee = businessTrip.assignee.user;
+          return businessTrip;
+        })
+      );
   }
 
   addBusinessTrip(businessTrip: BusinessTrip): Observable<BusinessTrip> {

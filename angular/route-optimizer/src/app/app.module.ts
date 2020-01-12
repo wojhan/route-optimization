@@ -13,6 +13,10 @@ import { CompaniesModule } from './companies/companies.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EmployeesModule } from './employees/employees.module';
 import { BusinessTripsModule } from './business-trips/business-trips.module';
+import { registerLocaleData } from '@angular/common';
+import localePl from '@angular/common/locales/pl';
+import localePlExtra from '@angular/common/locales/extra/pl';
+registerLocaleData(localePl, localePlExtra);
 
 @NgModule({
   declarations: [AppComponent],
