@@ -59,3 +59,4 @@ class BusinessTripFactory(factory.django.DjangoModelFactory):
 
     start_date = '2019-12-27 08:00'
     finish_date = '2019-12-28 16:00'
+    distance_constraint = factory.fuzzy.FuzzyInteger(50, 400)

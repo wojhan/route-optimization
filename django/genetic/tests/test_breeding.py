@@ -265,7 +265,7 @@ class BreedingForOneDayTestCase(TestCase):
         possible_route = utils.SubRoute([self.depot[0], self.companies[1], self.depot[0]], self.max_profit).route.__repr__()
 
         # When mutation is processing and the population has duplicates in its routes
-        breeding = utils.Breeding([], self.population_with_duplicates, self.tmax, self.max_profit, 1, Mock())
+        breeding = utils.Breeding([self.companies[1]], self.population_with_duplicates, self.tmax, self.max_profit, 1, Mock())
         crossovered = breeding.crossover()
         new_population = breeding.mutate(crossovered)
         # Then population is equal to <possible_route> and its length is equal to <population_length>
