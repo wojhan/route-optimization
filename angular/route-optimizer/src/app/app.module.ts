@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -16,6 +16,7 @@ import { BusinessTripsModule } from './business-trips/business-trips.module';
 import { registerLocaleData } from '@angular/common';
 import localePl from '@angular/common/locales/pl';
 import localePlExtra from '@angular/common/locales/extra/pl';
+import { HttpConfigInterceptor } from './shared/http-config.interceptor';
 registerLocaleData(localePl, localePlExtra);
 
 @NgModule({
@@ -31,7 +32,7 @@ registerLocaleData(localePl, localePlExtra);
     EmployeesModule,
     BusinessTripsModule
   ],
-  providers: [UserService, AuthGuard, CookieService],
+  providers: [UserService, AuthGuard, CookieService, { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

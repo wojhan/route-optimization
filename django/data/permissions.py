@@ -1,0 +1,41 @@
+from rest_framework import permissions
+
+
+class IsOwner(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+
+        if hasattr(obj, 'assignee'):
+            return obj.assignee == request.user.profile
+
+        return False
+
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if request.user.is_staff:
+            return True
+
+        # Instance must have an attribute named `owner`.
+        if hasattr(obj, 'created_by'):
+            return obj.created_by == request.user.profile
+
+        if hasattr(obj, 'added_by'):
+            return obj.added_by == request.user.profile
+
+        return False
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user.is_staff

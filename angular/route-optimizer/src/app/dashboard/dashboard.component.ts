@@ -3,6 +3,7 @@ import { faBars, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import { UserService, User } from 'src/app/shared/services/user.service';
 import { DashboardService } from './dashboard.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,8 +11,9 @@ import { DashboardService } from './dashboard.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnChanges {
-  user: User;
   isSidebarHidden: boolean;
+  username: BehaviorSubject<string>;
+  isStaff: boolean;
   wrapperClasses: any;
   faBars: IconDefinition = faBars;
 
@@ -23,12 +25,14 @@ export class DashboardComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit() {
-    this.user = new User();
-    this.userService.username.subscribe(username => (this.user.username = username));
+    this.username = this.userService.username;
+
+    this.userService.isStaff.subscribe(isStaff => (this.isStaff = isStaff));
 
     this.isSidebarHidden = this.dashboardService.getIsSidebarHidden();
 
     this.wrapperClasses = { toggled: !this.isSidebarHidden };
+    this.cdRef.detectChanges();
   }
 
   ngOnChanges(changes: SimpleChanges): void {

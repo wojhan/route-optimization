@@ -10,6 +10,8 @@ import { Observable } from 'rxjs';
 export class AuthService {
   constructor(private userService: UserService, public http: HttpClient, public cookieService: CookieService) {}
 
+  public isAuthenticated = false;
+
   public getIsAuthenticated(): Observable<boolean> {
     const token = this.cookieService.get('access_token');
     return new Observable(subscriber => {
@@ -31,7 +33,9 @@ export class AuthService {
           .subscribe(
             (data: UserToken) => {
               this.userService.userHyperlink.next(data.user);
+              this.userService.profileHyperLink.next(data.profile);
               this.userService.token = data.key;
+              this.isAuthenticated = true;
               subscriber.next(true);
             },
             () => {
@@ -45,5 +49,6 @@ export class AuthService {
 
 export interface UserToken {
   user?: string;
+  profile?: string;
   key?: string;
 }

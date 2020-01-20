@@ -11,51 +11,28 @@ import { UserService } from '../shared/services/user.service';
 export class EmployeesService {
   apiUrl = `${environment.apiUrl}api/employees/`;
   perPage = 40;
+  defaultHeaders = new HttpHeaders();
 
   constructor(private readonly http: HttpClient, private readonly userService: UserService) {}
 
   list(urlOrFilter?: string | object): Observable<Page<Employee>> {
-    return queryPaginated<Employee>(this.http, this.apiUrl, this.perPage, urlOrFilter);
-  }
-
-  getAllEmployees(): Observable<Employee[]> {
-    return this.http.get<Employee[]>(`${this.apiUrl}all`, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
-      })
-    });
+    return queryPaginated<Employee>(this.http, this.defaultHeaders, this.apiUrl, this.perPage, urlOrFilter);
   }
 
   getEmployee(id: number): Observable<Employee> {
-    return this.http.get<Employee>(`${this.apiUrl}${id}/`, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
-      })
-    });
+    return this.http.get<Employee>(`${this.apiUrl}${id}/`);
   }
 
   addEmployee(employee: Employee): Observable<Employee> {
-    return this.http.post<Employee>(`${this.apiUrl}`, employee, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
-      })
-    });
+    return this.http.post<Employee>(`${this.apiUrl}`, employee);
   }
 
   editEmployee(employee: Employee): Observable<Employee> {
-    return this.http.put<Employee>(`${this.apiUrl}${employee.id}/`, employee, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
-      })
-    });
+    return this.http.put<Employee>(`${this.apiUrl}${employee.id}/`, employee);
   }
 
   deleteEmployee(employeeId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}${employeeId}/`, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
-      })
-    });
+    return this.http.delete(`${this.apiUrl}${employeeId}/`);
   }
 }
 

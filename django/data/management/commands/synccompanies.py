@@ -11,10 +11,12 @@ class Command(BaseCommand):
     help = 'Closes the specified poll for voting'
 
     def handle(self, *args, **options):
-        voivodeships = ['hotels', 'podlaskie']
+        # voivodeships = ['hotels', 'podlaskie']
+        voivodeships = ['warmińsko_mazurskie']
         pages = {
             'podlaskie': 113,
-            'hotels': 9
+            'hotels': 9,
+            'warmińsko_mazurskie': 133
         }
         logger.info('Started sync companies from json files')
         for voivodeship in voivodeships:

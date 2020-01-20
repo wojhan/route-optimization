@@ -18,6 +18,7 @@ import { BusinessTripsListComponent } from '../business-trips/business-trips-lis
 import { BusinessTripAddComponent } from '../business-trips/business-trip-add/business-trip-add.component';
 import { BusinessTripDetailComponent } from '../business-trips/business-trip-detail/business-trip-detail.component';
 import { BusinessTripEditComponent } from '../business-trips/business-trip-edit/business-trip-edit.component';
+import { StaffGuard } from '../shared/guards/staff.guard';
 
 const dashboardRoutes: Routes = [
   {
@@ -72,7 +73,8 @@ const dashboardRoutes: Routes = [
               }
             ]
           }
-        ]
+        ],
+        canActivate: [StaffGuard]
       },
       {
         path: 'business-trip',

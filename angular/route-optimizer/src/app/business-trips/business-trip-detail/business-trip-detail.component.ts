@@ -138,7 +138,7 @@ export class BusinessTripDetailComponent implements OnInit, OnDestroy, AfterView
       subroute.forEach(waypoint => {
         singleRoute.push(
           new L.Routing.Waypoint(
-            L.latLng(+waypoint.startPoint.longitude.toFixed(7), +waypoint.startPoint.latitude.toFixed(7)),
+            L.latLng(+waypoint.startPoint.latitude.toFixed(7), +waypoint.startPoint.longitude.toFixed(7)),
             waypoint.startPoint.nameShort
           )
         );
