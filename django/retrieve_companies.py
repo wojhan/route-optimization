@@ -26,7 +26,8 @@ from requests.packages.urllib3.util.retry import Retry
 
 voivodeships = {
     # 'mazowieckie': '14',
-    # 'podlaskie': '20',
+    'podlaskie': '20',
+    'warmińsko_mazurskie': '28'
 }
 
 session = requests.Session()
@@ -47,9 +48,9 @@ def update_company(companies):
         company['lng'] = None
         company['lat'] = None
         if r.json()['results']:
-            company['lng'] = round(r.json()['results'][0]
-                                   ['geometry']['location']['lat'], 7)
             company['lat'] = round(r.json()['results'][0]
+                                   ['geometry']['location']['lat'], 7)
+            company['lng'] = round(r.json()['results'][0]
                                    ['geometry']['location']['lng'], 7)
 
     return companies
@@ -65,17 +66,17 @@ for voivodeship, terc in voivodeships.items():
 
     companies = update_company(companies)
 
-    with open('{}_page{}.json'.format(voivodeship, 1), 'w+', encoding='utf-8') as company_data_file:
+    with open('rejestriodata/{}/{}_page{}.json'.format(voivodeship, voivodeship, 1), 'w+', encoding='utf-8') as company_data_file:
         json.dump(companies, company_data_file, indent=4, ensure_ascii=False)
 
     for page in range(2, pages + 1):
-        r = requests.get('https://rejestr.io/api/v1/krs?wojewodztwo=20&page={}&per_page=100'.format(page),
+        r = requests.get('https://rejestr.io/api/v1/krs?wojewodztwo={}&page={}&per_page=100'.format(terc, page),
                          headers={"Authorization": os.environ.get('REJESTRIO_API_KEY')})
         companies = r.json()['items']
 
         companies = update_company(companies)
 
-        with open('{}_page{}.json'.format(voivodeship, page), 'w+', encoding='utf-8') as company_data_file:
+        with open('rejestriodata/{}/{}_page{}.json'.format(voivodeship, voivodeship, page), 'w+', encoding='utf-8') as company_data_file:
             json.dump(companies, company_data_file,
                       indent=4, ensure_ascii=False)
 
