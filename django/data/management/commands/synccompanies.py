@@ -1,6 +1,7 @@
 import json
 import logging
 from django.core.management.base import BaseCommand
+from django.db.utils import IntegrityError
 from data.models import Company, Hotel
 
 logger = logging.getLogger('data')
@@ -44,7 +45,7 @@ class Command(BaseCommand):
                             c = model(name=name, name_short=name_short, nip=nip, street=street, house_no=house_no,
                                       postcode=postcode, city=city, voivodeship=voivodeship, latitude=lat, longitude=lng)
                             c.save()
-                        except:
+                        except IntegrityError:
                             logger.info(
                                 '{} is already in database, skipping'.format(name))
                 logger.info('Syncing {}_page{}.json is completed'.format(
