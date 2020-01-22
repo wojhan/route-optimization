@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
+import { map, delay } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class UserService {
   private httpOptions: any;
   public token: string;
-  public username: Subject<string> = new Subject();
+  public username: BehaviorSubject<string> = new BehaviorSubject('');
   public errors: HttpErrorResponse[] = [];
   public userHyperlink: Subject<string> = new Subject();
+  public profileHyperLink: BehaviorSubject<string> = new BehaviorSubject('');
+  public isStaff: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(public http: HttpClient, public cookieService: CookieService, private router: Router) {
     this.userHyperlink.subscribe(this.setUsername);
@@ -30,7 +33,7 @@ export class UserService {
       .subscribe(
         (data: string) => {
           this.token = data;
-          this.cookieService.set('access_token', this.token);
+          this.cookieService.set('access_token', this.token, new Date('tomorrow'), '/');
           this.router.navigate(['/dashboard']);
         },
         (err: HttpErrorResponse) => {
@@ -41,7 +44,6 @@ export class UserService {
   }
 
   setUsername = (userLink): void => {
-    console.log(userLink);
     const token = this.cookieService.get('access_token');
     this.http
       .get(userLink, {
@@ -51,16 +53,19 @@ export class UserService {
           Authorization: `Token ${token}`
         })
       })
-      .pipe(map((data: User) => data.username))
+      .pipe(map((data: any) => ({ username: data.username, staff: data.isStaff })))
       .subscribe(user => {
-        this.username.next(user);
+        this.isStaff.next(user.staff);
+        this.username.next(user.username);
       });
   };
 
   public logout() {
     this.token = null;
-    localStorage.removeItem('token');
-    this.username = null;
+    this.cookieService.delete('access_token');
+    this.profileHyperLink.next('');
+    // localStorage.removeItem('token');
+    // this.username = null;
   }
 }
 

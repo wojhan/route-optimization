@@ -25,6 +25,7 @@ class Profile(models.Model):
 
 
 class Company(models.Model):
+    added_by = models.ForeignKey(Profile, verbose_name="dodany przez", on_delete=models.SET_NULL, related_name="added_companies", default=None, null=True)
     name = models.CharField(max_length=300, verbose_name='nazwa pełna')
     name_short = models.CharField(
         max_length=250, verbose_name='nazwa skrócona')
@@ -100,6 +101,8 @@ class BusinessTrip(models.Model):
 
 
 class Requistion(models.Model):
+    created_by = models.ForeignKey(Profile, verbose_name="stworzony przez",
+                                on_delete=models.SET_NULL, related_name="created_requistions", default=None, null=True)
     estimated_profit = models.FloatField(verbose_name="oszacowany zysk")
     company = models.ForeignKey(
         Company, verbose_name="firma", on_delete=models.CASCADE, related_name="requistions")

@@ -72,9 +72,6 @@ export class BusinessTripAddComponent implements OnInit {
       this.businessTripsService.partialUpdateBusinessTrip(response.id, updateValues).subscribe(() => {
         this.router.navigate(['/dashboard/business-trip', response.id]);
       });
-      // this.wsService.connect(`ws://localhost:8000/ws/business_trip/${response.id}/`).subscribe(data => {
-      //   console.log(data);
-      // });
     });
   }
 }

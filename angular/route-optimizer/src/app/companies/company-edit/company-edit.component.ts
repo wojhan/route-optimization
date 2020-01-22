@@ -2,7 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Company, CompaniesService } from '../companies.service';
 import { Observable } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { UserService } from 'src/app/shared/services/user.service';
 
 @Component({
   selector: 'app-company-edit',
@@ -17,12 +18,23 @@ export class CompanyEditComponent implements OnInit {
 
   companyForm: FormGroup;
 
-  constructor(private route: ActivatedRoute, private companiesService: CompaniesService, private cdRef: ChangeDetectorRef) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private companiesService: CompaniesService,
+    private userService: UserService,
+    private cdRef: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id');
 
     this.companiesService.getCompany(id).subscribe(company => {
+      const addedBy = company.addedBy ? company.addedBy.split('?')[0] : '0';
+      if (addedBy !== this.userService.profileHyperLink.getValue() && !this.userService.isStaff.getValue()) {
+        this.router.navigate(['dashboard', 'company', id]);
+      }
+
       this.company = company;
       this.companyForm = new FormGroup({
         name: new FormControl(this.company.name, [Validators.required]),

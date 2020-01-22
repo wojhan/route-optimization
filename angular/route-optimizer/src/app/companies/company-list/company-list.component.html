@@ -49,10 +49,14 @@
                     <a class="dropdown-item" [routerLink]="['/dashboard/company/', company.id]" routerLinkActive="router-link-active"
                       >Informacje</a
                     >
-                    <a class="dropdown-item" [routerLink]="['/dashboard/company/edit/', company.id]" routerLinkActive="router-link-active"
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/dashboard/company/edit/', company.id]"
+                      routerLinkActive="router-link-active"
+                      *ngIf="canEditCompany(company)"
                       >Edytuj</a
                     >
-                    <a class="dropdown-item" (click)="remove(company)">Usuń</a>
+                    <a class="dropdown-item" (click)="remove(company)" *ngIf="canEditCompany(company)">Usuń</a>
                   </div>
                 </div>
               </td>

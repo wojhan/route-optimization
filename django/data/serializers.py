@@ -1,10 +1,11 @@
-from django.core.exceptions import FieldError
-from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from rest_framework.reverse import reverse
 
 from data.models import (BusinessTrip, Company, Hotel, Profile, Requistion,
                          Route)
+from django.contrib.auth.models import User
+from django.core.exceptions import FieldError
 
 
 class BasicUserSerializer(serializers.ModelSerializer):
@@ -46,7 +47,7 @@ class CompanySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Company
         fields = ['id', 'name', 'name_short', 'nip', 'street',
-                  'house_no', 'postcode', 'city', 'latitude', 'longitude']
+                  'house_no', 'postcode', 'city', 'latitude', 'longitude', 'added_by']
         extra_kwargs = {
             'nip': {
                 'validators': []
@@ -63,10 +64,19 @@ class HotelSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TokenSerializer(serializers.HyperlinkedModelSerializer):
+    is_staff = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
 
     class Meta:
         model = Token
-        fields = ['key', 'user']
+        fields = ['key', 'user', 'profile', 'is_staff']
+
+    def get_is_staff(self, obj):
+        return obj.user.is_staff
+
+    def get_profile(self, obj):
+        print(self.context['request'])
+        return reverse('profile-detail', args=[obj.user.profile.id], request=self.context['request'])
 
 
 class RequistionSerializer(serializers.HyperlinkedModelSerializer):
@@ -75,7 +85,7 @@ class RequistionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Requistion
         fields = ['id', 'estimated_profit', 'company',
-                  'assignment_date']
+                  'assignment_date', 'created_by']
 
 
 class RouteSerializer(serializers.HyperlinkedModelSerializer):

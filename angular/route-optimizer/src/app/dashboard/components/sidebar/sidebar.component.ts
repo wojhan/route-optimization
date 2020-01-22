@@ -9,5 +9,8 @@ import { DashboardService } from '../../dashboard.service';
 export class SidebarComponent implements OnInit {
   constructor(private dashboardService: DashboardService) {}
 
+  @Input()
+  public isStaff;
+
   ngOnInit() {}
 }

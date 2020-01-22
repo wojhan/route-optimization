@@ -30,8 +30,6 @@ export class EmployeeBusinessTripsListComponent implements OnInit {
       `${environment.apiUrl}api/employees/${this.employeeId}/business-trips/?format=json&page=1&page_size=40`
     );
 
-    console.log(this.employeeId);
-
     this.filterForm = new FormGroup({
       search: new FormControl()
     });

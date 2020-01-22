@@ -1,6 +1,6 @@
 <div class="d-flex" id="wrapper" [ngClass]="wrapperClasses">
   <!-- Sidebar -->
-  <app-dashboard-sidebar></app-dashboard-sidebar>
+  <app-dashboard-sidebar [isStaff]="isStaff"></app-dashboard-sidebar>
   <!-- /#sidebar-wrapper -->
 
   <!-- Page Content -->
@@ -11,7 +11,7 @@
       </button>
 
       <section id="user-info">
-        <p class="nav-text">Jesteś zalogowany, {{ user.username }}</p>
+        <p class="nav-text">Jesteś zalogowany, {{ username | async }} <span *ngIf="isStaff">(admin)</span></p>
         <button (click)="logout()" class="btn btn-secondary btn-sm">Logout</button>
       </section>
 

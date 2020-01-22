@@ -8,7 +8,13 @@ export class Page<T> {
   results: Array<T>;
 }
 
-export function queryPaginated<T>(http: HttpClient, baseUrl: string, pageSize: number, urlOrFilter?: string | object): Observable<Page<T>> {
+export function queryPaginated<T>(
+  http: HttpClient,
+  headers: HttpHeaders,
+  baseUrl: string,
+  pageSize: number,
+  urlOrFilter?: string | object
+): Observable<Page<T>> {
   let params = new HttpParams();
   let url = `${baseUrl}?page_size=${pageSize}`;
 
@@ -26,6 +32,7 @@ export function queryPaginated<T>(http: HttpClient, baseUrl: string, pageSize: n
   }
 
   return http.get<Page<T>>(url, {
-    params
+    params,
+    headers
   });
 }

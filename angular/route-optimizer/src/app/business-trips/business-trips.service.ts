@@ -15,6 +15,7 @@ import { map } from 'rxjs/operators';
 export class BusinessTripsService {
   apiUrl = 'http://localhost:8000/api/business-trips/';
   perPage = 40;
+  defaultHeaders = new HttpHeaders();
 
   constructor(private http: HttpClient, private userService: UserService, private wsService: WebSocketService) {}
 
@@ -23,55 +24,29 @@ export class BusinessTripsService {
     if (employeeId) {
       apiUrl = `http://localhost:8000/api/employees/${employeeId}/business-trips/`;
     }
-    return queryPaginated<BusinessTrip>(this.http, apiUrl, this.perPage, urlOrFilter);
+    return queryPaginated<BusinessTrip>(this.http, this.defaultHeaders, apiUrl, this.perPage, urlOrFilter);
   }
 
   getBusinessTrip(id: number): Observable<BusinessTrip> {
-    return this.http
-      .get<BusinessTrip>(`${this.apiUrl}${id}/`, {
-        headers: new HttpHeaders({
-          Authorization: `Token ${this.userService.token}`
-        })
+    return this.http.get<BusinessTrip>(`${this.apiUrl}${id}/`).pipe(
+      map((businessTrip: any) => {
+        businessTrip.assignee = businessTrip.assignee.user;
+        return businessTrip;
       })
-      .pipe(
-        map((businessTrip: any) => {
-          businessTrip.assignee = businessTrip.assignee.user;
-          return businessTrip;
-        })
-      );
+    );
   }
 
   addBusinessTrip(businessTrip: BusinessTrip): Observable<BusinessTrip> {
-    return this.http.post<BusinessTrip>(`${this.apiUrl}`, businessTrip, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
-      })
-    });
+    return this.http.post<BusinessTrip>(`${this.apiUrl}`, businessTrip);
   }
 
   partialUpdateBusinessTrip(businessTripId: number, data: object): Observable<BusinessTrip> {
-    return this.http.patch<BusinessTrip>(`${this.apiUrl}${businessTripId}/`, data, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
-      })
-    });
+    return this.http.patch<BusinessTrip>(`${this.apiUrl}${businessTripId}/`, data);
   }
 
   deleteBusinessTrip(businessTripId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}${businessTripId}/`, {
-      headers: new HttpHeaders({
-        Authorization: `Token ${this.userService.token}`
-      })
-    });
+    return this.http.delete(`${this.apiUrl}${businessTripId}/`);
   }
-
-  // getBusinessTrip(businessTripId: number, employeeId?: number): Observable<BusinessTrip> {
-  //   return this.http.get<BusinessTrip>(`http://localhost:8000/api/employees/2/business-trips/${businessTripId}`, {
-  //     headers: new HttpHeaders({
-  //       Authorization: `Token ${this.userService.token}`
-  //     })
-  //   });
-  // }
 }
 
 export class Route {

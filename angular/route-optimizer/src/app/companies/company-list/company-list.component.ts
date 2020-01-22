@@ -41,6 +41,10 @@ export class CompanyListComponent implements OnInit {
     this.router.navigate([`/dashboard/company/edit/${companyId}`]);
   }
 
+  canEditCompany(company: Company): boolean {
+    return this.companiesService.canEdit(company);
+  }
+
   remove(company: Company): void {
     const dialogRef = this.dialog.open(DeleteModalComponent, {
       width: '250px',
