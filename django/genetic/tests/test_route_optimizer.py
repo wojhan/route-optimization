@@ -1,204 +1,231 @@
-from django.test import TestCase
-from unittest.mock import Mock
-import copy
 import unittest
 
-from .factories import BusinessTripFactory
-from .utils import create_vertices, count_distance
-from genetic import utils
+from genetic.route_optimizer import RouteOptimizer
+from .utils import TestData
 
+class RouteOptimizerTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
 
-class RouteOneDayOptimizerTestCase(unittest.TestCase):
-    def setUp(self):
-        self.depot = create_vertices(utils.Depot, 1)
-        self.companies = create_vertices(utils.Company, 30)
-        self.hotels = create_vertices(utils.Hotel, 50)
+    def __get_route_optimizer_without_breeding(self, days, pop_size = 1, elite_rate = 0.1):
+        data = dict(depot=TestData.depots[0], companies=list(TestData.companies), hotels=list(TestData.hotels))
+        ro = RouteOptimizer(1, data, 10000, days, population_size=pop_size, crossover_probability=0, mutation_probability=0, elitsm_rate=elite_rate)
+        return ro
 
-        self.businessTrip = BusinessTripFactory()
+    def __get_route_optimizer_default_object(self, days, pop_size = 1):
+        data = dict(depot=TestData.depots[0], companies=list(TestData.companies), hotels=list(TestData.hotels))
+        ro = RouteOptimizer(1, data, 10000, days, population_size=pop_size)
+        return ro
 
-        max_profit = 0
-        for company in self.companies:
-            max_profit += company.profit
-        self.max_profit = max_profit
+    def __get_route_optimizer_with_no_companies_possible(self, days):
+        data = dict(depot=TestData.depots[0], companies=list(TestData.companies), hotels=list(TestData.hotels))
+        ro = RouteOptimizer(1, data, 0, days, population_size=1)
+        return ro
 
-        route = utils.SubRoute(self.depot + self.companies + self.depot, self.max_profit)
-        self.tmax = route.distance
+    def __get_route_optimizer_with_only_one_possible_company(self, days):
+        data = dict(depot=TestData.depots[0], companies=[TestData.companies[0]], hotels=list(TestData.hotels))
+        ro = RouteOptimizer(1, data, 10000, days, population_size=1)
+        return ro
 
-    def test_init(self):
-        # When route optimizer has been initialized
-        ro = utils.RouteOptimizer(
-            self.businessTrip.id, self.depot, self.companies, self.hotels, 100, 1)
-        # Then depots are equal to <depot>
-        self.assertEqual(ro.depots, self.depot)
-        # And companies are equal to <companies>
-        self.assertEqual(ro.companies, self.companies)
-        # And hotels are equal to <hotels>
-        self.assertEqual(ro.hotels, self.hotels)
-        # And tmax is equal to 100
-        self.assertEqual(ro.tmax, 100)
-        # And population is equal to 1
-        self.assertEqual(len(ro.population), 1)
-        # And days are equal to 1
-        self.assertEqual(ro.days, 1)
-        # And business_trip_id is greater than 0
-        self.assertGreater(ro.business_trip_id, 0)
-        # And max profit is equal to <max_profit>
-        self.assertEqual(ro.max_profit, self.max_profit)
-        # And length of distances is equal to length of depots + length of companies + length of hotels
-        self.assertEqual(len(ro.distances), len(self.depot) +
-                         len(self.companies) + len(self.hotels))
-        # And length of profits by distances is equal to length of distances
-        self.assertEqual(len(ro.profits_by_distances), len(ro.distances))
+    def test_init_sets_population_as_a_empty_list(self):
+        ro = self.__get_route_optimizer_default_object(1)
 
-    def test_count_distances(self):
-        ro = utils.RouteOptimizer(
-            self.businessTrip.id, self.depot, self.companies[:2], [self.hotels[0]], 100, 1)
+        expected_length = 0
+        self.assertEqual(len(ro.population), expected_length)
 
-        expected_distances = [
-            [
-                100000,
-                count_distance((self.depot[0].lat, self.depot[0].lng),
-                               (self.companies[0].lat, self.companies[0].lng)),
-                count_distance((self.depot[0].lat, self.depot[0].lng),
-                               (self.companies[1].lat, self.companies[1].lng)),
-                count_distance(
-                    (self.depot[0].lat, self.depot[0].lng), (self.hotels[0].lat, self.hotels[0].lng)),
-            ],
-            [
-                count_distance(
-                    (self.companies[0].lat, self.companies[0].lng), (self.depot[0].lat, self.depot[0].lng)),
-                100000,
-                count_distance((self.companies[0].lat, self.companies[0].lng), (
-                    self.companies[1].lat, self.companies[1].lng)),
-                count_distance(
-                    (self.companies[0].lat, self.companies[0].lng), (self.hotels[0].lat, self.hotels[0].lng))
-            ],
-            [
-                count_distance(
-                    (self.companies[1].lat, self.companies[1].lng), (self.depot[0].lat, self.depot[0].lng)),
-                count_distance((self.companies[1].lat, self.companies[1].lng), (
-                    self.companies[0].lat, self.companies[0].lng)),
-                100000,
-                count_distance(
-                    (self.companies[1].lat, self.companies[1].lng), (self.hotels[0].lat, self.hotels[0].lng))
-            ],
-            [
-                count_distance(
-                    (self.hotels[0].lat, self.hotels[0].lng), (self.depot[0].lat, self.depot[0].lng)),
-                count_distance((self.hotels[0].lat, self.hotels[0].lng),
-                               (self.companies[0].lat, self.companies[0].lng)),
-                count_distance((self.hotels[0].lat, self.hotels[0].lng),
-                               (self.companies[1].lat, self.companies[1].lng)),
-                100000
-            ]
-        ]
+    def test_init_distances_length_is_equal_to_sum_of_vertices(self):
+        ro = self.__get_route_optimizer_default_object(1)
 
-        expected_profits_by_distances = [
-            [
-                0,
-                self.companies[0].profit / expected_distances[0][1],
-                self.companies[1].profit / expected_distances[0][2],
-                self.hotels[0].profit / expected_distances[0][3]
-            ],
-            [
-                self.depot[0].profit / expected_distances[1][0],
-                0,
-                self.companies[1].profit / expected_distances[1][2],
-                self.hotels[0].profit / expected_distances[1][3]
-            ],
-            [
-                self.depot[0].profit / expected_distances[2][0],
-                self.companies[0].profit / expected_distances[2][1],
-                0,
-                self.hotels[0].profit / expected_distances[2][3]
-            ],
-            [
-                self.depot[0].profit / expected_distances[3][0],
-                self.companies[0].profit / expected_distances[3][1],
-                self.companies[1].profit / expected_distances[3][2],
-                0
-            ]
-        ]
+        expected_length = len(TestData.depots + TestData.companies + TestData.hotels)
+        self.assertEqual(len(ro.distances), expected_length)
 
-        # When count distances is called
-        ro.count_distances()
-        # Then distances are equal to <expected_distances>
-        self.assertEqual(ro.distances, expected_distances)
-        # And profits by distances are equal to <expected_profits_by_distances>
-        self.assertEqual(ro.profits_by_distances,
-                         expected_profits_by_distances)
-    
-    def test_get_vertex_index(self):
-        ro = utils.RouteOptimizer(
-            self.businessTrip.id, self.depot, self.companies[:2], [self.hotels[0]], 100, 1)
+    def test_init_distances_each_distance_dict_is_equal_to_sum_of_vertices(self):
+        ro = self.__get_route_optimizer_default_object(1)
 
-        # When depot is passed to method
-        result = ro.get_vertex_index(self.depot[0])
-        # Then result is equal to 0
-        self.assertEqual(result, 0)
+        expected_length = len(TestData.depots + TestData.companies + TestData.hotels)
+        for distances in ro.distances.values():
+            self.assertEqual(len(distances), expected_length)
 
-        # When company[0] is passed to method
-        result = ro.get_vertex_index(self.companies[0])
-        # Then result is equal to 1
-        self.assertEqual(result, 1)
+    def test_init_each_pair_of_distances_has_the_same_value(self):
+        ro = self.__get_route_optimizer_default_object(1)
 
-        # When company[1] is passed to method
-        result = ro.get_vertex_index(self.companies[1])
-        # Then result is equal to 2
-        self.assertEqual(result, 2)
+        for key, distances in ro.distances.items():
+            for key1, distances1 in distances.items():
+                self.assertEqual(ro.distances[key][key1], ro.distances[key1][key])
 
-        # When hotels[0] is passed to method
-        result = ro.get_vertex_index(self.hotels[0])
-        # Then result is equal to 3
-        self.assertEqual(result, 3)
-    
-    def test_first_population_does_not_exceed_tmax(self):
-        ro = utils.RouteOptimizer(self.businessTrip.id, self.depot, self.companies, self.hotels, 0.25*self.tmax, 1)
+    # generate_random_routes
 
-        # When first population has been generated
-        # Then each route does not exceed tmax constraint
-        for route in ro.population[0]:
-            self.assertLessEqual(route.distance, self.tmax)
+    def test_generate_random_route_for_one_day_is_less_than_equal_max_distance(self):
+        ro = self.__get_route_optimizer_with_no_companies_possible(1)
 
-    def test_first_population_has_depots_on_first_and_last_element(self):
-        ro = utils.RouteOptimizer(self.businessTrip.id, self.depot, self.companies, self.hotels, self.tmax, 1)
+        ro.generate_random_routes()
 
-        # When first population has been generated
-        # Then each route has <depot> on first and last element of route
-        for route in ro.population[0]:
-            self.assertEqual(route.routes[0].route[0], self.depot[0])
-            self.assertEqual(route.routes[0].route[-1], self.depot[0])
- 
-class RouteTwoDaysOptimizerTestCase(TestCase):
-    def setUp(self):
-        self.depot = create_vertices(utils.Depot, 1)
-        self.companies = create_vertices(utils.Company, 30)
-        self.hotels = create_vertices(utils.Hotel, 50)
+        expected_distance = 0
+        self.assertLessEqual(ro.population[0][0].distance, expected_distance)
 
-        self.businessTrip = BusinessTripFactory()
+    def test_generate_random_route_for_one_day_has_depot_on_first_element_of_route(self):
+        ro = self.__get_route_optimizer_default_object(1)
 
-        max_profit = 0
-        for company in self.companies:
-            max_profit += company.profit
-        self.max_profit = max_profit
+        ro.generate_random_routes()
 
-        route = utils.SubRoute(self.depot + self.companies + self.depot, self.max_profit)
-        self.tmax = route.distance
+        expected_first_element = TestData.depots[0]
+        self.assertEqual(ro.population[0][0].get_route_part(0).route[0], expected_first_element)
 
-    def test_each_route_of_population_of_20_has_correct_depots_and_hotels(self):
-        ro = utils.RouteOptimizer(self.businessTrip.id, self.depot, self.companies, self.hotels, self.tmax, 2)
+    def test_generate_random_route_for_one_day_has_depot_on_last_element_of_route(self):
+        ro = self.__get_route_optimizer_default_object(1)
 
-        # When route optimizer has finished its work
-        ro.run(20)
-        # Then each of subroute of route has common depots/hotels and they are correct
-        for route in ro.population[-1]:
-            self.assertIsInstance(route.routes[0].route[0], utils.Depot)
-            self.assertNotIsInstance(route.routes[0].route[-1], utils.Company)
-            self.assertNotIsInstance(route.routes[1].route[0], utils.Company)
-            self.assertIsInstance(route.routes[1].route[-1], utils.Depot)
-            # import pdb;pdb.set_trace()
-            self.assertEqual(route.routes[0].route[-1], route.routes[1].route[0])
-            self.assertEqual(route.routes[0].route[0], route.routes[1].route[-1])
+        ro.generate_random_routes()
 
-    
- 
+        expected_last_element = TestData.depots[0]
+        self.assertEqual(ro.population[0][0].get_route_part(0).route[-1], expected_last_element)
+
+    def test_generate_random_route_for_one_day_has_n_additional_companies_in_route(self):
+        ro = self.__get_route_optimizer_default_object(1)
+
+        ro.generate_random_routes()
+
+        expected_route_length = 8
+        self.assertEqual(len(ro.population[0][0].get_route_part(0).route), expected_route_length)
+
+    def test_generate_random_route_for_one_day_creates_a_population_with_only_one_route(self):
+        ro = self.__get_route_optimizer_default_object(1)
+
+        ro.generate_random_routes()
+
+        expected_population_length = 1
+        self.assertEqual(len(ro.population[0]), expected_population_length)
+
+    def test_generate_random_route_for_one_day_has_no_duplicated_companies_in_route(self):
+        ro = self.__get_route_optimizer_default_object(1)
+
+        ro.generate_random_routes()
+
+        route_set_length = len(set(ro.population[0][0].get_route_part(0).route))
+        expected_route_length = route_set_length + 1
+        self.assertEqual(len(ro.population[0][0].get_route_part(0).route), expected_route_length)
+
+    def test_generate_random_route_for_one_day_has_correct_profit(self):
+        ro = self.__get_route_optimizer_with_only_one_possible_company(1)
+
+        ro.generate_random_routes()
+
+        expected_profit = TestData.companies[0].profit
+        self.assertEqual(ro.population[0][0].profit, expected_profit)
+
+    def test_generate_random_route_for_two_days_has_route_part_distances_less_than_equal_max_distance(self):
+        ro = self.__get_route_optimizer_with_no_companies_possible(2)
+
+        ro.generate_random_routes()
+
+        maximum_value = 0
+        for route_part in ro.population[0][0].routes:
+            self.assertLessEqual(route_part.distance, maximum_value)
+
+    def test_generate_random_route_for_two_days_has_depot_on_first_element_of_first_route_part(self):
+        ro = self.__get_route_optimizer_default_object(2)
+
+        ro.generate_random_routes()
+
+        expected_first_element = TestData.depots[0]
+        first_element_of_first_route_part = ro.population[0][0].get_route_part(0).route[0]
+        self.assertEqual(first_element_of_first_route_part, expected_first_element)
+
+    def test_generate_random_route_for_two_days_has_depot_on_last_element_of_second_route_part(self):
+        ro = self.__get_route_optimizer_default_object(2)
+
+        ro.generate_random_routes()
+
+        expected_last_element = TestData.depots[0]
+        last_element_of_second_route_part = ro.population[0][0].get_route_part(1).route[-1]
+        self.assertEqual(last_element_of_second_route_part, expected_last_element)
+
+    def test_generate_random_route_for_two_days_both_route_parts_has_common_hotel(self):
+        ro = self.__get_route_optimizer_default_object(2)
+
+        ro.generate_random_routes()
+
+        first_route_hotel = ro.population[0][0].get_route_part(0).route[-1]
+        second_route_hotel = ro.population[0][0].get_route_part(1).route[0]
+        self.assertEqual(first_route_hotel, second_route_hotel)
+
+    def test_generate_random_route_for_two_days_has_no_duplicated_companies(self):
+        ro = self.__get_route_optimizer_with_only_one_possible_company(2)
+
+        ro.generate_random_routes()
+
+        first_route_part_route = ro.population[0][0].get_route_part(0).route
+        second_route_part_route = ro.population[0][0].get_route_part(1).route
+        route_length = len(first_route_part_route[1:-1] + second_route_part_route[1:-1]) + 4
+        expected_route_length = len(set(first_route_part_route[1:-1] + second_route_part_route[1:-1])) + 4
+        self.assertEqual(route_length, expected_route_length)
+
+    def test_generate_random_route_for_more_than_two_days_has_route_part_distances_less_than_equal_max_distance(self):
+        ro = self.__get_route_optimizer_with_no_companies_possible(3)
+
+        ro.generate_random_routes()
+
+        maximum_value = 0
+        for route_part in ro.population[0][0].routes:
+            self.assertLessEqual(route_part.distance, maximum_value)
+
+    def test_generate_random_route_for_more_than_two_days_has_the_common_hotels_where_stopping_and_starting(self):
+        ro = self.__get_route_optimizer_default_object(3)
+
+        ro.generate_random_routes()
+
+        self.assertEqual(ro.population[0][0].get_route_part(0).route[-1], ro.population[0][0].get_route_part(1).route[0])
+        self.assertEqual(ro.population[0][0].get_route_part(1).route[-1], ro.population[0][0].get_route_part(2).route[0])
+
+    def test_generate_random_route_for_more_than_two_days_starts_at_depot(self):
+        ro = self.__get_route_optimizer_default_object(3)
+
+        ro.generate_random_routes()
+
+        expected_start_element = TestData.depots[0]
+        self.assertEqual(ro.population[0][0].get_route_part(0).route[0], expected_start_element)
+
+    def test_generate_random_route_for_more_than_two_days_stops_at_depot(self):
+        ro = self.__get_route_optimizer_default_object(3)
+
+        ro.generate_random_routes()
+
+        expected_stop_element = TestData.depots[0]
+        self.assertEqual(ro.population[0][0].get_route_part(2).route[-1], expected_stop_element)
+
+    # run
+
+    def test_run_elite_number_population_has_no_changed_for_one_iteration(self):
+        ro = self.__get_route_optimizer_without_breeding(1, pop_size=20)
+
+        ro.generate_random_routes()
+        ro.run(1)
+
+        self.assertEqual(ro.population[0][0], ro.population[1][0])
+
+    def test_run_elite_number_population_has_no_changed_for_more_than_one_iteration(self):
+        ro = self.__get_route_optimizer_without_breeding(1, pop_size=20)
+
+        ro.generate_random_routes()
+        ro.run(2)
+
+        self.assertEqual(ro.population[0][0], ro.population[1][0])
+        self.assertEqual(ro.population[1][0], ro.population[2][0])
+
+    def test_run_has_correct_length_of_population_for_one_iteration(self):
+        ro = self.__get_route_optimizer_default_object(1, pop_size=20)
+
+        ro.generate_random_routes()
+        ro.run(1)
+
+        expected_population_length = 20
+        self.assertEqual(len(ro.population[-1]), expected_population_length)
+
+    def test_run_has_correct_length_of_population_for_more_than_one_iteration(self):
+        ro = self.__get_route_optimizer_default_object(1, pop_size=20)
+
+        ro.generate_random_routes()
+        ro.run(2)
+
+        expected_population_length = 20
+        for pop in ro.population:
+            self.assertEqual(len(pop), expected_population_length)

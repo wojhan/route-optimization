@@ -1,5 +1,4 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .utils import RouteOptimizer
 import json
 
 

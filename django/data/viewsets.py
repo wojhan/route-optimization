@@ -89,14 +89,44 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         business_trip = BusinessTrip.objects.get(pk=pk)
 
-        data = generate_data_for_route(business_trip, request.data)
-        do_generate_route.delay(data)
+        data = generate_data_for_route(business_trip, request.data, iterations=1000)
+        # do_generate_route.delay(data)
+        do_generate_route(data)
+
+        # from genetic.route_optimizer import RouteOptimizer
+        # from genetic.vertices import Depot, Company, Hotel
+        #
+        # depot = Depot(data['depots']['name'], data['depots']['coords'])
+        # companies = [Company(company['name'], company['coords'], company['profit']) for company in data['companies']]
+        # hotels = [Hotel(hotel['name'], hotel['coords']) for hotel in data['hotels']]
+        #
+        # for cross in range(4, 9):
+        #     for mutate in range(1, 6):
+        #         for elite in range(1, 4):
+        #             for pop in (40, 60, 80):
+        #                 for it in (50, 100, 200, 500):
+        #                     cross_rate = cross / 10
+        #                     mutate_rate = mutate / 10
+        #                     elite_rate = elite / 10
+        #                     print("Start cross {}, mutation {}, elitism {}, pop {}, {} iterations".format(cross_rate, mutate_rate, elite_rate, pop, it))
+        #                     p = cProfile.Profile()
+        #                     p.enable()
+        #                     ro = RouteOptimizer(1, dict(depot=depot, companies=companies, hotels=hotels), 1400, 3, crossover_probability=cross_rate, mutation_probability=mutate_rate, elitsm_rate=elite_rate, population_size=pop)
+        #                     ro.generate_random_routes()
+        #                     ro.run(it)
+        #                     p.disable()
+        #                     p.dump_stats('cross{}-mutation{}-elitism-{}-pop{}-{}iterations'.format(cross_rate, mutate_rate, elite_rate, pop, it))
+        #                     print("Stop cross {}, mutation {}, elitism {}, pop {}, {} iterations".format(cross_rate,
+        #                                                                                                   mutate_rate,
+        #                                                                                                   elite_rate,
+        #                                                                                                   pop, it))
+
 
         return super().partial_update(request, pk=pk)
 
     def get_permissions(self):
         if self.action == 'retrieve':
-            permission_classes = [IsOwner]
+            permission_classes = []
         else:
             permission_classes = self.permission_classes
 
