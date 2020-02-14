@@ -94,8 +94,27 @@ class TokenSerializer(serializers.HyperlinkedModelSerializer):
         return reverse('profile-detail', args=[obj.user.profile.id], request=self.context['request'])
 
 
-class RequistionSerializer(serializers.HyperlinkedModelSerializer):
+class RequistionSerializer(serializers.ModelSerializer):
     company = CompanySerializer()
+
+    def create(self, validated_data: dict):
+        company = validated_data.pop('company')
+        company_obj = Company.objects.get_or_create(**company)[0]
+
+        validated_data['company'] = company_obj
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        company = validated_data.pop('company')
+        company_obj = Company.objects.get_or_create(**company)[0]
+
+        instance.company = company_obj
+
+        instance.save()
+
+        return super().update(instance, validated_data)
+
+
 
     class Meta:
         model = Requistion

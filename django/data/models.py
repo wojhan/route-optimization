@@ -102,12 +102,12 @@ class BusinessTrip(models.Model):
 
 class Requistion(models.Model):
     created_by = models.ForeignKey(Profile, verbose_name="stworzony przez",
-                                on_delete=models.SET_NULL, related_name="created_requistions", default=None, null=True)
+                                on_delete=models.SET_NULL, related_name="created_requistions", default=None, null=True, blank=True)
     estimated_profit = models.FloatField(verbose_name="oszacowany zysk")
     company = models.ForeignKey(
         Company, verbose_name="firma", on_delete=models.CASCADE, related_name="requistions")
     business_trip = models.ForeignKey(
-        BusinessTrip, verbose_name="delegacja", on_delete=models.SET_NULL, related_name="requistions", null=True)
+        BusinessTrip, verbose_name="delegacja", on_delete=models.SET_NULL, related_name="requistions", null=True, blank=True)
     assignment_date = models.DateTimeField(
         verbose_name="data przypisania", auto_now=True)
 
