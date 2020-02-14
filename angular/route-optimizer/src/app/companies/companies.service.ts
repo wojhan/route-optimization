@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { of, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { of, Observable, defer, from, concat, EMPTY } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Page, queryPaginated } from '../pagination';
@@ -23,6 +23,43 @@ export class CompaniesService {
   getCompany(companyId: number): Observable<Company> {
     return this.http.get<Company>(`${this.apiUrl}${companyId}/`);
   }
+
+  getCompanies(urlOrFilter: string | any): Observable<Company> {
+    if (!urlOrFilter || !urlOrFilter.search) {
+      return EMPTY;
+    }
+
+    let page = urlOrFilter;
+
+    if (urlOrFilter instanceof Object) {
+      page = `${this.apiUrl}?search=${urlOrFilter.search}&format=json`;
+    }
+
+    // const page = urlOrFilter ?  :`${this.apiUrl}?search=${search}&format=json`;
+
+    return defer(() => {
+      return this.list(page).pipe(
+        mergeMap(({ results, next }) => {
+          const results$ = from(results);
+          const next$ = next ? this.getCompanies(next) : EMPTY;
+          return concat(results$, next$);
+        })
+      );
+    });
+  }
+
+  // getCompanies(page?): Observable<any> {
+  //   return defer(() => {
+  //     const page$ = page ? page : `${this.apiUrl}?format=json&page=1&page_size=${this.perPage}`;
+  //     return this.list(page$).pipe(
+  //       mergeMap(({ results, next }) => {
+  //         const results$ = from(results);
+  //         const next$ = next ? this.getCompanies(next) : EMPTY;
+  //         return concat(results$, next$);
+  //       })
+  //     );
+  //   });
+  // }
 
   addCompany(company: Company): Observable<Company> {
     return this.http.post<Company>(`${this.apiUrl}`, company);

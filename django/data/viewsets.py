@@ -154,6 +154,8 @@ class CompanyViewSet(viewsets.ModelViewSet):
     serializer_class = CompanySerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name_short', 'nip']
 
 
 class HotelViewSet(viewsets.ModelViewSet):

@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 export class UserService {
   private httpOptions: any;
   public token: string;
+  public user: BehaviorSubject<AuthenticatedUser> = new BehaviorSubject(new AuthenticatedUser());
   public username: BehaviorSubject<string> = new BehaviorSubject('');
   public errors: any[] = [];
   public userHyperlink: Subject<string> = new Subject();
@@ -79,6 +80,16 @@ export class User {
   toString(): string {
     return this.username + ' ' + this.password;
   }
+}
+
+export class AuthenticatedUser {
+  url: string;
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  isStaff: boolean;
 }
 
 export interface IAuthToken {
