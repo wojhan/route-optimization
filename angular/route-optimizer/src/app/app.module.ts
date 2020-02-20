@@ -17,6 +17,7 @@ import { registerLocaleData } from '@angular/common';
 import localePl from '@angular/common/locales/pl';
 import localePlExtra from '@angular/common/locales/extra/pl';
 import { HttpConfigInterceptor } from './shared/http-config.interceptor';
+import { RegistrationModule } from './registration/registration.module';
 registerLocaleData(localePl, localePlExtra);
 
 @NgModule({
@@ -27,6 +28,7 @@ registerLocaleData(localePl, localePlExtra);
     HttpClientModule,
     DashboardModule,
     LoginModule,
+    RegistrationModule,
     CompaniesModule,
     BrowserAnimationsModule,
     EmployeesModule,

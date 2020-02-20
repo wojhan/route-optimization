@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
-import { map, delay } from 'rxjs/operators';
+import { map, delay, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
@@ -12,7 +12,7 @@ export class UserService {
   private httpOptions: any;
   public token: string;
   public username: BehaviorSubject<string> = new BehaviorSubject('');
-  public errors: HttpErrorResponse[] = [];
+  public errors: any[] = [];
   public userHyperlink: Subject<string> = new Subject();
   public profileHyperLink: BehaviorSubject<string> = new BehaviorSubject('');
   public isStaff: BehaviorSubject<boolean> = new BehaviorSubject(false);
@@ -21,51 +21,49 @@ export class UserService {
     this.userHyperlink.subscribe(this.setUsername);
   }
 
-  public login(user: User): void {
-    this.http
+  public login(user: User): Observable<string> {
+    return this.http
       .post(`${environment.apiUrl}api-token-auth/`, JSON.stringify(user), {
         responseType: 'json',
         headers: new HttpHeaders({
           'Content-Type': 'application/json'
         })
       })
-      .pipe(map((data: IAuthToken) => data.token))
-      .subscribe(
-        (data: string) => {
-          this.token = data;
-          this.cookieService.set('access_token', this.token, new Date('tomorrow'), '/');
-          this.router.navigate(['/dashboard']);
-        },
-        (err: HttpErrorResponse) => {
-          console.log(err);
-          this.errors = err.error;
-        }
+      .pipe(
+        tap(() => {
+          this.errors = [];
+        }),
+        map((data: IAuthToken) => data.token)
       );
   }
 
+  public register(user): Observable<any> {
+    return this.http.post(`${environment.apiUrl}api/users/`, user);
+  }
+
   setUsername = (userLink): void => {
-    const token = this.cookieService.get('access_token');
-    this.http
-      .get(userLink, {
-        responseType: 'json',
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-          Authorization: `Token ${token}`
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      this.http
+        .get(userLink, {
+          responseType: 'json',
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: `Token ${token}`
+          })
         })
-      })
-      .pipe(map((data: any) => ({ username: data.username, staff: data.isStaff })))
-      .subscribe(user => {
-        this.isStaff.next(user.staff);
-        this.username.next(user.username);
-      });
+        .pipe(map((data: any) => ({ username: data.username, staff: data.isStaff })))
+        .subscribe(user => {
+          this.isStaff.next(user.staff);
+          this.username.next(user.username);
+        });
+    }
   };
 
   public logout() {
     this.token = null;
-    this.cookieService.delete('access_token');
+    localStorage.removeItem('access_token');
     this.profileHyperLink.next('');
-    // localStorage.removeItem('token');
-    // this.username = null;
   }
 }
 

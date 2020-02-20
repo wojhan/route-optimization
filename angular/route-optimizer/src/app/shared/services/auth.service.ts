@@ -13,7 +13,7 @@ export class AuthService {
   public isAuthenticated = false;
 
   public getIsAuthenticated(): Observable<boolean> {
-    const token = this.cookieService.get('access_token');
+    const token: string = localStorage.getItem('access_token');
     return new Observable(subscriber => {
       if (!token) {
         subscriber.next(false);

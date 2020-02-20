@@ -1,0 +1,89 @@
+<section id="login" class="d-flex flex-row justify-content-center align-items-center">
+  <form [formGroup]="registrationForm" (ngSubmit)="register()" id="login-box">
+    <div class="row">
+      <div class="col">
+        <h1>Dołącz teraz!</h1>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col">
+        <mat-form-field>
+          <input matInput placeholder="Imię" formControlName="firstName" />
+          <mat-error>
+            <p *ngIf="registrationForm.get('firstName').errors?.required">To pole jest wymagane</p>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <mat-form-field>
+          <input matInput placeholder="Nazwisko" formControlName="lastName" />
+          <mat-error>
+            <p *ngIf="registrationForm.get('lastName').errors?.required">To pole jest wymagane</p>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <mat-form-field>
+          <input matInput placeholder="Nazwa użytkownika" formControlName="username" />
+          <mat-error>
+            <p *ngIf="registrationForm.get('username').errors?.required">To pole jest wymagane</p>
+            <p *ngIf="registrationForm.get('username').errors?.inUse">Nazwa użytkownika jest już zajęta</p>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <mat-form-field>
+          <input matInput type="email" placeholder="Email" formControlName="email" />
+          <mat-error>
+            <p *ngIf="registrationForm.get('email').errors?.required">To pole jest wymagane</p>
+            <p *ngIf="registrationForm.get('email').errors?.email">Wprowadź poprawny adres e-mail</p>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <mat-form-field>
+          <input matInput type="password" placeholder="Hasło" formControlName="password" />
+          <mat-error>
+            <p *ngIf="registrationForm.get('password').errors?.required">To pole jest wymagane</p>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <mat-form-field>
+          <input matInput type="password" placeholder="Powtórz hasło" formControlName="password2" />
+          <mat-error>
+            <p *ngIf="registrationForm.get('password2').errors?.required">To pole jest wymagane</p>
+            <p *ngIf="registrationForm.get('password2').errors?.passwordMismatch">Hasła muszą być identyczne</p>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col">
+        <div class="non-field-errors">
+          <mat-error *ngFor="let error of errors?.non_field_errors">{{ error }}</mat-error>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col">
+        <button type="submit" class="btn btn-block btn-primary" [disabled]="!registrationForm.valid">Dołącz</button>
+      </div>
+    </div>
+    <div class="row mt-1">
+      <div class="col text-right">
+        <p class="login-helper">Masz już konto? <a [routerLink]="['/login']">Zaloguj się.</a></p>
+      </div>
+    </div>
+  </form>
+</section>

@@ -1,6 +1,7 @@
 #login {
   /* The image used */
-  background-image: image("bg.png");
+  // background-image: image("bg.png");
+  background-color: $background-color;
 
   /* Full height */
   height: 100%;
@@ -13,12 +14,14 @@
 }
 
 #login-box {
-  background-color: #eaeaea;
-  padding: 50px 70px;
+  width: 700px;
+  background-color: $white-color;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  padding: 30px 100px;
 
   h1 {
     font-size: 1.7rem;
-    color: $brand-color;
+    color: $primary-color;
     text-align: center;
   }
 
@@ -30,11 +33,29 @@
       margin: 15px 0;
     }
   }
+  .mat-form-field {
+    width: 100%;
+  }
+
+  .non-field-errors {
+    font-size: 0.9rem;
+    letter-spacing: 0.01rem;
+  }
 
   .login-helper {
     font-size: 0.8rem;
     color: $text-color;
     margin: 3px 0;
     padding: 0;
+  }
+
+  &.complete {
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2.1rem;
+    }
+
+    font-size: 0.99rem;
+    text-align: justify;
   }
 }
