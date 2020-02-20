@@ -32,6 +32,15 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return False
 
 
+class IsCreationOrAuthenticated(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'POST':
+            return True
+
+        return request.user.is_authenticated
+
+
 class IsAdminOrReadOnly(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):

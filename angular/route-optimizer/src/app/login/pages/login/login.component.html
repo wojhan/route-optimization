@@ -1,35 +1,51 @@
 <section id="login" class="d-flex flex-row justify-content-center align-items-center">
-  <div id="login-box">
+  <form [formGroup]="loginForm" (ngSubmit)="login()" id="login-box">
     <div class="row">
       <div class="col">
-        <h1>Zaloguj się</h1>
+        <h1>Witaj ponownie!</h1>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col">
+        <mat-form-field>
+          <input matInput placeholder="Nazwa użytkownika" formControlName="username" />
+          <mat-error>
+            <p *ngIf="loginForm.get('username').errors?.required">To pole jest wymagane</p>
+          </mat-error>
+        </mat-form-field>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <input class="form-control form-control-lg" type="text" placeholder="login" [(ngModel)]="user.username"
-          name="login-username">
-        <!-- <span *ngFor="let error of userService.errors.username"><br />
-          {{ error }}</span> -->
-        <input class="form-control form-control-lg" type="password" placeholder="hasło" [(ngModel)]="user.password"
-          name="login-password">
-        <!-- <span *ngFor="let error of userService.errors.password"><br />
-          {{ error }}</span> -->
-        <button (click)="login()" class="btn btn-block btn-primary">Submit</button>
+        <mat-form-field>
+          <input matInput type="password" placeholder="Hasło" formControlName="password" />
+          <mat-error>
+            <p *ngIf="loginForm.get('password').errors?.required">To pole jest wymagane</p>
+          </mat-error>
+        </mat-form-field>
       </div>
     </div>
-    <div class="row">
-      <!-- <span *ngFor="let error of userService.errors.non_field_errors">{{ error }}<br /></span> -->
+    <div class="row mt-3">
+      <div class="col">
+        <div class="non-field-errors">
+          <mat-error *ngFor="let error of errors?.non_field_errors">{{ error }}</mat-error>
+        </div>
+      </div>
     </div>
-    <div class="row">
+    <div class="row mt-3">
+      <div class="col">
+        <button type="submit" class="btn btn-block btn-primary" [disabled]="!loginForm.valid">Zaloguj</button>
+      </div>
+    </div>
+    <div class="row mt-3">
       <div class="col text-right">
-        <p class="login-helper">Nie pamiętam hasła</p>
+        <p class="login-helper"><a [routerLink]="['/remind-password']">Nie pamiętam hasła</a></p>
       </div>
     </div>
-    <div class="row">
+    <div class="row mt-1">
       <div class="col text-right">
-        <p class="login-helper">Nie masz jeszcze konta? <a>Założ konto.</a></p>
+        <p class="login-helper">Nie masz jeszcze konta? <a [routerLink]="['/register']">Założ konto.</a></p>
       </div>
     </div>
-  </div>
+  </form>
 </section>

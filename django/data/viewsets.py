@@ -13,7 +13,7 @@ from genetic.serializers import RouteSerializer
 from genetic.tasks import do_generate_route
 
 from .models import BusinessTrip, Company, Hotel, Profile, Requistion
-from .permissions import IsAdminOrReadOnly, IsOwner, IsOwnerOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsOwner, IsOwnerOrReadOnly, IsCreationOrAuthenticated
 from .serializers import (BasicUserSerializer, BusinessTripSerializer,
                           CompanySerializer, HotelSerializer,
                           ProfileSerializer, RequistionSerializer,
@@ -53,6 +53,7 @@ class ObtainUserFromTokenView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsCreationOrAuthenticated]
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):

@@ -4,13 +4,11 @@
 
 /// Regular font family
 /// @type List
-$text-font-stack: "Open Sans", "Helvetica Neue Light", "Helvetica Neue",
-  "Helvetica", "Arial", sans-serif !default;
+$text-font-stack: 'Open Sans', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif !default;
 
 /// Code (monospace) font family
 /// @type List
-$code-font-stack: "Courier New", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
-  "Monaco", monospace !default;
+$code-font-stack: 'Courier New', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Monaco', monospace !default;
 
 /// Copy text color
 /// @type Color
@@ -34,6 +32,13 @@ $dark-grey: rgb(68, 68, 68) !default;
 
 $default-padding: 15px 20px !default;
 
+/* Color Theme Swatches in Hex */
+$primary-color: #0439d9 !default;
+$Grafika-2-hex: #0442bf;
+$white-color: #d8e6f2;
+$background-color: #04b2d9 !default;
+$Grafika-5-hex: #05dbf2;
+
 /// Container's maximum width
 /// @type Length
 $max-width: 1180px !default;
@@ -42,13 +47,13 @@ $max-width: 1180px !default;
 /// @prop {String} keys - Keys are identifiers mapped to a given length
 /// @prop {Map} values - Values are actual breakpoints expressed in pixels
 $breakpoints: (
-  "small": 320px,
-  "medium": 768px,
-  "large": 1024px
+  'small': 320px,
+  'medium': 768px,
+  'large': 1024px
 ) !default;
 
 /// Relative or absolute URL where all assets are served from
 /// @type String
 /// @example scss - When using a CDN
 ///   $base-url: 'http://cdn.example.com/assets/';
-$base-url: "/assets/" !default;
+$base-url: '/assets/' !default;
