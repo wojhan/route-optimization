@@ -1,4 +1,5 @@
 import math
+from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
@@ -11,6 +12,30 @@ from django.utils.functional import cached_property
 class Profile(models.Model):
     user = models.OneToOneField(
         get_user_model(), related_name="profile", on_delete=models.CASCADE)
+
+    @property
+    def total_business_trips(self):
+        return self.business_trips.count()
+
+    @property
+    def visited_companies(self):
+        visited = 0
+        business_trips = self.business_trips.filter(finish_date__lt=datetime.now())
+
+        for business_trip in business_trips:
+            visited += business_trip.requistions.count()
+
+        return visited
+
+    @property
+    def total_distance(self):
+        distance = 0
+        business_trips = self.business_trips.filter(finish_date__lt=datetime.now())
+
+        for business_trip in business_trips:
+            distance += business_trip.distance
+
+        return distance
 
     @staticmethod
     def autocomplete_search_fields():
@@ -117,6 +142,7 @@ class Requistion(models.Model):
     class Meta:
         verbose_name = 'zapotrzebowanie'
         verbose_name_plural = 'zapotrzebowania'
+        ordering = ['-pk']
 
 
 class Route(models.Model):

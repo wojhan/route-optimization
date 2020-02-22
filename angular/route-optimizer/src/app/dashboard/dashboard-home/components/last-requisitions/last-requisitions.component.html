@@ -1,0 +1,61 @@
+<div id="user-history">
+  <div class="row user-history-header">
+    <div class="col">
+      <h2>
+        Ostatnio dodane przez Ciebie oferty
+      </h2>
+    </div>
+  </div>
+  <div class="row user-history-body" *ngIf="lastRequisitions.loading">
+    <div class="d-flex justify-content-center align-items-center h-100 m-auto">
+      <app-lds-roller></app-lds-roller>
+    </div>
+  </div>
+  <div class="user-history-body" *ngIf="lastRequisitions.requisitions | async; let requisitions">
+    <div *ngIf="requisitions.length > 0; else noRequisitions">
+      <div class="row">
+        <div class="col">
+          <div class="alert alert-info">Lista zawiera do 5 ostatnio dodanych przez Ciebie ofert.</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="thead-dark">
+                <tr class="d-flex">
+                  <th class="col-1">#</th>
+                  <th class="col-6">Firma</th>
+                  <th class="col-5">Oszacowany zysk</th>
+                </tr>
+              </thead>
+              <tbody *ngFor="let requisition of requisitions">
+                <tr class="d-flex">
+                  <td class="col-1">{{ requisition.id }}</td>
+                  <td class="col-6">{{ requisition.company.nameShort }}</td>
+                  <td class="col-5">{{ requisition.estimatedProfit }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="h-100">
+    <div class="d-flex justify-content-center align-items-center h-100">
+      <app-lds-roller></app-lds-roller>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #noRequisitions>
+  <div class="row">
+    <div class="col">
+      <div class="alert alert-info">Nie dodałeś jeszcze żadnej oferty.</div>
+    </div>
+  </div>
+</ng-template>

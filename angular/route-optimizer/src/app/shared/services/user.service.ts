@@ -42,20 +42,29 @@ export class UserService {
     return this.http.post(`${environment.apiUrl}api/users/`, user);
   }
 
+  public updateProfile(data): Observable<AuthenticatedUser> {
+    return this.http.patch<AuthenticatedUser>(`http://localhost:8000/api/users/${this.user.getValue().id}/`, data);
+  }
+
+  public changePassword(data): Observable<IAuthToken> {
+    return this.http.put<IAuthToken>(`http://localhost:8000/api/change-password/`, data);
+  }
+
   setUsername = (userLink): void => {
     const token = localStorage.getItem('access_token');
     if (token) {
       this.http
-        .get(userLink, {
+        .get<AuthenticatedUser>(userLink, {
           responseType: 'json',
           headers: new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: `Token ${token}`
           })
         })
-        .pipe(map((data: any) => ({ username: data.username, staff: data.isStaff })))
-        .subscribe(user => {
-          this.isStaff.next(user.staff);
+        // .pipe(map((data: any) => ({ username: data.username, staff: data.isStaff })))
+        .subscribe((user: AuthenticatedUser) => {
+          this.user.next(user);
+          this.isStaff.next(user.isStaff);
           this.username.next(user.username);
         });
     }
@@ -90,6 +99,7 @@ export class AuthenticatedUser {
   lastName: string;
   email: string;
   isStaff: boolean;
+  dateJoined: Date;
 }
 
 export interface IAuthToken {

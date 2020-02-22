@@ -1,0 +1,15 @@
+<div class="card h-100">
+  <div class="card-header">
+    Statystyki
+  </div>
+  <div class="card-body">
+    <div *ngIf="businessTripStats.loading" class="d-flex justify-content-center align-items-center h-100 m-auto">
+      <app-lds-roller></app-lds-roller>
+    </div>
+    <div *ngIf="businessTripStats.businessTripStat | async; let stats">
+      <p>{{ stats.totalBusinessTrips }} delegacji</p>
+      <p>{{ stats.visitedCompanies }} odwiedzonych firm</p>
+      <p>{{ stats.totalDistance }} km przebyty dystans</p>
+    </div>
+  </div>
+</div>

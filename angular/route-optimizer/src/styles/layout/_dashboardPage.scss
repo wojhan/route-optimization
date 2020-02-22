@@ -1,0 +1,16 @@
+#dashboard-content {
+  margin: 20px 0;
+
+  p-breadcrumb {
+    margin-bottom: 15px;
+  }
+
+  h1.section-header {
+    font-size: 1.7rem;
+    font-family: $text-font-stack;
+    font-weight: 300;
+    text-transform: uppercase;
+    margin: $standard-vertical-margin;
+    color: $primary-color;
+  }
+}

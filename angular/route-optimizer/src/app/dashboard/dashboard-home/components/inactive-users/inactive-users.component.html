@@ -1,0 +1,72 @@
+<div id="inactive-users">
+  <div class="row inactive-users-header">
+    <div class="col">
+      <h2>
+        Użytkownicy oczekujący na akceptację
+      </h2>
+    </div>
+  </div>
+  <div class="row inactive-users-body" *ngIf="inactiveUsers.loading">
+    <div class="d-flex justify-content-center align-items-center h-100 m-auto">
+      <app-lds-roller></app-lds-roller>
+    </div>
+  </div>
+  <div class="inactive-users-body" *ngIf="inactiveUsers.employees | async; let employees">
+    <div *ngIf="employees.length > 0; else noEmployees">
+      <div class="row">
+        <div class="col">
+          <div class="alert alert-info">Lista zawiera do 5 ostatnio dodanych przez Ciebie ofert.</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Nazwa użytkownika</th>
+                  <th>Imię</th>
+                  <th>Nazwisko</th>
+                  <th>E-mail</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody *ngFor="let employee of employees">
+                <tr>
+                  <td>{{ employee.username }}</td>
+                  <td>{{ employee.firstName }}</td>
+                  <td>{{ employee.lastName }}</td>
+                  <td>{{ employee.email }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-success" (click)="activateEmployee(employee.id)">
+                      <fa-icon [icon]="faCheckCircle"></fa-icon>
+                    </button>
+                    <button class="btn btn-sm btn-danger" (click)="deleteEmployee(employee.id)">
+                      <fa-icon [icon]="faTrash"></fa-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="h-100">
+    <div class="d-flex justify-content-center align-items-center h-100">
+      <app-lds-roller></app-lds-roller>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #noEmployees>
+  <div class="row">
+    <div class="col">
+      <div class="alert alert-info">Brak użytkowników oczekujących na akceptację</div>
+    </div>
+  </div>
+</ng-template>

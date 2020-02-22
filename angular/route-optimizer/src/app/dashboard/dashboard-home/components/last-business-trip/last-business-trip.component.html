@@ -1,0 +1,35 @@
+<div class="card h-100">
+  <div class="card-header">
+    Ostatnia delegacja
+  </div>
+  <div class="card-body">
+    <div *ngIf="lastBusinessTrip.loading" class="d-flex justify-content-center align-items-center h-100 m-auto">
+      <app-lds-roller></app-lds-roller>
+    </div>
+    <div *ngIf="lastBusinessTrip.businessTrip | async; let businessTrip">
+      <p *ngIf="businessTrip.length == 0">Jeszcze nie byłeś na delegacji.</p>
+      <div class="delegation-info" *ngIf="businessTrip.length > 0">
+        <div class="delegation-date">
+          <p>Początek:</p>
+          <p>{{ businessTrip[0].startDate | date: 'dd.MM.y':undefined:'pl' }}</p>
+          <p class="mt-3">Koniec:</p>
+          <p>{{ businessTrip[0].finishDate | date: 'dd.MM.y':undefined:'pl' }}</p>
+        </div>
+        <div class="delegation-measure">
+          <div class="measure-wrapper">
+            <p>Dystans</p>
+            <div class="circle-info">{{ businessTrip[0].distance }} km</div>
+          </div>
+        </div>
+        <div class="delegation-measure">
+          <div class="measure-wrapper">
+            <p>Liczba firm</p>
+            <div class="circle-info">
+              {{ businessTrip[0].requistions.length }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
