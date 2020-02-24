@@ -12,15 +12,15 @@ from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
 from genetic import utils as genetic
-from genetic.serializers import RouteSerializer
+# from genetic.serializers import RouteSerializer
 from genetic.tasks import do_generate_route
 
-from .models import BusinessTrip, Company, Hotel, Profile, Requistion
+from .models import BusinessTrip, Company, Hotel, Profile, Requistion, Route
 from .permissions import IsAdminOrReadOnly, IsOwner, IsOwnerOrReadOnly, IsCreationOrAuthenticated
 from .serializers import (BasicUserSerializer, BusinessTripSerializer,
                           CompanySerializer, HotelSerializer,
                           ProfileSerializer, RequistionSerializer,
-                          TokenSerializer, UserSerializer, ChangePasswordSerializer, ProfileBusinessTripStatsSerializer)
+                          TokenSerializer, UserSerializer, ChangePasswordSerializer, ProfileBusinessTripStatsSerializer, RouteSerializer, RouteSerializerWithDetails)
 from .utils import generate_data_for_route
 
 
@@ -36,6 +36,7 @@ class CurrentUserView(APIView):
         print(request.user)
         serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
+
 
 class ChangePasswordViewSet(UpdateAPIView):
     serializer_class = ChangePasswordSerializer
@@ -72,7 +73,35 @@ class ProfileStatsViewSet(APIView):
     def get(self, request):
         profile = Profile.objects.get(pk=request.user.pk)
 
-        serializer = ProfileBusinessTripStatsSerializer(profile, context={'request': request})
+        serializer = ProfileBusinessTripStatsSerializer(
+            profile, context={'request': request})
+        return Response(serializer.data)
+
+
+class CompanyEmployeeHistoryViewSet(APIView):
+    def get(self, request, *args, **kwargs):
+        print(self.kwargs)
+
+        user_pk = self.kwargs.get('employee_pk')
+        company_pk = self.kwargs.get('company_pk')
+        user = User.objects.get(pk=user_pk)
+
+        requisitions = Requistion.objects.filter(
+            company_id=company_pk, business_trip__assignee=user.profile)
+
+        result = Route.objects.none()
+        print(result)
+        print(user_pk, company_pk)
+        for requisition in requisitions:
+            business_trip = requisition.business_trip
+            result |= Route.objects.filter(
+                end_point_id=company_pk, business_trip=business_trip, route_version=business_trip.route_version)
+
+        print(result)
+
+        serializer = RouteSerializerWithDetails(
+            result, context={'request': request}, many=True)
+
         return Response(serializer.data)
 
 
@@ -141,8 +170,33 @@ class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
 
         return Requistion.objects.filter(**q_filter)
 
-    # def list(self, request, *args, **kwargs):
 
+class EmployeeCompanyHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    lookup_field = 'end_point_id'
+    lookup_url_kwarg = 'company_pk'
+    serializer_class = RouteSerializer
+    # pagination_class = StandardResultsSetPagination
+    http_method_names = ['get', 'options']
+
+    def get_queryset(self):
+        user_pk = self.kwargs.get('employee_pk')
+        company_pk = self.kwargs.get('company_pk')
+        user = User.objects.get(pk=user_pk)
+
+        requisitions = Requistion.objects.filter(
+            company_id=company_pk, business_trip__assignee=user.profile)
+
+        result = Route.objects.none()
+        print(result)
+        print(user_pk, company_pk)
+        for requisition in requisitions:
+            business_trip = requisition.business_trip
+            result |= Route.objects.filter(
+                end_point_id=company_pk, business_trip=business_trip, route_version=business_trip.route_version)
+
+        print(result)
+
+        return result
 
 
 class BusinessTripViewSet(viewsets.ModelViewSet):

@@ -60,7 +60,9 @@ export class Route {
 export class BusinessTrip {
   id: number;
   startDate: string;
+  startDateAsDate: Date;
   finishDate: string;
+  finishDateAsDate: Date;
   duration: number;
   distance: number;
   assignee: Employee;

@@ -16,7 +16,8 @@
 @import 'components/button', 'components/list_group', 'components/company_item', 'components/lds_roller', 'components/paginatedList';
 
 // 6. Page-specific styles
-@import 'pages/home', 'pages/login', 'pages/company_add', 'pages/business_trip_add', 'pages/dashboardHome', 'pages/companyList';
+@import 'pages/home', 'pages/login', 'pages/company_add', 'pages/company-details', 'pages/business_trip_add', 'pages/dashboardHome',
+  'pages/companyList';
 
 // 7. Themes
 @import 'themes/default';

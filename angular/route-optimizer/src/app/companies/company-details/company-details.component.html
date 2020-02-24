@@ -1,40 +1,32 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col">
-      <h1>Szczegóły firmy</h1>
+      <h1 class="section-header">Szczegóły firmy</h1>
     </div>
   </div>
-  <div class="row">
-    <div class="col-sm-12 col-xl-6" *ngIf="company">
-      <p>{{ company.name }}</p>
-      <p>Numer nip: {{ company.nip }}</p>
-      <p>Adres:</p>
-      <p>{{ company.street }} {{ company.houseNo }}</p>
-      <p>{{ company.postcode }} {{ company.city }}</p>
+  <div id="company-details" *ngIf="company">
+    <div class="row">
+      <div class="col">
+        <h2>{{ company.nameShort }}</h2>
+      </div>
     </div>
-    <div class="col-sm-12 col-xl-6">
-      <agm-map [longitude]="lng" [latitude]="lat" [zoom]="zoom">
-        <agm-marker [longitude]="lng" [latitude]="lat"></agm-marker>
-      </agm-map>
+    <div class="row">
+      <div class="col">
+        <div id="map" class="map"></div>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <h2>Twoja historia</h2>
+    <div class="row">
+      <div class="col">
+        <div class="company-information">
+          <p>NIP: {{ company.nip }}</p>
+          <p>Adres: {{ company.street }} {{ company.houseNo }}, {{ company.postcode }} {{ company.city }}</p>
+          <div class="buttons" *ngIf="companiesService.canEdit(company)">
+            <button class="btn btn-outline-primary btn-sm">Edytuj</button>
+            <button class="btn btn-outline-primary btn-sm">Usuń</button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <table class="table table-borderless">
-        <thead>
-          <tr>
-            <th></th>
-            <th scope="col">#</th>
-            <th scope="col">Data</th>
-            <th scope="col">Zysk</th>
-          </tr>
-        </thead>
-      </table>
-    </div>
+    <app-company-details-history [companyId]="company.id"></app-company-details-history>
   </div>
 </div>

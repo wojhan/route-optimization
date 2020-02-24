@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { of, Observable, defer, from, concat, EMPTY } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Page, queryPaginated } from '../pagination';
-import { UserService } from '../shared/services/user.service';
+import { UserService, AuthenticatedUser } from '../shared/services/user.service';
+import { BusinessTrip } from '../business-trips/business-trips.service';
+import { Requistion } from '../requistions/requistions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +48,18 @@ export class CompaniesService {
         })
       );
     });
+  }
+
+  getUserHistory(companyId: number): Observable<CompanyHistory[]> {
+    return this.userService.user.pipe(
+      switchMap((user: AuthenticatedUser) => {
+        if (user.id) {
+          return this.http.get<CompanyHistory[]>(`${this.apiUrl}${companyId}/employee/${user.id}/`);
+        } else {
+          return EMPTY;
+        }
+      })
+    );
   }
 
   // getCompanies(page?): Observable<any> {
@@ -94,4 +108,11 @@ export class Company {
   latitude: number;
   longitude: number;
   addedBy: string;
+}
+
+export class CompanyHistory {
+  endPoint: Company;
+  day: number;
+  businessTrip: BusinessTrip;
+  requisition: Requistion;
 }

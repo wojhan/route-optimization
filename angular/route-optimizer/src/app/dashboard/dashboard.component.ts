@@ -55,7 +55,6 @@ export class DashboardComponent implements OnInit, OnChanges {
 
   private createBreadcrumbs(route: ActivatedRoute, url: string = '', breadcrumbs: MenuItem[] = []): MenuItem[] {
     const children: ActivatedRoute[] = route.children;
-    console.log(children);
 
     let routerLink = [url];
 
