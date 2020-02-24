@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import Q
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.pagination import PageNumberPagination
@@ -89,7 +90,8 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         business_trip = BusinessTrip.objects.get(pk=pk)
 
-        data = generate_data_for_route(business_trip, request.data, iterations=1000)
+        data = generate_data_for_route(
+            business_trip, request.data, iterations=1000)
         # do_generate_route.delay(data)
         do_generate_route(data)
 
@@ -121,7 +123,6 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
         #                                                                                                   elite_rate,
         #                                                                                                   pop, it))
 
-
         return super().partial_update(request, pk=pk)
 
     def get_permissions(self):
@@ -134,10 +135,18 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
 
 
 class RequistionViewSet(viewsets.ModelViewSet):
+    # queryset = Requistion.objects.filter(Q(business_trip=None) & (Q(created_by_id=2) | Q(created_by=None)))
     queryset = Requistion.objects.filter(business_trip=None)
     serializer_class = RequistionSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        print(self.request.user)
+        queryset = super().get_queryset()
+
+        # queryset.filter(Q(created_by=self.request.user) | Q(created_by=None))
+        return queryset
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
