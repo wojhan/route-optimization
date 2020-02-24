@@ -5,12 +5,14 @@
  */
 
 #sidebar-wrapper {
+  height: 100%;
   min-height: 100vh;
   margin-left: -15rem;
   -webkit-transition: margin 0.25s ease-out;
   -moz-transition: margin 0.25s ease-out;
   -o-transition: margin 0.25s ease-out;
   transition: margin 0.25s ease-out;
+  background: $white-color;
 
   .sidebar-heading {
     padding: 0.875rem 1.25rem;
@@ -19,15 +21,17 @@
 
   .list-group {
     width: 15rem;
-  }
+    font-size: 1rem;
 
-  //   @media (min-width: 768px) {
-  //     margin-left: 0;
-  //   }
+    fa-icon {
+      display: inline-block;
+      width: 20px;
+    }
+  }
 }
 
 #wrapper {
-  height: 100vh;
+  height: 100%;
 }
 
 #page-content-wrapper {
