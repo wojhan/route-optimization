@@ -1,32 +1,77 @@
 <form *ngIf="companyForm" [formGroup]="companyForm" id="field-container">
-  <mat-form-field>
-    <input matInput placeholder="Nazwa firmy" formControlName="name" />
-    <mat-error *ngIf="companyForm.get('name').invalid">
-      Wprowadź nazwę
-    </mat-error>
-  </mat-form-field>
-  <mat-form-field>
-    <input matInput placeholder="Nazwa firmy skrócona" formControlName="nameShort" />
-    <mat-error *ngIf="companyForm.get('nameShort').invalid">
-      Wprowadź nazwę
-    </mat-error>
-  </mat-form-field>
-  <mat-form-field>
-    <input matInput placeholder="Nip" formControlName="nip" />
-  </mat-form-field>
-  <mat-form-field>
-    <input matInput placeholder="Ulica" formControlName="street" />
-  </mat-form-field>
-  <mat-form-field>
-    <input matInput placeholder="Numer budynku" formControlName="houseNo" />
-  </mat-form-field>
-  <div id="postcode-group">
-    <mat-form-field id="postcode">
-      <input matInput placeholder="Kod pocztowy" formControlName="postcode" maxlength="6" />
-    </mat-form-field>
-    <mat-form-field id="city">
-      <input matInput placeholder="Miejscowość" formControlName="city" />
-    </mat-form-field>
+  <div class="row">
+    <div class="col">
+      <mat-form-field>
+        <input matInput placeholder="Nazwa firmy" formControlName="name" />
+        <mat-error>
+          <p *ngIf="companyForm.get('name').errors?.required">To pole jest wymagane</p>
+        </mat-error>
+      </mat-form-field>
+    </div>
   </div>
-  <button type="submit" class="btn btn-block btn-primary" [disabled]="!companyForm.valid" (click)="sendForm()">{{ submitButton }}</button>
+  <div class="row">
+    <div class="col">
+      <mat-form-field>
+        <input matInput placeholder="Nazwa firmy skrócona" formControlName="nameShort" />
+        <mat-error>
+          <p *ngIf="companyForm.get('nameShort').errors?.required">To pole jest wymagane</p>
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-form-field>
+        <input matInput placeholder="Nip" formControlName="nip" />
+        <mat-error>
+          <p *ngIf="companyForm.get('nip').errors?.required">To pole jest wymagane</p>
+          <p *ngIf="companyForm.get('nip').errors?.pattern">Wprowadź prawidłowy NIP</p>
+          <p *ngIf="companyForm.get('nip').errors?.unique">Podany NIP istnieje już w bazie danych</p>
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-form-field>
+        <input matInput placeholder="Ulica" formControlName="street" />
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-form-field>
+        <input matInput placeholder="Numer budynku" formControlName="houseNo" />
+        <mat-error>
+          <p *ngIf="companyForm.get('houseNo').errors?.required">To pole jest wymagane</p>
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div id="postcode-group">
+        <mat-form-field id="postcode">
+          <input matInput placeholder="Kod pocztowy" formControlName="postcode" maxlength="6" />
+          <mat-error>
+            <p *ngIf="companyForm.get('postcode').errors?.required">To pole jest wymagane</p>
+            <p *ngIf="companyForm.get('postcode').errors?.pattern">Wprowadź prawidłowy kod pocztowy w formacie &quot;00-000&quot;</p>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field id="city">
+          <input matInput placeholder="Miejscowość" formControlName="city" />
+          <mat-error>
+            <p *ngIf="companyForm.get('city').errors?.required">To pole jest wymagane</p>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col">
+      <button type="submit" class="btn btn-block btn-primary" [disabled]="!companyForm.valid" (click)="sendForm()">
+        {{ submitButton }}
+      </button>
+    </div>
+  </div>
 </form>

@@ -33,7 +33,7 @@
                 <tr>
                   <td>{{ record.businessTrip.startDateAsDate | date: 'dd.MM.y':undefined:'pl' }}</td>
                   <td>
-                    <a [routerLink]="['/dashboard/business-trip', record.businessTrip.id]"
+                    <a [routerLink]="['/dashboard/business-trips', record.businessTrip.id]"
                       >{{ record.businessTrip.startDate | date: 'dd.MM.y':undefined:'pl' }}
                       -
                       {{ record.businessTrip.finishDate | date: 'dd.MM.y':undefined:'pl' }}</a

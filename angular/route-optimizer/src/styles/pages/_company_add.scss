@@ -4,16 +4,24 @@
 
   mat-form-field {
     width: 100%;
-    margin-top: 10px;
-    &:first {
-      margin-top: 0px;
+    // margin-top: 10px;
+    // &:first {
+    //   margin-top: 0px;
+    // }
+  }
+
+  .row {
+    margin-bottom: 15px;
+
+    &:last {
+      margin-bottom: 0;
     }
   }
 
   #postcode-group {
     display: flex;
     #postcode {
-      width: 127px;
+      width: 157px;
       margin-right: 10px;
     }
     #city {

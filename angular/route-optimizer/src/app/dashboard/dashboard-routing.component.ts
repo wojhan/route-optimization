@@ -41,7 +41,7 @@ const dashboardRoutes: Routes = [
         }
       },
       {
-        path: 'company',
+        path: 'companies',
         component: CompaniesComponent,
         data: {
           breadcrumb: 'Firmy'
@@ -62,7 +62,7 @@ const dashboardRoutes: Routes = [
             }
           },
           {
-            path: 'edit/:id',
+            path: ':id/edit',
             component: CompanyEditComponent,
             data: {
               breadcrumb: 'Edycja firmy'
@@ -78,7 +78,7 @@ const dashboardRoutes: Routes = [
         ]
       },
       {
-        path: 'employee',
+        path: 'employees',
         component: EmployeesComponent,
         children: [
           {
@@ -86,7 +86,7 @@ const dashboardRoutes: Routes = [
             component: EmployeeListComponent
           },
           {
-            path: 'edit/:id',
+            path: ':id/edit',
             component: EmployeeEditComponent
           },
           {
@@ -103,7 +103,7 @@ const dashboardRoutes: Routes = [
         canActivate: [StaffGuard]
       },
       {
-        path: 'business-trip',
+        path: 'business-trips',
         component: BusinessTripsComponent,
         children: [
           {
@@ -125,7 +125,7 @@ const dashboardRoutes: Routes = [
         ]
       },
       {
-        path: 'requisition',
+        path: 'requisitions',
         component: RequistionsComponent,
         children: [
           {

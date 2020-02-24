@@ -13,7 +13,8 @@
 @import 'layout/header', 'layout/footer', 'layout/sidebar', 'layout/dashboardPage';
 
 // 5. Components
-@import 'components/button', 'components/list_group', 'components/company_item', 'components/lds_roller', 'components/paginatedList';
+@import 'components/button', 'components/map', 'components/list_group', 'components/company_item', 'components/lds_roller',
+  'components/paginatedList';
 
 // 6. Page-specific styles
 @import 'pages/home', 'pages/login', 'pages/company_add', 'pages/company-details', 'pages/business_trip_add', 'pages/dashboardHome',

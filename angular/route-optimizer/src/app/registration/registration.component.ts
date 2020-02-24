@@ -56,7 +56,7 @@ export class RegistrationComponent implements OnInit {
 }
 
 interface RegisterUserSerializerErrorResponse {
-  non_field_errors?: string[];
+  nonFieldErrors?: string[];
   firstName?: string[];
   lastName?: string[];
   username?: string[];

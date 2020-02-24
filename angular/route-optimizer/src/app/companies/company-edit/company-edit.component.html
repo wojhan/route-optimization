@@ -1,23 +1,23 @@
-<div class="container">
+<div class="container-fluid">
   <div class="row">
     <div class="col">
-      <h1 *ngIf="company">{{ company.nameShort }}</h1>
+      <h1 class="section-header">Edycja firmy</h1>
     </div>
   </div>
-  <div class="row">
-    <div class="col-sm-12 col-xl-6">
-      <app-company-form
-        [companyForm]="companyForm"
-        (formChanged)="updateForm($event)"
-        (formSent)="editCompany($event)"
-        submitButton="Zapisz"
-      >
-      </app-company-form>
-    </div>
-    <div class="col-sm-12 col-xl-6">
-      <agm-map [longitude]="lng" [latitude]="lat" [zoom]="zoom">
-        <agm-marker [longitude]="lng" [latitude]="lat"></agm-marker>
-      </agm-map>
+  <div id="manage-company">
+    <div class="row">
+      <div class="col-sm-12 col-xl-6">
+        <app-company-form
+          [companyForm]="companyForm"
+          (formChanged)="updateForm($event)"
+          (formSent)="editCompany($event)"
+          submitButton="Zapisz"
+        >
+        </app-company-form>
+      </div>
+      <div class="col-sm-12 col-xl-6">
+        <div id="map" class="map"></div>
+      </div>
     </div>
   </div>
 </div>

@@ -45,13 +45,13 @@
                   <div class="dropdown-menu">
                     <a
                       class="dropdown-item"
-                      [routerLink]="['/dashboard/requisition/', requisition.id]"
+                      [routerLink]="['/dashboard/requisitions/', requisition.id]"
                       routerLinkActive="router-link-active"
                       >Informacje</a
                     >
                     <a
                       class="dropdown-item"
-                      [routerLink]="['/dashboard/requisition/', requisition.id, 'edit']"
+                      [routerLink]="['/dashboard/requisitions/', requisition.id, 'edit']"
                       routerLinkActive="router-link-active"
                       *ngIf="canEditRequisition(requisition)"
                       >Edytuj</a

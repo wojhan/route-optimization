@@ -70,7 +70,7 @@ export class BusinessTripAddComponent implements OnInit {
 
     this.businessTripsService.addBusinessTrip(businessTrip).subscribe(response => {
       this.businessTripsService.partialUpdateBusinessTrip(response.id, updateValues).subscribe(() => {
-        this.router.navigate(['/dashboard/business-trip', response.id]);
+        this.router.navigate(['/dashboard/business-trips', response.id]);
       });
     });
   }
