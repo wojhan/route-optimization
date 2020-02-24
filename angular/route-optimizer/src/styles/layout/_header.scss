@@ -3,9 +3,15 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+
   .nav-text {
     vertical-align: middle;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    color: white;
     margin: 0;
+  }
+
+  button {
+    margin-left: 10px;
   }
 }

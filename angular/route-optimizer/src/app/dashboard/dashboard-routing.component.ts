@@ -1,7 +1,7 @@
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { DashboardComponent } from './dashboard.component';
-import { DashboardHomeComponent } from './dashboard-home.component';
+import { DashboardHomeComponent } from './dashboard-home/dashboard-home.component';
 import { CompanyAddComponent } from '../companies/company-add/company-add.component';
 import { CompanyListComponent } from '../companies/company-list/company-list.component';
 import { CompaniesComponent } from '../companies/companies.component';
@@ -29,22 +29,37 @@ const dashboardRoutes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
+    data: {
+      breadcrumb: 'Panel użytkownika'
+    },
     children: [
       {
         path: '',
-        component: DashboardHomeComponent
+        component: DashboardHomeComponent,
+        data: {
+          breadcrumb: null
+        }
       },
       {
         path: 'company',
         component: CompaniesComponent,
+        data: {
+          breadcrumb: 'Firmy'
+        },
         children: [
           {
             path: '',
-            component: CompanyListComponent
+            component: CompanyListComponent,
+            data: {
+              breadcrumb: null
+            }
           },
           {
             path: 'add',
-            component: CompanyAddComponent
+            component: CompanyAddComponent,
+            data: {
+              breadcrumb: 'Dodaj firmę'
+            }
           },
           {
             path: 'edit/:id',

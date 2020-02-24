@@ -38,7 +38,7 @@ class IsCreationOrAuthenticated(permissions.BasePermission):
         if request.method == 'POST':
             return True
 
-        return request.user.is_authenticated
+        return request.user.is_authenticated or request.user.is_staff
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):

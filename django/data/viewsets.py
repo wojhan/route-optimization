@@ -1,8 +1,10 @@
 import json
 
-from django.db.models import Q
+from django.db.models import Q, Count
+from datetime import datetime
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.authtoken.models import Token
+from rest_framework.generics import UpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -18,7 +20,7 @@ from .permissions import IsAdminOrReadOnly, IsOwner, IsOwnerOrReadOnly, IsCreati
 from .serializers import (BasicUserSerializer, BusinessTripSerializer,
                           CompanySerializer, HotelSerializer,
                           ProfileSerializer, RequistionSerializer,
-                          TokenSerializer, UserSerializer)
+                          TokenSerializer, UserSerializer, ChangePasswordSerializer, ProfileBusinessTripStatsSerializer)
 from .utils import generate_data_for_route
 
 
@@ -34,6 +36,21 @@ class CurrentUserView(APIView):
         print(request.user)
         serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
+
+class ChangePasswordViewSet(UpdateAPIView):
+    serializer_class = ChangePasswordSerializer
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        if hasattr(user, 'auth_token'):
+            user.auth_token.delete()
+
+        token, created = Token.objects.get_or_create(user=user)
+
+        return Response({'token': token.key}, status=status.HTTP_200_OK)
 
 
 class ObtainUserFromTokenView(APIView):
@@ -51,6 +68,14 @@ class ObtainUserFromTokenView(APIView):
         return Response(json.dumps({'message': 'Token was not provided'}), status=status.HTTP_400_BAD_REQUEST)
 
 
+class ProfileStatsViewSet(APIView):
+    def get(self, request):
+        profile = Profile.objects.get(pk=request.user.pk)
+
+        serializer = ProfileBusinessTripStatsSerializer(profile, context={'request': request})
+        return Response(serializer.data)
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -58,12 +83,16 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.filter(is_staff=False)
+    queryset = User.objects.filter(is_staff=False, is_active=True)
     serializer_class = BasicUserSerializer
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', 'first_name', 'last_name']
     permission_classes = [IsAdminUser]
+
+
+class InActiveEmployeeViewSet(EmployeeViewSet):
+    queryset = User.objects.filter(is_staff=False, is_active=False)
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
@@ -80,6 +109,40 @@ class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def get_queryset(self):
         return BusinessTrip.objects.filter(assignee_id=self.kwargs.get('pk'))
+
+
+class EmployeePastBusinessTrips(EmployeeBusinessTrips):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(finish_date__lt=datetime.now())
+
+
+class EmployeeCurrentBusinessTrips(EmployeeBusinessTrips):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(finish_date__gt=datetime.now())
+
+
+class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'requisition_pk'
+    serializer_class = RequistionSerializer
+    pagination_class = StandardResultsSetPagination
+    http_method_names = ['get', 'options']
+
+    def get_queryset(self):
+        q_filter = dict()
+        user_pk = self.kwargs.get('pk')
+        user = User.objects.get(pk=user_pk)
+        if user.is_staff:
+            q_filter['created_by'] = None
+        else:
+            q_filter['created_by'] = user.profile
+
+        return Requistion.objects.filter(**q_filter)
+
+    # def list(self, request, *args, **kwargs):
+
 
 
 class BusinessTripViewSet(viewsets.ModelViewSet):

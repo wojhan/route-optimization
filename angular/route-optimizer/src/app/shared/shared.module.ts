@@ -6,6 +6,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AgmCoreModule, GoogleMapsAPIWrapper } from '@agm/core';
 
+// import { BreadcrumbModule } from 'primeng';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+
 import { AgmDirectionModule } from 'agm-direction';
 import { DeleteModalComponent } from './components/delete-modal/delete-modal.component';
 import { MaterialModule } from '../material/material.module';
@@ -25,7 +28,8 @@ import { LdsRollerComponent } from './components/lds-roller/lds-roller.component
     AgmCoreModule.forRoot({
       apiKey: localStorage.getItem('apiKey')
     }),
-    AgmDirectionModule
+    AgmDirectionModule,
+    BreadcrumbModule
   ],
   entryComponents: [DeleteModalComponent],
   exports: [
@@ -40,7 +44,8 @@ import { LdsRollerComponent } from './components/lds-roller/lds-roller.component
     MaterialModule,
     DeleteModalComponent,
     PaginatorComponent,
-    LdsRollerComponent
+    LdsRollerComponent,
+    BreadcrumbModule
   ],
   providers: [GoogleMapsAPIWrapper]
 })

@@ -11,8 +11,8 @@
       </button>
 
       <section id="user-info">
-        <p class="nav-text">Jesteś zalogowany, {{ username | async }} <span *ngIf="isStaff">(admin)</span></p>
-        <button (click)="logout()" class="btn btn-secondary btn-sm">Logout</button>
+        <p class="nav-text">Jesteś zalogowany jako {{ username | async }} <span *ngIf="isStaff">(admin)</span></p>
+        <button (click)="logout()" class="btn btn-outline-light btn-sm">Wyloguj się</button>
       </section>
 
       <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -45,7 +45,16 @@
     </nav>
 
     <div class="container-fluid h-100">
-      <router-outlet></router-outlet>
+      <div id="dashboard-content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col">
+              <p-breadcrumb [home]="home" [model]="menuItems"></p-breadcrumb>
+            </div>
+          </div>
+        </div>
+        <router-outlet></router-outlet>
+      </div>
       <!-- <h1 class="mt-4">Simple Sidebar</h1>
       <p>The starting state of the menu will appear collapsed on smaller screens, and will appear non-collapsed on
         larger screens. When toggled using the button below, the menu will change.</p>

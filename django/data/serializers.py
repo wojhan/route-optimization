@@ -1,3 +1,4 @@
+from django.contrib.auth import password_validation
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
@@ -31,7 +32,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ['url', 'id', 'username', 'password', 'first_name',
-                  'last_name', 'email', 'is_staff']
+                  'last_name', 'email', 'is_staff', 'is_active', 'date_joined']
 
         extra_kwargs = {
             'url': {
@@ -133,6 +134,13 @@ class RouteSerializer(serializers.HyperlinkedModelSerializer):
                   'segment_order', 'day', 'distance']
 
 
+class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Profile
+        fields = ['total_business_trips', 'visited_companies', 'total_distance']
+
+
 class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
     assignee = ProfileSerializer(partial=True, required=False)
     requistions = RequistionSerializer(many=True, partial=True, required=False)
@@ -219,3 +227,30 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
         model = BusinessTrip
         fields = ['id', 'start_date', 'finish_date', 'duration', 'distance',
                   'assignee', 'requistions', 'routes', 'estimated_profit', 'max_distance']
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(max_length=128, write_only=True, required=True)
+    password = serializers.CharField(max_length=128, write_only=True, required=True)
+    password2 = serializers.CharField(max_length=128, write_only=True, required=True)
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError(
+                'Twoje stare hasło jest nieprawidłowe.'
+            )
+        return value
+
+    def validate(self, data):
+        if data['password'] != data['password2']:
+            raise serializers.ValidationError({'password2': "Podane hasła się nie zgadzają."})
+        password_validation.validate_password(data['password'], self.context['request'].user)
+        return data
+
+    def save(self, **kwargs):
+        password = self.validated_data['password']
+        user = self.context['request'].user
+        user.set_password(password)
+        user.save()
+        return user
