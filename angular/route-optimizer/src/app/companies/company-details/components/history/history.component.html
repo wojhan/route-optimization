@@ -1,0 +1,67 @@
+<div id="user-history">
+  <div class="row">
+    <div class="col">
+      <h2>
+        Twoja historia
+      </h2>
+    </div>
+  </div>
+  <div class="row" *ngIf="history.loading">
+    <div class="d-flex justify-content-center align-items-center h-100 m-auto">
+      <app-lds-roller></app-lds-roller>
+    </div>
+  </div>
+  <div *ngIf="history.records | async; let records">
+    <div *ngIf="records.length > 0; else noHistory">
+      <!-- <div class="row">
+              <div class="col">
+                <div class="alert alert-info">Lista zawiera do 5 ostatnio dodanych przez Ciebie ofert.</div>
+              </div>
+            </div> -->
+      <div class="row">
+        <div class="col">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Data</th>
+                  <th>Delegacja</th>
+                  <th>Zysk</th>
+                </tr>
+              </thead>
+              <tbody *ngFor="let record of records">
+                <tr>
+                  <td>{{ record.businessTrip.startDateAsDate | date: 'dd.MM.y':undefined:'pl' }}</td>
+                  <td>
+                    <a [routerLink]="['/dashboard/business-trip', record.businessTrip.id]"
+                      >{{ record.businessTrip.startDate | date: 'dd.MM.y':undefined:'pl' }}
+                      -
+                      {{ record.businessTrip.finishDate | date: 'dd.MM.y':undefined:'pl' }}</a
+                    >
+                  </td>
+                  <td>{{ record.requisition.estimatedProfit }} zł</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="h-100">
+    <div class="d-flex justify-content-center align-items-center h-100">
+      <app-lds-roller></app-lds-roller>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #noHistory>
+  <div class="row">
+    <div class="col">
+      <div class="alert alert-info">Wybrana firma nie była częścią żadnej z Twoich delegacji</div>
+    </div>
+  </div>
+</ng-template>

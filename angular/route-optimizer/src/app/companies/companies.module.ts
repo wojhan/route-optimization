@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { PaginatorComponent } from '../paginator/paginator.component';
 import { CompanyEditComponent } from './company-edit/company-edit.component';
 import { CompanyFormComponent } from './company-form/company-form.component';
+import { HistoryComponent } from './company-details/components/history/history.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { CompanyFormComponent } from './company-form/company-form.component';
     CompanyDetailsComponent,
     CompanyAddComponent,
     CompanyEditComponent,
-    CompanyFormComponent
+    CompanyFormComponent,
+    HistoryComponent
   ],
   imports: [SharedModule, RouterModule]
 })

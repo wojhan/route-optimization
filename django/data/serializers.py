@@ -50,6 +50,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.save()
         return user
 
+
 class ProfileSerializer(serializers.ModelSerializer):
     user = BasicUserSerializer()
 
@@ -115,8 +116,6 @@ class RequistionSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
-
-
     class Meta:
         model = Requistion
         fields = ['id', 'estimated_profit', 'company',
@@ -138,7 +137,8 @@ class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['total_business_trips', 'visited_companies', 'total_distance']
+        fields = ['total_business_trips',
+                  'visited_companies', 'total_distance']
 
 
 class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
@@ -230,9 +230,12 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(max_length=128, write_only=True, required=True)
-    password = serializers.CharField(max_length=128, write_only=True, required=True)
-    password2 = serializers.CharField(max_length=128, write_only=True, required=True)
+    old_password = serializers.CharField(
+        max_length=128, write_only=True, required=True)
+    password = serializers.CharField(
+        max_length=128, write_only=True, required=True)
+    password2 = serializers.CharField(
+        max_length=128, write_only=True, required=True)
 
     def validate_old_password(self, value):
         user = self.context['request'].user
@@ -244,8 +247,10 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     def validate(self, data):
         if data['password'] != data['password2']:
-            raise serializers.ValidationError({'password2': "Podane hasła się nie zgadzają."})
-        password_validation.validate_password(data['password'], self.context['request'].user)
+            raise serializers.ValidationError(
+                {'password2': "Podane hasła się nie zgadzają."})
+        password_validation.validate_password(
+            data['password'], self.context['request'].user)
         return data
 
     def save(self, **kwargs):
@@ -254,3 +259,17 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class RouteSerializerWithDetails(RouteSerializer):
+
+    business_trip = BusinessTripSerializer()
+    requisition = serializers.SerializerMethodField()
+
+    def get_requisition(self, obj):
+        return RequistionSerializer(obj.end_point.requistions.filter(business_trip=obj.business_trip).first(), context=self._context).data
+
+    class Meta:
+        model = Route
+        fields = ['start_point', 'end_point', 'segment_order',
+                  'day', 'distance', 'business_trip', 'requisition']

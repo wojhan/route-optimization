@@ -63,11 +63,17 @@ const dashboardRoutes: Routes = [
           },
           {
             path: 'edit/:id',
-            component: CompanyEditComponent
+            component: CompanyEditComponent,
+            data: {
+              breadcrumb: 'Edycja firmy'
+            }
           },
           {
             path: ':id',
-            component: CompanyDetailsComponent
+            component: CompanyDetailsComponent,
+            data: {
+              breadcrumb: 'Szczegóły firmy'
+            }
           }
         ]
       },
