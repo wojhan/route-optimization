@@ -18,6 +18,7 @@ import localePl from '@angular/common/locales/pl';
 import localePlExtra from '@angular/common/locales/extra/pl';
 import { HttpConfigInterceptor } from './shared/http-config.interceptor';
 import { RegistrationModule } from './registration/registration.module';
+import { RequistionsModule } from './requistions/requistions.module';
 registerLocaleData(localePl, localePlExtra);
 
 @NgModule({
@@ -32,7 +33,8 @@ registerLocaleData(localePl, localePlExtra);
     CompaniesModule,
     BrowserAnimationsModule,
     EmployeesModule,
-    BusinessTripsModule
+    BusinessTripsModule,
+    RequistionsModule
   ],
   providers: [UserService, AuthGuard, CookieService, { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }],
   bootstrap: [AppComponent]

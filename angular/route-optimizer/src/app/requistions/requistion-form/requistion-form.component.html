@@ -1,0 +1,51 @@
+<form *ngIf="requsitionForm" [formGroup]="requsitionForm" id="field-container">
+  <div class="row">
+    <div class="col">
+      <mat-form-field>
+        <input type="text" placeholder="Firma" aria-label="Company" matInput formControlName="company" [matAutocomplete]="auto" />
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayCompany">
+          <!-- <mat-option *ngFor="let company of availableCompanies" [value]="company"> {{ company.nameShort }}
+                    </mat-option> -->
+          <!-- If we're loading -->
+          <mat-option *ngIf="requsitionForm.get('company').value.length < 4">Wpisz przynajmniej 4 znaki... </mat-option>
+          <mat-option class="loading" *ngIf="availableCompanies.loading | async">
+            <mat-spinner diameter="35"></mat-spinner>
+          </mat-option>
+          <!-- If we're not loading AND the array length is 0, show this -->
+          <mat-option
+            *ngIf="
+              availableCompanies.results.length === 0 &&
+              (availableCompanies.loading | async) === false &&
+              requsitionForm.get('company').value.length >= 4
+            "
+          >
+            Brak firm spełniających podane kryteria.
+          </mat-option>
+          <!-- Actual payload -->
+          <ng-container *ngIf="(availableCompanies.loading | async) === false">
+            <mat-option *ngFor="let result of availableCompanies.results" [value]="result">
+              {{ result.nameShort }}
+            </mat-option>
+          </ng-container>
+        </mat-autocomplete>
+        <mat-error *ngIf="requsitionForm.get('company').invalid">
+          Wybierz firmę
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-form-field>
+        <input type="number" matInput placeholder="Oszacowany zysk" formControlName="estimatedProfit" />
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <button type="submit" class="btn btn btn-primary" [disabled]="!requsitionForm.valid || !submitButtonEnabled" (click)="sendForm()">
+        {{ submitButton }}
+      </button>
+    </div>
+  </div>
+</form>

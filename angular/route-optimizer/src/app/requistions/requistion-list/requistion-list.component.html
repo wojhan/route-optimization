@@ -1,0 +1,78 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <h1>Lista firm</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <button class="btn btn-primary btn-sm">Dodaj firmę</button>
+    </div>
+  </div>
+  <!--
+    #TODO: Filtry
+    <div class="row">
+      <div class="search-bar" [formGroup]="filterForm">
+        <input formControlName="search" placeholder="Szukaj po nazwie" class="form-group">
+      </div>
+    </div> -->
+  <div class="row">
+    <div class="col">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th scope="col">#</th>
+              <th scope="col">Data dodania</th>
+              <th scope="col">Firma</th>
+              <th scope="col">Zysk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let requisition of (page | async)?.results">
+              <td class="align-middle">
+                <div class="btn-group">
+                  <button
+                    class="btn btn-default btn-sm dropdown-toggle no-caret"
+                    type="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <fa-icon [icon]="faEllipsisV"></fa-icon>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/dashboard/requisition/', requisition.id]"
+                      routerLinkActive="router-link-active"
+                      >Informacje</a
+                    >
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/dashboard/requisition/', requisition.id, 'edit']"
+                      routerLinkActive="router-link-active"
+                      *ngIf="canEditRequisition(requisition)"
+                      >Edytuj</a
+                    >
+                    <a class="dropdown-item" (click)="remove(company)" *ngIf="canEditRequisition(requisition)">Usuń</a>
+                  </div>
+                </div>
+              </td>
+              <td class="align-middle">{{ requisition.id }}</td>
+              <td class="align-middle">{{ requisition.assignmentDate | date: 'short':undefined:'pl' }}</td>
+              <td class="align-middle">{{ requisition.company.nameShort }}</td>
+              <td class="align-middle">{{ requisition.estimatedProfit }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <app-paginator [page]="page | async" (pageChange)="onPageChanged($event)"></app-paginator>
+    </div>
+  </div>
+</div>

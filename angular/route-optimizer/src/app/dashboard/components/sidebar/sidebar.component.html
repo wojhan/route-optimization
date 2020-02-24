@@ -21,6 +21,26 @@
       <a [routerLink]="['/dashboard/company/add']" href="#" class="list-group-item list-group-item-action bg-light">Dodaj firmę</a>
     </div>
     <a
+      [routerLink]="['/dashboard/requisition']"
+      routerLinkActive="router-link-active"
+      class="list-group-item list-group-item-action bg-light"
+      >Oferty</a
+    >
+    <div class="list-group list-group-flush">
+      <a
+        [routerLink]="['/dashboard/requisition']"
+        routerLinkActive="router-link-active"
+        class="list-group-item list-group-item-action bg-light"
+        >Przeglądaj</a
+      >
+      <a
+        [routerLink]="['/dashboard/requisition/add']"
+        routerLinkActive="router-link-active"
+        class="list-group-item list-group-item-action bg-light"
+        >Dodaj ofertę</a
+      >
+    </div>
+    <a
       class="list-group-item list-group-item-action bg-light"
       [routerLink]="['/dashboard/employee']"
       *ngIf="isStaff"

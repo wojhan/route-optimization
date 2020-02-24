@@ -1,0 +1,18 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1>Edycja</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <app-requistion-form
+        [requsitionForm]="requisitionForm"
+        (formSent)="editRequisition()"
+        [submitButtonEnabled]="isFormEdited()"
+        submitButton="Zapisz"
+      >
+      </app-requistion-form>
+    </div>
+  </div>
+</div>

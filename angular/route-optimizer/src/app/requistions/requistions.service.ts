@@ -38,6 +38,22 @@ export class RequistionsService {
       );
     });
   }
+
+  getRequisition(id: number): Observable<Requistion> {
+    return this.http.get<Requistion>(`${this.apiUrl}${id}`);
+  }
+
+  addRequisition(requisition: Requistion): Observable<Requistion> {
+    return this.http.post<Requistion>(this.apiUrl, requisition);
+  }
+
+  updateRequisition(requisition: Requistion): Observable<Requistion> {
+    return this.http.put<Requistion>(`${this.apiUrl}${requisition.id}/`, requisition);
+  }
+
+  canEditRequisition(requisition: Requistion): boolean {
+    return this.userService.isStaff.getValue() || requisition.createdBy === this.userService.user.getValue().id;
+  }
 }
 
 export class Requistion {
@@ -45,4 +61,5 @@ export class Requistion {
   estimatedProfit: number;
   company: Company;
   assignmentDate: Date;
+  createdBy: number;
 }
