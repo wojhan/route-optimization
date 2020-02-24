@@ -20,7 +20,8 @@ class Profile(models.Model):
     @property
     def visited_companies(self):
         visited = 0
-        business_trips = self.business_trips.filter(finish_date__lt=datetime.now())
+        business_trips = self.business_trips.filter(
+            finish_date__lt=datetime.now())
 
         for business_trip in business_trips:
             visited += business_trip.requistions.count()
@@ -30,7 +31,8 @@ class Profile(models.Model):
     @property
     def total_distance(self):
         distance = 0
-        business_trips = self.business_trips.filter(finish_date__lt=datetime.now())
+        business_trips = self.business_trips.filter(
+            finish_date__lt=datetime.now())
 
         for business_trip in business_trips:
             distance += business_trip.distance
@@ -50,7 +52,8 @@ class Profile(models.Model):
 
 
 class Company(models.Model):
-    added_by = models.ForeignKey(Profile, verbose_name="dodany przez", on_delete=models.SET_NULL, related_name="added_companies", default=None, null=True)
+    added_by = models.ForeignKey(Profile, verbose_name="dodany przez",
+                                 on_delete=models.SET_NULL, related_name="added_companies", default=None, null=True)
     name = models.CharField(max_length=300, verbose_name='nazwa pełna')
     name_short = models.CharField(
         max_length=250, verbose_name='nazwa skrócona')
@@ -74,7 +77,7 @@ class Company(models.Model):
         return self.name_short + ', ' + street + ' ' + self.postcode + ' ' + self.city
 
     class Meta:
-        ordering = ['pk']
+        ordering = ['name']
         verbose_name = 'firma'
         verbose_name_plural = 'firmy'
 
@@ -127,7 +130,7 @@ class BusinessTrip(models.Model):
 
 class Requistion(models.Model):
     created_by = models.ForeignKey(Profile, verbose_name="stworzony przez",
-                                on_delete=models.SET_NULL, related_name="created_requistions", default=None, null=True, blank=True)
+                                   on_delete=models.SET_NULL, related_name="created_requistions", default=None, null=True, blank=True)
     estimated_profit = models.FloatField(verbose_name="oszacowany zysk")
     company = models.ForeignKey(
         Company, verbose_name="firma", on_delete=models.CASCADE, related_name="requistions")

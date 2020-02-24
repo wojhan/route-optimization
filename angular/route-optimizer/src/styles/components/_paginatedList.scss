@@ -1,0 +1,11 @@
+.paginated-list {
+  font-size: 1.05rem;
+  font-family: $text-font-stack;
+  letter-spacing: 0.02rem;
+}
+
+.pagination {
+  li:hover {
+    cursor: pointer;
+  }
+}
