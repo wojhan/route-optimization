@@ -51,6 +51,10 @@ export class RequistionsService {
     return this.http.put<Requistion>(`${this.apiUrl}${requisition.id}/`, requisition);
   }
 
+  deleteRequisition(requisitionId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}${requisitionId}/`);
+  }
+
   canEditRequisition(requisition: Requistion): boolean {
     return this.userService.isStaff.getValue() || requisition.createdBy === this.userService.user.getValue().id;
   }
