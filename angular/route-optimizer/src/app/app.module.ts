@@ -19,6 +19,8 @@ import localePlExtra from '@angular/common/locales/extra/pl';
 import { HttpConfigInterceptor } from './shared/http-config.interceptor';
 import { RegistrationModule } from './registration/registration.module';
 import { RequistionsModule } from './requistions/requistions.module';
+import { MyBusinessTripsModule } from './my-business-trips/my-business-trips.module';
+import { MapComponent } from './map/map.component';
 registerLocaleData(localePl, localePlExtra);
 
 @NgModule({
@@ -34,6 +36,7 @@ registerLocaleData(localePl, localePlExtra);
     BrowserAnimationsModule,
     EmployeesModule,
     BusinessTripsModule,
+    MyBusinessTripsModule,
     RequistionsModule
   ],
   providers: [UserService, AuthGuard, CookieService, { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }],

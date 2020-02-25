@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RequistionFormComponent } from './requistion-form.component';
+import { BusinessTripCardsComponent } from './business-trip-cards.component';
 
-describe('RequistionFormComponent', () => {
-  let component: RequistionFormComponent;
-  let fixture: ComponentFixture<RequistionFormComponent>;
+describe('BusinessTripCardsComponent', () => {
+  let component: BusinessTripCardsComponent;
+  let fixture: ComponentFixture<BusinessTripCardsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [RequistionFormComponent]
+      declarations: [BusinessTripCardsComponent]
     }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RequistionFormComponent);
+    fixture = TestBed.createComponent(BusinessTripCardsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,19 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RequistionEditComponent } from './requistion-edit.component';
+import { MapComponent } from './map.component';
 
-describe('RequistionEditComponent', () => {
-  let component: RequistionEditComponent;
-  let fixture: ComponentFixture<RequistionEditComponent>;
+describe('MapComponent', () => {
+  let component: MapComponent;
+  let fixture: ComponentFixture<MapComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [RequistionEditComponent]
+      declarations: [MapComponent]
     }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RequistionEditComponent);
+    fixture = TestBed.createComponent(MapComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,0 +1,18 @@
+<div class="my-business-trip-cards">
+  <div class="card">
+    <div class="card-header">Aktualne delegacje</div>
+    <div class="card-body px-0">
+      <!-- <div class="row">
+                <div class="col"> -->
+      <div *ngIf="currentBusinessTrip.loading" class="d-flex justify-content-center align-items-center h-100 m-auto">
+        <app-lds-roller></app-lds-roller>
+      </div>
+      <div *ngIf="currentBusinessTrip.businessTrip | async; let businessTrips">
+        <p *ngIf="businessTrips.length == 0">Aktualnie nie masz żadnych delegacji</p>
+        <app-business-trip-cards *ngIf="businessTrips.length > 0" [businessTrips]="businessTrips"> </app-business-trip-cards>
+      </div>
+      <!-- </div>
+            </div> -->
+    </div>
+  </div>
+</div>

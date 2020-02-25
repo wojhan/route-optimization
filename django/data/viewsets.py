@@ -149,7 +149,12 @@ class EmployeePastBusinessTrips(EmployeeBusinessTrips):
 class EmployeeCurrentBusinessTrips(EmployeeBusinessTrips):
 
     def get_queryset(self):
-        return super().get_queryset().filter(finish_date__gt=datetime.now())
+        return super().get_queryset().filter(finish_date__gt=datetime.now(), start_date__lt=datetime.now())
+
+class EmployeeFutureBusinessTrips(EmployeeBusinessTrips):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(start_date__gt=datetime.now())
 
 
 class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
