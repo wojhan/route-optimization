@@ -101,7 +101,7 @@ export class BusinessTripEditComponent implements OnInit {
     }
 
     this.businessTripsService.partialUpdateBusinessTrip(id, data).subscribe(response => {
-      this.router.navigate(['/dashboard/business-trip', response.id]);
+      this.router.navigate(['/dashboard/business-trips', response.id]);
     });
   }
 }

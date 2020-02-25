@@ -29,7 +29,7 @@ export class CompanyFormComponent implements OnInit, OnChanges {
       const change = changes.companyForm;
 
       if (change.currentValue) {
-        this.companyForm.valueChanges.pipe(debounceTime(300)).subscribe((data: any) => {
+        this.companyForm.valueChanges.pipe(debounceTime(500)).subscribe((data: any) => {
           this.formChanged.emit(data);
         });
       }

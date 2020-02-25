@@ -6,7 +6,7 @@
   </div>
   <div class="row">
     <div class="col">
-      <a class="btn btn-primary btn-sm" [routerLink]="['/dashboard/business-trip/add']">Dodaj delegację</a>
+      <a class="btn btn-primary btn-sm" [routerLink]="['/dashboard/business-trips/add']">Dodaj delegację</a>
     </div>
   </div>
   <div class="row" *ngIf="page | async as businessTrips; else loading">
@@ -41,13 +41,13 @@
                   <div class="dropdown-menu">
                     <a
                       class="dropdown-item"
-                      [routerLink]="['/dashboard/business-trip', businessTrip.id]"
+                      [routerLink]="['/dashboard/business-trips', businessTrip.id]"
                       routerLinkActive="router-link-active"
                       >Szczegóły</a
                     >
                     <a
                       class="dropdown-item"
-                      [routerLink]="['/dashboard/business-trip', businessTrip.id, 'edit']"
+                      [routerLink]="['/dashboard/business-trips', businessTrip.id, 'edit']"
                       routerLinkActive="router-link-active"
                       >Edytuj</a
                     >
@@ -62,7 +62,8 @@
                 {{ businessTrip.duration | number }} dni }}
               </td>
               <td class="align-middle">
-                {{ businessTrip.startDate | date: 'short':undefined:'pl' }} - {{ businessTrip.finishDate | date: 'short':undefined:'pl' }}
+                {{ businessTrip.startDate | date: 'short':undefined:'pl' }} -
+                {{ businessTrip.finishDate | date: 'short':undefined:'pl' }}
               </td>
               <td class="align-middle">{{ businessTrip.routes.length }}</td>
               <td class="align-middle">{{ businessTrip.distance | number }} km</td>

@@ -6,7 +6,7 @@
   </div>
   <div class="row">
     <div class="col">
-      <a class="btn btn-primary btn-sm" [routerLink]="['/dashboard/employee/add']">Dodaj pracownika</a>
+      <a class="btn btn-primary btn-sm" [routerLink]="['/dashboard/employees/add']">Dodaj pracownika</a>
     </div>
   </div>
   <div class="row" *ngIf="page | async as businessTrips; else loading">
@@ -28,13 +28,22 @@
             <tr *ngFor="let businessTrip of businessTrips.results; let i = index">
               <td class="align-middle">
                 <div class="btn-group">
-                  <button class="btn btn-default btn-sm dropdown-toggle no-caret" type="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
+                  <button
+                    class="btn btn-default btn-sm dropdown-toggle no-caret"
+                    type="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
                     <fa-icon [icon]="faEllipsisV"></fa-icon>
                   </button>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" [routerLink]="['/dashboard/business-trip/', businessTrip.id]"
-                      routerLinkActive="router-link-active">Szczegóły</a>
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/dashboard/business-trips/', businessTrip.id]"
+                      routerLinkActive="router-link-active"
+                      >Szczegóły</a
+                    >
                     <!-- <a class="dropdown-item" [routerLink]="['/dashboard/employee/edit', employee.id]"
                         routerLinkActive="router-link-active">Edytuj</a>
                       <a class="dropdown-item" (click)="remove(employee)">Usuń</a> -->
@@ -47,8 +56,7 @@
                 {{ businessTrip.duration | number }}
                 dni }}
               </td>
-              <td class="align-middle">{{ businessTrip.startDate | date: 'short' }} -
-                {{ businessTrip.finishDate | date: 'short' }}</td>
+              <td class="align-middle">{{ businessTrip.startDate | date: 'short' }} - {{ businessTrip.finishDate | date: 'short' }}</td>
               <td class="align-middle">{{ businessTrip.routes.length }}</td>
               <td class="align-middle">{{ businessTrip.distance | number }} km</td>
               <td class="align-middle">{{ businessTrip.estimatedProfit }} zł</td>

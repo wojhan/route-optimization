@@ -31,7 +31,7 @@ export class RequistionEditComponent implements OnInit {
         (createdBy && createdBy !== this.userService.user.getValue().id && !this.userService.isStaff.getValue()) ||
         (!createdBy && !this.userService.isStaff.getValue())
       ) {
-        this.router.navigate(['dashboard', 'requisition', id]);
+        this.router.navigate(['dashboard', 'requisitions', id]);
       } else {
         this.requisition = requisition;
         this.requisitionForm = new FormGroup({

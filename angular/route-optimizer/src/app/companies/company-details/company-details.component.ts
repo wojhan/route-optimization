@@ -1,8 +1,10 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CompaniesService, Company } from '../companies.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import * as L from 'leaflet';
+import { MatDialog } from '@angular/material';
+import { DeleteModalComponent } from 'src/app/shared/components/delete-modal/delete-modal.component';
 
 @Component({
   selector: 'app-company-details',
@@ -16,7 +18,13 @@ export class CompanyDetailsComponent implements OnInit {
   lng;
   zoom = 12;
 
-  constructor(public companiesService: CompaniesService, private route: ActivatedRoute, private cdRef: ChangeDetectorRef) {}
+  constructor(
+    public companiesService: CompaniesService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private cdRef: ChangeDetectorRef,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id');
@@ -49,5 +57,25 @@ export class CompanyDetailsComponent implements OnInit {
     });
 
     tiles.addTo(this.map);
+  }
+
+  deleteCompany() {
+    const dialogRef = this.dialog.open(DeleteModalComponent, {
+      width: '250px',
+      data: {
+        content: `Czy na pewno chcesz usunąć firmę ${this.company.nameShort}?`,
+        ok: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.companiesService.deleteCompany(this.company.id).subscribe({
+          next: () => {
+            this.router.navigate(['dashboard/companies']);
+          }
+        });
+      }
+    });
   }
 }

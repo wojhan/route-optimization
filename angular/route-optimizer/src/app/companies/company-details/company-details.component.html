@@ -21,8 +21,8 @@
           <p>NIP: {{ company.nip }}</p>
           <p>Adres: {{ company.street }} {{ company.houseNo }}, {{ company.postcode }} {{ company.city }}</p>
           <div class="buttons" *ngIf="companiesService.canEdit(company)">
-            <button class="btn btn-outline-primary btn-sm">Edytuj</button>
-            <button class="btn btn-outline-primary btn-sm">Usuń</button>
+            <button class="btn btn-outline-primary btn-sm" [routerLink]="['/dashboard/companies', company.id, 'edit']">Edytuj</button>
+            <button class="btn btn-outline-primary btn-sm" (click)="deleteCompany()">Usuń</button>
           </div>
         </div>
       </div>

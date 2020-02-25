@@ -65,11 +65,11 @@ class CompanySerializer(serializers.HyperlinkedModelSerializer):
         model = Company
         fields = ['id', 'name', 'name_short', 'nip', 'street',
                   'house_no', 'postcode', 'city', 'latitude', 'longitude', 'added_by']
-        extra_kwargs = {
-            'nip': {
-                'validators': []
-            }
-        }
+        # extra_kwargs = {
+        #     'nip': {
+        #         'validators': []
+        #     }
+        # }
 
 
 class HotelSerializer(serializers.HyperlinkedModelSerializer):

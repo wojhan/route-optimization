@@ -38,7 +38,7 @@ export class CompanyListComponent implements OnInit {
   }
 
   edit(companyId: number): void {
-    this.router.navigate([`/dashboard/company/edit/${companyId}`]);
+    this.router.navigate(['/dashboard/companies', companyId, 'edit']);
   }
 
   canEditCompany(company: Company): boolean {
