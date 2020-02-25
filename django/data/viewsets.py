@@ -257,12 +257,15 @@ class RequistionViewSet(viewsets.ModelViewSet):
     serializer_class = RequistionSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['company__name_short', 'company__nip']
 
     def get_queryset(self):
         print(self.request.user)
         queryset = super().get_queryset()
 
-        # queryset.filter(Q(created_by=self.request.user) | Q(created_by=None))
+        queryset.filter(Q(created_by=self.request.user.profile)
+                        | Q(created_by=None))
         return queryset
 
 
