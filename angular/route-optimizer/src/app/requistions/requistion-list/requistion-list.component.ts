@@ -41,6 +41,6 @@ export class RequistionListComponent implements OnInit {
   }
 
   onPageChanged(page: string) {
-    this.pageUrl.next(`${environment.apiUrl}api/companies/?format=json&page=${page}&page_size=40`);
+    this.pageUrl.next(`${environment.apiUrl}api/requistions/?format=json&page=${page}&page_size=40`);
   }
 }
