@@ -17,8 +17,11 @@ export class EmployeesService {
 
   constructor(private readonly http: HttpClient, private readonly userService: UserService) {}
 
-  list(urlOrFilter?: string | object): Observable<Page<Employee>> {
-    return queryPaginated<Employee>(this.http, this.defaultHeaders, this.apiUrl, this.perPage, urlOrFilter);
+  list(baseUrl?: string, urlOrFilter?: string | object): Observable<Page<Employee>> {
+    if (baseUrl === undefined) {
+      baseUrl = this.apiUrl;
+    }
+    return queryPaginated<Employee>(this.http, this.defaultHeaders, baseUrl, this.perPage, urlOrFilter);
   }
 
   getEmployee(id: number): Observable<Employee> {

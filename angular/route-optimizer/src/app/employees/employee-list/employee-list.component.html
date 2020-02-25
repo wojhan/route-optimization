@@ -1,75 +1,59 @@
-<div class="container">
+<div class="container-fluid">
   <div class="row">
     <div class="col">
-      <h1>Lista pracowników</h1>
+      <h1 class="section-header">Lista pracowników</h1>
     </div>
   </div>
-  <div class="row">
-    <div class="col">
-      <a class="btn btn-primary btn-sm" [routerLink]="['/dashboard/employee/add']">Dodaj pracownika</a>
-    </div>
-  </div>
-  <div class="row" *ngIf="page | async as employees; else loading">
-    <div class="col-12">
-      <div class="table-responsive" *ngIf="employees.results.length > 0; else noEmployees">
-        <table class="table">
-          <thead>
-            <tr>
-              <th></th>
-              <th scope="col">#</th>
-              <th scope="col">Imię</th>
-              <th scope="col">Nazwisko</th>
-              <th scope="col">E-mail</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let employee of employees.results">
-              <td class="align-middle">
-                <div class="btn-group">
-                  <button
-                    class="btn btn-default btn-sm dropdown-toggle no-caret"
-                    type="button"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    <fa-icon [icon]="faEllipsisV"></fa-icon>
-                  </button>
-                  <div class="dropdown-menu">
-                    <a
-                      class="dropdown-item"
-                      [routerLink]="['/dashboard/employee/', employee.id, 'business-trips']"
-                      routerLinkActive="router-link-active"
-                      >Delegacje</a
-                    >
-                    <a class="dropdown-item" [routerLink]="['/dashboard/employee/edit', employee.id]" routerLinkActive="router-link-active"
-                      >Edytuj</a
-                    >
-                    <a class="dropdown-item" (click)="remove(employee)">Usuń</a>
-                  </div>
-                </div>
-              </td>
-              <td class="align-middle">{{ employee.id }}</td>
-              <td class="align-middle">{{ employee.firstName }}</td>
-              <td class="align-middle">{{ employee.lastName }}</td>
-              <td class="align-middle">{{ employee.email }}</td>
-            </tr>
-          </tbody>
-        </table>
+  <div id="employee-list">
+    <div class="row">
+      <div class="col">
+        <ul class="nav nav-tabs" id="employee-list" role="tablist">
+          <li class="nav-item">
+            <a
+              class="nav-link active"
+              id="active-tab"
+              data-toggle="tab"
+              href="#active-employee"
+              role="tab"
+              aria-controls="active-employee"
+              aria-selected="true"
+              >Aktywni</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="inactive-tab"
+              data-toggle="tab"
+              href="#inactive-employee"
+              role="tab"
+              aria-controls="inactive-employee"
+              aria-selected="false"
+              >Nieaktywni</a
+            >
+          </li>
+        </ul>
+        <div class="tab-content mt-3" id="employee-list-content">
+          <div class="tab-pane fade show active" id="active-employee" role="tabpanel" aria-labelledby="active-tab">
+            <app-active-employees
+              [filterForm]="activeEmployeeFilterForm"
+              [page]="activeEmployeePage"
+              [pageUrl]="activeEmployeePageUrl"
+              (pageChange)="onActiveEmployeesPageChanged($event)"
+            >
+            </app-active-employees>
+          </div>
+          <div class="tab-pane fade" id="inactive-employee" role="tabpanel" aria-labelledby="inactive-tab">
+            <app-inactive-employees
+              [filterForm]="inactiveEmployeeFilterForm"
+              [page]="inactiveEmployeePage"
+              [pageUrl]="inactiveEmployeePageUrl"
+              (pageChange)="onInactiveEmployeesPageChanged($event)"
+            >
+            </app-inactive-employees>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="col-12" *ngIf="employees.results.length > 0">
-      <app-paginator [page]="page | async" (pageChange)="onPageChanged($event)"></app-paginator>
     </div>
   </div>
 </div>
-
-<ng-template #loading>
-  LOADING
-</ng-template>
-
-<ng-template #noEmployees>
-  <div class="alert alert-info">
-    <p>Brak pracowników do wyświetlenia.</p>
-  </div>
-</ng-template>

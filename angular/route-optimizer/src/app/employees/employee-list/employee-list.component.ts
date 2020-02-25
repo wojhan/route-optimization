@@ -18,44 +18,69 @@ import { DeleteModalComponent } from 'src/app/shared/components/delete-modal/del
 export class EmployeeListComponent implements OnInit {
   faEllipsisV: IconDefinition = faEllipsisV;
 
-  filterForm: FormGroup;
-  page: Observable<Page<Employee>>;
-  pageUrl: BehaviorSubject<string> = new BehaviorSubject<string>(`${environment.apiUrl}api/employees/?format=json&page=1&page_size=40`);
+  activeEmployeeFilterForm: FormGroup;
+  inactiveEmployeeFilterForm: FormGroup;
+
+  activeEmployeePage: Observable<Page<Employee>>;
+  inactiveEmployeePage: Observable<Page<Employee>>;
+
+  activeEmployeePageUrl: BehaviorSubject<string> = new BehaviorSubject<string>(
+    `${environment.apiUrl}api/employees/?format=json&page=1&page_size=40`
+  );
+  inactiveEmployeePageUrl: BehaviorSubject<string> = new BehaviorSubject<string>(
+    `${environment.apiUrl}api/inactive-employees/?format=json&page=1&page_size=40`
+  );
 
   constructor(private employeesService: EmployeesService, public dialog: MatDialog) {}
 
   ngOnInit() {
-    this.filterForm = new FormGroup({
+    this.inactiveEmployeeFilterForm = new FormGroup({
       search: new FormControl()
     });
 
-    this.page = merge(this.filterForm.valueChanges.pipe(debounceTime(200), startWith(this.filterForm.value)), this.pageUrl).pipe(
-      switchMap(urlOrFilter => this.employeesService.list(urlOrFilter)),
+    this.activeEmployeeFilterForm = new FormGroup({
+      search: new FormControl()
+    });
+
+    this.activeEmployeePage = merge(
+      this.activeEmployeeFilterForm.valueChanges.pipe(debounceTime(200), startWith(this.activeEmployeeFilterForm.value)),
+      this.activeEmployeePageUrl
+    ).pipe(
+      switchMap(urlOrFilter => this.employeesService.list(this.activeEmployeePageUrl.getValue(), urlOrFilter)),
       share()
     );
 
-    this.page.subscribe(data => console.log(data));
+    this.inactiveEmployeePage = merge(
+      this.inactiveEmployeeFilterForm.valueChanges.pipe(debounceTime(200), startWith(this.inactiveEmployeeFilterForm.value)),
+      this.inactiveEmployeePageUrl
+    ).pipe(
+      switchMap(urlOrFilter => this.employeesService.list(this.inactiveEmployeePageUrl.getValue(), urlOrFilter)),
+      share()
+    );
   }
 
   remove(employee: Employee): void {
-    const dialogRef = this.dialog.open(DeleteModalComponent, {
-      width: '250px',
-      data: {
-        content: `Czy na pewno chcesz usunąć pracownika ${employee.firstName} ${employee.lastName}?`,
-        ok: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.employeesService.deleteEmployee(employee.id).subscribe(data => {
-          this.onPageChanged(this.pageUrl.getValue());
-        });
-      }
-    });
+    // const dialogRef = this.dialog.open(DeleteModalComponent, {
+    //   width: '250px',
+    //   data: {
+    //     content: `Czy na pewno chcesz usunąć pracownika ${employee.firstName} ${employee.lastName}?`,
+    //     ok: true
+    //   }
+    // });
+    // dialogRef.afterClosed().subscribe(result => {
+    //   if (result) {
+    //     this.employeesService.deleteEmployee(employee.id).subscribe(data => {
+    //       this.onPageChanged(this.pageUrl.getValue());
+    //     });
+    //   }
+    // });
   }
 
-  onPageChanged(page: string) {
-    this.pageUrl.next(`${environment.apiUrl}api/employees/?format=json&page=${page}&page_size=40`);
+  onActiveEmployeesPageChanged(page: string) {
+    this.activeEmployeePageUrl.next(`${environment.apiUrl}api/employees/?format=json&page=${page}&page_size=40`);
+  }
+
+  onInactiveEmployeesPageChanged(page: string) {
+    this.inactiveEmployeePageUrl.next(`${environment.apiUrl}api/inactive-employees/?format=json&page=${page}&page_size=40`);
   }
 }

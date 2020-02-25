@@ -7,6 +7,9 @@ import { EmployeeBusinessTripsComponent } from './employee-business-trips/employ
 import { EmployeeFormComponent } from './employee-form/employee-form.component';
 import { EmployeeEditComponent } from './employee-edit/employee-edit.component';
 import { EmployeeBusinessTripsListComponent } from './employee-business-trips/employee-business-trips-list/employee-business-trips-list.component';
+import { InactiveEmployeesComponent } from './employee-list/components/inactive-employees/inactive-employees.component';
+import { ActiveEmployeesComponent } from './employee-list/components/active-employees/active-employees.component';
+import { EmployeeTableComponent } from './employee-list/components/employee-table/employee-table.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +18,10 @@ import { EmployeeBusinessTripsListComponent } from './employee-business-trips/em
     EmployeeBusinessTripsComponent,
     EmployeeFormComponent,
     EmployeeEditComponent,
-    EmployeeBusinessTripsListComponent
+    EmployeeBusinessTripsListComponent,
+    InactiveEmployeesComponent,
+    ActiveEmployeesComponent,
+    EmployeeTableComponent
   ],
   imports: [SharedModule, RouterModule]
 })
