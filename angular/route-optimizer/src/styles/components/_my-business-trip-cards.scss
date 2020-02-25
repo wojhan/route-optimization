@@ -1,0 +1,15 @@
+.my-business-trip-cards {
+  font-family: $text-font-stack;
+  font-size: 0.9rem;
+
+  & > .card {
+    border: none;
+
+    & > .card-header {
+      border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+  }
+  .card-header {
+    font-size: 1.05rem;
+  }
+}

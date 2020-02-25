@@ -19,11 +19,8 @@ import { BusinessTripAddComponent } from '../business-trips/business-trip-add/bu
 import { BusinessTripDetailComponent } from '../business-trips/business-trip-detail/business-trip-detail.component';
 import { BusinessTripEditComponent } from '../business-trips/business-trip-edit/business-trip-edit.component';
 import { StaffGuard } from '../shared/guards/staff.guard';
-import { RequistionsComponent } from '../requistions/requistions.component';
 import { RequistionListComponent } from '../requistions/requistion-list/requistion-list.component';
-import { RequistionAddComponent } from '../requistions/requistion-add/requistion-add.component';
-import { RequistionDetailsComponent } from '../requistions/requistion-details/requistion-details.component';
-import { RequistionEditComponent } from '../requistions/requistion-edit/requistion-edit.component';
+import { MyBusinessTripsComponent } from '../my-business-trips/my-business-trips.component';
 
 const dashboardRoutes: Routes = [
   {
@@ -126,25 +123,11 @@ const dashboardRoutes: Routes = [
       },
       {
         path: 'requisitions',
-        component: RequistionsComponent,
-        children: [
-          {
-            path: '',
-            component: RequistionListComponent
-          },
-          {
-            path: 'add',
-            component: RequistionAddComponent
-          },
-          {
-            path: ':id',
-            component: RequistionDetailsComponent
-          },
-          {
-            path: ':id/edit',
-            component: RequistionEditComponent
-          }
-        ]
+        component: RequistionListComponent
+      },
+      {
+        path: 'my-business-trips',
+        component: MyBusinessTripsComponent
       }
     ],
     canActivate: [AuthGuard]

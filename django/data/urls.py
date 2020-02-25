@@ -4,7 +4,7 @@ from data.viewsets import (BusinessTripViewSet, CompanyViewSet,
                            CurrentUserView, EmployeeBusinessTrips,
                            EmployeeViewSet, HotelViewSet,
                            ObtainUserFromTokenView, ProfileViewSet,
-                           RequistionViewSet, UserViewSet, EmployeeRequisitionsViewSet, ChangePasswordViewSet,
+                           RequistionViewSet, UserViewSet, EmployeeRequisitionsViewSet, ChangePasswordViewSet, EmployeeFutureBusinessTrips,
                            EmployeePastBusinessTrips, EmployeeCurrentBusinessTrips, ProfileStatsViewSet, EmployeeCompanyHistoryViewSet, CompanyEmployeeHistoryViewSet,
                            InActiveEmployeeViewSet)
 from django.conf.urls import url
@@ -27,6 +27,9 @@ router.register(
 )
 router.register(
     r'api/employees/(?P<pk>[^/.])/business-trips/current', EmployeeCurrentBusinessTrips, 'employee_current_business_trips'
+)
+router.register(
+    r'api/employees/(?P<pk>[^/.])/business-trips/future', EmployeeFutureBusinessTrips, 'employee_future_business_trips'
 )
 router.register(
     r'api/employees/(?P<pk>[^/.])/requisitions', EmployeeRequisitionsViewSet, 'employee_requisitions'

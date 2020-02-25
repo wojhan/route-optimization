@@ -14,9 +14,10 @@ import { DeleteModalComponent } from './components/delete-modal/delete-modal.com
 import { MaterialModule } from '../material/material.module';
 import { PaginatorComponent } from '../paginator/paginator.component';
 import { LdsRollerComponent } from './components/lds-roller/lds-roller.component';
+import { MapComponent } from '../map/map.component';
 
 @NgModule({
-  declarations: [JwPaginationComponent, DeleteModalComponent, PaginatorComponent, LdsRollerComponent],
+  declarations: [MapComponent, JwPaginationComponent, DeleteModalComponent, PaginatorComponent, LdsRollerComponent],
   imports: [
     CommonModule,
     FontAwesomeModule,
@@ -45,7 +46,8 @@ import { LdsRollerComponent } from './components/lds-roller/lds-roller.component
     DeleteModalComponent,
     PaginatorComponent,
     LdsRollerComponent,
-    BreadcrumbModule
+    BreadcrumbModule,
+    MapComponent
   ],
   providers: [GoogleMapsAPIWrapper]
 })

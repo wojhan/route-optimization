@@ -70,4 +70,5 @@ export class BusinessTrip {
   routes: Route[];
   requistions: Requistion[];
   maxDistance: number;
+  isProcessed: boolean;
 }

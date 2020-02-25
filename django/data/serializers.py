@@ -241,7 +241,7 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BusinessTrip
         fields = ['id', 'start_date', 'finish_date', 'duration', 'distance',
-                  'assignee', 'requistions', 'routes', 'estimated_profit', 'max_distance']
+                  'assignee', 'requistions', 'routes', 'estimated_profit', 'max_distance', 'is_processed']
 
 
 class ChangePasswordSerializer(serializers.Serializer):
