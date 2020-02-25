@@ -77,22 +77,30 @@ const dashboardRoutes: Routes = [
       {
         path: 'employees',
         component: EmployeesComponent,
+        data: {
+          breadcrumb: 'Pracownicy'
+        },
         children: [
           {
             path: '',
-            component: EmployeeListComponent
-          },
-          {
-            path: ':id/edit',
-            component: EmployeeEditComponent
+            component: EmployeeListComponent,
+            data: {
+              breadcrumb: null
+            }
           },
           {
             path: ':employeeId/business-trips',
             component: EmployeeBusinessTripsComponent,
+            data: {
+              breadcrumb: 'Delegacje pracownika'
+            },
             children: [
               {
                 path: '',
-                component: EmployeeBusinessTripsListComponent
+                component: EmployeeBusinessTripsListComponent,
+                data: {
+                  breadcrumb: null
+                }
               }
             ]
           }
@@ -102,32 +110,53 @@ const dashboardRoutes: Routes = [
       {
         path: 'business-trips',
         component: BusinessTripsComponent,
+        data: {
+          breadcrumb: 'Delegacje'
+        },
         children: [
           {
             path: '',
-            component: BusinessTripsListComponent
+            component: BusinessTripsListComponent,
+            data: {
+              breadcrumb: null
+            }
           },
           {
             path: 'add',
-            component: BusinessTripAddComponent
+            component: BusinessTripAddComponent,
+            data: {
+              breadcrumb: 'Dodaj delegację'
+            }
           },
           {
             path: ':id',
-            component: BusinessTripDetailComponent
+            component: BusinessTripDetailComponent,
+            data: {
+              breadcrumb: 'Szczegóły delegacji'
+            }
           },
           {
             path: ':id/edit',
-            component: BusinessTripEditComponent
+            component: BusinessTripEditComponent,
+            data: {
+              breadcrumb: 'Edycja delegacji'
+            }
           }
         ]
       },
       {
         path: 'requisitions',
-        component: RequistionListComponent
+        component: RequistionListComponent,
+        data: {
+          breadcrumb: 'Oferty'
+        }
       },
       {
         path: 'my-business-trips',
-        component: MyBusinessTripsComponent
+        component: MyBusinessTripsComponent,
+        data: {
+          breadcrumb: 'Twoje delegacje'
+        }
       }
     ],
     canActivate: [AuthGuard]

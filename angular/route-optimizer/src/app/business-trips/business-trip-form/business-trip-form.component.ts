@@ -38,22 +38,22 @@ export class BusinessTripFormComponent implements OnInit {
   constructor(private employeesService: EmployeesService, private cdRef: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.assigneePage = merge(
-      this.businessTripForm.get('assignee').valueChanges.pipe(debounceTime(200), startWith(this.businessTripForm.get('assignee').value)),
-      this.assigneePageUrl
-    ).pipe(
-      filter(() => !(this.businessTripForm.get('assignee').value instanceof Object)),
-      switchMap(urlOrFilter =>
-        this.employeesService.list(
-          this.businessTripForm.get('assignee').value === '' ? 'http://localhost:8000/api/employees/' : { search: urlOrFilter }
-        )
-      ),
-      share()
-    );
-
-    this.assigneePage.subscribe(data => {
-      this.options = data.results;
-    });
+    // this.assigneePage = merge(
+    //   this.businessTripForm.get('assignee').valueChanges.pipe(debounceTime(200), startWith(this.businessTripForm.get('assignee').value)),
+    //   this.assigneePageUrl
+    // ).pipe(
+    //   filter(() => !(this.businessTripForm.get('assignee').value instanceof Object)),
+    //   switchMap(urlOrFilter =>
+    //     this.employeesService.list(
+    //       'http://localhost:8000/api/employees/',
+    //       this.businessTripForm.get('assignee').value === '' ? 'http://localhost:8000/api/employees/' : { search: urlOrFilter }
+    //     )
+    //   ),
+    //   share()
+    // );
+    // this.assigneePage.subscribe(data => {
+    //   this.options = data.results;
+    // });
   }
 
   displayFn(employee?: Employee): string | undefined {
