@@ -7,6 +7,7 @@ import { RequistionFormComponent } from './requistion-form/requistion-form.compo
 import { RequistionsComponent } from './requistions.component';
 import { SharedModule } from '../shared/shared.module';
 import { RouterModule } from '@angular/router';
+import { EditRequisitionModalComponent } from './requistion-list/components/edit-requisition-modal/edit-requisition-modal.component';
 
 @NgModule({
   declarations: [
@@ -15,8 +16,10 @@ import { RouterModule } from '@angular/router';
     RequistionDetailsComponent,
     RequistionEditComponent,
     RequistionFormComponent,
-    RequistionsComponent
+    RequistionsComponent,
+    EditRequisitionModalComponent
   ],
+  entryComponents: [EditRequisitionModalComponent],
   imports: [RouterModule, SharedModule]
 })
 export class RequistionsModule {}

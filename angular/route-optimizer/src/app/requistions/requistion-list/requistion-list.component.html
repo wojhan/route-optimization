@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="col-auto">
-      <a class="btn btn-outline-primary float-right" [routerLink]="['add']">Dodaj ofertę</a>
+      <button class="btn btn-outline-primary float-right" (click)="addRequisition()">Dodaj ofertę</button>
     </div>
   </div>
   <div id="requisition-list" class="paginated-list">
@@ -29,7 +29,8 @@
             </thead>
             <tbody>
               <tr *ngFor="let requisition of (page | async)?.results" class="d-flex">
-                <td class="d-flex align-items-center col-lg-1">
+                <td class="d-flex align-items-center col-lg-1" *ngIf="!canEditRequisition(requisition)"></td>
+                <td class="d-flex align-items-center col-lg-1" *ngIf="canEditRequisition(requisition)">
                   <div class="btn-group">
                     <button
                       class="btn btn-default btn-sm dropdown-toggle no-caret"
@@ -41,14 +42,8 @@
                       <fa-icon [icon]="faEllipsisV"></fa-icon>
                     </button>
                     <div class="dropdown-menu">
-                      <!-- <a
-                        class="dropdown-item"
-                        [routerLink]="['/dashboard/companies', company.id, 'edit']"
-                        routerLinkActive="router-link-active"
-                        *ngIf="canEditCompany(company)"
-                        >Edytuj</a
-                      >
-                      <a class="dropdown-item" (click)="remove(company)" *ngIf="canEditCompany(company)">Usuń</a> -->
+                      <span class="dropdown-item" (click)="editRequisition(requisition)" style="cursor: pointer;">Edytuj</span>
+                      <span class="dropdown-item" (click)="deleteRequisition(requisition)" style="cursor: pointer;">Usuń</span>
                     </div>
                   </div>
                 </td>

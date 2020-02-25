@@ -65,11 +65,11 @@ class CompanySerializer(serializers.HyperlinkedModelSerializer):
         model = Company
         fields = ['id', 'name', 'name_short', 'nip', 'street',
                   'house_no', 'postcode', 'city', 'latitude', 'longitude', 'added_by']
-        # extra_kwargs = {
-        #     'nip': {
-        #         'validators': []
-        #     }
-        # }
+        extra_kwargs = {
+            'nip': {
+                'validators': []
+            }
+        }
 
 
 class HotelSerializer(serializers.HyperlinkedModelSerializer):
@@ -99,6 +99,20 @@ class TokenSerializer(serializers.HyperlinkedModelSerializer):
 class RequistionSerializer(serializers.ModelSerializer):
     company = CompanySerializer()
 
+    def _validate_company(self, value):
+        company = {}
+
+        for key, v in value.items():
+            company[key] = v
+
+        try:
+            company_obj = Company.objects.get_or_create(**company)
+        except FieldError:
+            raise serializers.ValidationError(
+                'Przypisana firma nie jest instancją firmy.')
+
+        return company_obj[0]
+
     def create(self, validated_data: dict):
         company = validated_data.pop('company')
         company_obj = Company.objects.get_or_create(**company)[0]
@@ -109,6 +123,7 @@ class RequistionSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         company = validated_data.pop('company')
         company_obj = Company.objects.get_or_create(**company)[0]
+        print(company_obj)
 
         instance.company = company_obj
 
