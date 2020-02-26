@@ -77,10 +77,14 @@ export class EmployeeListComponent implements OnInit {
   }
 
   onActiveEmployeesPageChanged(page: string) {
-    this.activeEmployeePageUrl.next(`${environment.apiUrl}api/employees/?format=json&page=${page}&page_size=40`);
+    // this.activeEmployeePageUrl.next(`${environment.apiUrl}api/employees/?format=json&page=${page}&page_size=40`);
+    this.activeEmployeePageUrl.next(page);
+    this.inactiveEmployeePageUrl.next(this.inactiveEmployeePageUrl.getValue());
   }
 
   onInactiveEmployeesPageChanged(page: string) {
-    this.inactiveEmployeePageUrl.next(`${environment.apiUrl}api/inactive-employees/?format=json&page=${page}&page_size=40`);
+    // this.inactiveEmployeePageUrl.next(`${environment.apiUrl}api/inactive-employees/?format=json&page=${page}&page_size=40`);
+    this.inactiveEmployeePageUrl.next(page);
+    this.activeEmployeePageUrl.next(this.activeEmployeePageUrl.getValue());
   }
 }

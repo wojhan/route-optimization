@@ -11,7 +11,6 @@ import { CompanyDetailsComponent } from '../companies/company-details/company-de
 import { EmployeesComponent } from '../employees/employees.component';
 import { EmployeeListComponent } from '../employees/employee-list/employee-list.component';
 import { EmployeeBusinessTripsComponent } from '../employees/employee-business-trips/employee-business-trips.component';
-import { EmployeeEditComponent } from '../employees/employee-edit/employee-edit.component';
 import { EmployeeBusinessTripsListComponent } from '../employees/employee-business-trips/employee-business-trips-list/employee-business-trips-list.component';
 import { BusinessTripsComponent } from '../business-trips/business-trips.component';
 import { BusinessTripsListComponent } from '../business-trips/business-trips-list/business-trips-list.component';

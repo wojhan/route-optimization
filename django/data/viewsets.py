@@ -151,6 +151,7 @@ class EmployeeCurrentBusinessTrips(EmployeeBusinessTrips):
     def get_queryset(self):
         return super().get_queryset().filter(finish_date__gt=datetime.now(), start_date__lt=datetime.now())
 
+
 class EmployeeFutureBusinessTrips(EmployeeBusinessTrips):
 
     def get_queryset(self):
@@ -266,11 +267,11 @@ class RequistionViewSet(viewsets.ModelViewSet):
     search_fields = ['company__name_short', 'company__nip']
 
     def get_queryset(self):
-        print(self.request.user)
         queryset = super().get_queryset()
 
         queryset.filter(Q(created_by=self.request.user.profile)
                         | Q(created_by=None))
+
         return queryset
 
 
