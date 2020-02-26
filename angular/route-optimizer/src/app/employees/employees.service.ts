@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { queryPaginated, Page } from '../pagination';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, EMPTY, defer, from, concat } from 'rxjs';
 import { UserService } from '../shared/services/user.service';
+import { mergeMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,28 @@ export class EmployeesService {
 
   getEmployee(id: number): Observable<Employee> {
     return this.http.get<Employee>(`${this.apiUrl}${id}/`);
+  }
+
+  getEmployees(urlOrFilter: string | any): Observable<Employee> {
+    if (!urlOrFilter || !urlOrFilter.search) {
+      return EMPTY;
+    }
+
+    let page = urlOrFilter;
+
+    if (urlOrFilter instanceof Object) {
+      page = `${this.apiUrl}?search=${urlOrFilter.search}&format=json`;
+    }
+
+    return defer(() => {
+      return this.list(undefined, page).pipe(
+        mergeMap(({ results, next }) => {
+          const results$ = from(results);
+          const next$ = next ? this.getEmployees(next) : EMPTY;
+          return concat(results$, next$);
+        })
+      );
+    });
   }
 
   getInactiveEmployees(): Observable<Page<Employee>> {

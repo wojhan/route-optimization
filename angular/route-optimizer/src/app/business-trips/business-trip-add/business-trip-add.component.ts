@@ -2,7 +2,6 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 import { BusinessTripsService, BusinessTrip } from '../business-trips.service';
 import { of, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { Employee, EmployeesService } from 'src/app/employees/employees.service';
 import { RequistionsService, Requistion } from 'src/app/requistions/requistions.service';
 import { WebSocketService } from 'src/app/shared/services/websocket.service';
@@ -33,7 +32,7 @@ export class BusinessTripAddComponent implements OnInit {
     this.businessTripForm = new FormGroup({
       startDate: new FormControl('', [Validators.required]),
       finishDate: new FormControl('', [Validators.required]),
-      assignee: new FormControl('', [Validators.required]),
+      assignee: new FormControl(null, [Validators.required]),
       maxDistance: new FormControl('', [Validators.required]),
       requistions: new FormArray([])
     });

@@ -159,8 +159,8 @@ class EmployeeFutureBusinessTrips(EmployeeBusinessTrips):
 
 
 class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    lookup_field = 'pk'
-    lookup_url_kwarg = 'requisition_pk'
+    # lookup_field = 'pk'
+    # lookup_url_kwarg = 'requisition_pk'
     serializer_class = RequistionSerializer
     pagination_class = StandardResultsSetPagination
     http_method_names = ['get', 'options']
@@ -169,12 +169,17 @@ class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         q_filter = dict()
         user_pk = self.kwargs.get('pk')
         user = User.objects.get(pk=user_pk)
-        if user.is_staff:
-            q_filter['created_by'] = None
-        else:
-            q_filter['created_by'] = user.profile
 
-        return Requistion.objects.filter(**q_filter)
+        objects = Requistion.objects.filter(business_trip=None)
+
+        if user.is_staff:
+            return objects.filter(created_by=None)
+            # q_filter['created_by'] = None
+        else:
+            return objects.filter(Q(created_by=None) | Q(created_by=user.profile))
+            # q_filter['created_by'] = user.profile
+
+        # return Requistion.objects.filter(**q_filter)
 
 
 class EmployeeCompanyHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

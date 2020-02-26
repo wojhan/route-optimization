@@ -1,11 +1,14 @@
 import mpu
 import random
+import numpy as np
 
 from genetic import vertices
+
 
 def initializestatic(cls):
     cls.init_static()
     return cls
+
 
 @initializestatic
 class TestData:
@@ -32,15 +35,27 @@ class TestData:
 
     @classmethod
     def init_static(self):
-        distances = dict()
-        for i, vertex in enumerate(self.depots + self.companies + self.hotels):
-            distances[vertex.uuid] = dict()
-            for j, another_vertex in enumerate(self.depots + self.companies + self.hotels):
-                distances[vertex.uuid][another_vertex.uuid] = mpu.haversine_distance(vertex.get_coords(),
-                                                                                     another_vertex.get_coords())
+        all_vertices_length = len(self.depots + self.companies + self.hotels)
+        distances_array = np.zeros((all_vertices_length, all_vertices_length), dtype=[
+                                   ('id', int), ('distance', float)])
+        self.vertex_uuids = dict()
+        self.vertex_ids = dict()
 
-        self.distances = distances
+        all_vertices = self.depots + self.companies + self.hotels
+
+        for i, vertex in enumerate(all_vertices):
+            vertex.id = i
+
+        for i, vertex in enumerate(all_vertices):
+            self.vertex_ids[i] = vertex
+            for j, another_vertex in enumerate(all_vertices):
+                distance = mpu.haversine_distance(
+                    vertex.get_coords(), another_vertex.get_coords())
+                distances_array[i, j] = (another_vertex.id, distance)
+                distances_array[j, i] = (vertex.id, distance)
+
+        self.distances = distances_array
 
     @classmethod
     def count_distance(cls, v_from, v_to):
-        return cls.distances[v_from.uuid][v_to.uuid]
+        return cls.distances[v_from.id, v_to.id][1]

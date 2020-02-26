@@ -13,7 +13,6 @@ import { concat, of } from 'rxjs';
 export class BusinessTripEditComponent implements OnInit {
   businessTrip: BusinessTrip;
   businessTripForm: FormGroup;
-  requistions: Requistion[];
 
   pageLoaded;
 
@@ -21,30 +20,14 @@ export class BusinessTripEditComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private businessTripsService: BusinessTripsService,
-    private cdRef: ChangeDetectorRef,
-    private requistionsService: RequistionsService
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.pageLoaded = false;
     const id = +this.route.snapshot.paramMap.get('id');
 
-    this.businessTripForm = new FormGroup({
-      startDate: new FormControl('', [Validators.required]),
-      finishDate: new FormControl('', [Validators.required]),
-      assignee: new FormControl('', [Validators.required]),
-      maxDistance: new FormControl('', [Validators.required]),
-      requistions: new FormArray([])
-    });
-
-    this.requistions = [];
-    const getRequistions = this.requistionsService.getRequistions().pipe(tap(requistion => this.requistions.push(requistion)));
-    const getBusinessTrip = this.businessTripsService.getBusinessTrip(id).pipe(
-      mergeMap(businessTrip => {
-        return concat(getRequistions, of(businessTrip));
-      }),
-      last()
-    );
+    const getBusinessTrip = this.businessTripsService.getBusinessTrip(id);
 
     getBusinessTrip.subscribe({
       next: businessTrip => {
@@ -59,7 +42,6 @@ export class BusinessTripEditComponent implements OnInit {
         businessTrip.requistions.forEach(requistion => {
           const formArray = this.businessTripForm.get('requistions') as FormArray;
           formArray.push(new FormControl(requistion));
-          this.requistions.unshift(requistion);
         });
         this.cdRef.detectChanges();
       },

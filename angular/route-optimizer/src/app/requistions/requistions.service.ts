@@ -39,6 +39,19 @@ export class RequistionsService {
     });
   }
 
+  getRequisitions(employeeId, page?): Observable<any> {
+    return defer(() => {
+      const page$ = page ? page : `http://localhost:8000/api/employees/${employeeId}/requisitions/`;
+      return this.list(page$).pipe(
+        mergeMap(({ results, next }) => {
+          const results$ = from(results);
+          const next$ = next ? this.getRequisitions(employeeId, next) : EMPTY;
+          return concat(results$, next$);
+        })
+      );
+    });
+  }
+
   getRequisition(id: number): Observable<Requistion> {
     return this.http.get<Requistion>(`${this.apiUrl}${id}`);
   }

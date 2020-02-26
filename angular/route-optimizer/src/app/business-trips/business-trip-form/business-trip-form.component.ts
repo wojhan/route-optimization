@@ -1,10 +1,11 @@
 import { Component, OnInit, Output, EventEmitter, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl, FormArray } from '@angular/forms';
 import { Employee, EmployeesService } from 'src/app/employees/employees.service';
-import { Observable, merge, BehaviorSubject } from 'rxjs';
-import { startWith, map, debounceTime, switchMap, share, filter } from 'rxjs/operators';
+import { Observable, merge, BehaviorSubject, Subject, of, concat, from } from 'rxjs';
+import { startWith, map, debounceTime, switchMap, share, filter, tap, finalize } from 'rxjs/operators';
 import { Page } from 'src/app/pagination';
-import { Requistion } from 'src/app/requistions/requistions.service';
+import { Requistion, RequistionsService } from 'src/app/requistions/requistions.service';
+import { Company } from 'src/app/companies/companies.service';
 
 @Component({
   selector: 'app-business-trip-form',
@@ -19,41 +20,75 @@ export class BusinessTripFormComponent implements OnInit {
   public businessTripForm: FormGroup;
 
   @Input()
-  public requistions: Requistion[];
-
-  @Input()
   public submitButton;
 
   @Input()
   public submitButtonEnabled = true;
 
-  options: Employee[];
-  filteredOptions: Observable<Employee[]>;
+  requistions: Requistion[] = [];
+  availableEmployees: AutoCompleteEmployee = { loading: new Subject<boolean>(), results: [] };
 
-  assigneeFormControl: FormControl;
-
-  assigneePage: Observable<Page<Employee>>;
-  assigneePageUrl: BehaviorSubject<string> = new BehaviorSubject('http://localhost:8000/api/employees/');
-
-  constructor(private employeesService: EmployeesService, private cdRef: ChangeDetectorRef) {}
+  constructor(
+    private employeesService: EmployeesService,
+    private requisitionsService: RequistionsService,
+    private cdRef: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    // this.assigneePage = merge(
-    //   this.businessTripForm.get('assignee').valueChanges.pipe(debounceTime(200), startWith(this.businessTripForm.get('assignee').value)),
-    //   this.assigneePageUrl
-    // ).pipe(
-    //   filter(() => !(this.businessTripForm.get('assignee').value instanceof Object)),
-    //   switchMap(urlOrFilter =>
-    //     this.employeesService.list(
-    //       'http://localhost:8000/api/employees/',
-    //       this.businessTripForm.get('assignee').value === '' ? 'http://localhost:8000/api/employees/' : { search: urlOrFilter }
-    //     )
-    //   ),
-    //   share()
-    // );
-    // this.assigneePage.subscribe(data => {
-    //   this.options = data.results;
-    // });
+    const assigneeChanged = this.businessTripForm.get('assignee').valueChanges.pipe(
+      debounceTime(150),
+      filter(assignee => assignee !== null),
+      tap(() => (this.availableEmployees.results = [])),
+      startWith(this.businessTripForm.get('assignee').value),
+      switchMap(searchCriteria => {
+        if (searchCriteria instanceof Object || !searchCriteria) {
+          this.availableEmployees.loading.next(false);
+          return of();
+        }
+
+        if (searchCriteria.length && searchCriteria.length < 4) {
+          this.availableEmployees.loading.next(false);
+          return of();
+        }
+
+        return this.employeesService.getEmployees({ search: searchCriteria }).pipe(tap(() => this.availableEmployees.loading.next(true)));
+      }),
+      share()
+    );
+
+    const assigneeChosen = concat(
+      of(this.businessTripForm.get('assignee').value),
+      this.businessTripForm.get('assignee').valueChanges.pipe(filter((value: string | Employee) => value instanceof Object))
+    ).pipe(filter(assignee => assignee !== null));
+
+    assigneeChanged.subscribe((data: Employee) => {
+      this.availableEmployees.loading.next(true);
+      this.availableEmployees.results.push(data);
+      this.availableEmployees.loading.next(false);
+    });
+
+    const requisitions = assigneeChosen.pipe(
+      tap(() => (this.requistions = [])),
+      switchMap(() =>
+        concat(
+          from(this.businessTripForm.get('requistions').value).pipe(map((requisition: Requistion) => ({ requisition, checked: true }))),
+          this.requisitionsService
+            .getRequisitions(this.businessTripForm.get('assignee').value.id)
+            .pipe(map((requisition: Requistion) => ({ requisition, checked: false })))
+        ).pipe(
+          finalize(() => {
+            this.cdRef.detectChanges();
+          })
+        )
+      )
+    );
+
+    requisitions.subscribe({
+      next: data => {
+        this.requistions.push(data.requisition);
+        this.cdRef.detectChanges();
+      }
+    });
   }
 
   displayFn(employee?: Employee): string | undefined {
@@ -113,4 +148,9 @@ export class BusinessTripFormComponent implements OnInit {
   sendForm() {
     this.formSent.emit(this.businessTripForm);
   }
+}
+
+interface AutoCompleteEmployee {
+  loading: Subject<boolean>;
+  results: Employee[];
 }
