@@ -37,12 +37,17 @@ export class EmployeesService {
     return this.http.patch<Employee>(`${this.usersApiUrl}${employeeId}/`, body);
   }
 
+  deActivateEmployee(employeeId: number): Observable<Employee> {
+    const body = { isActive: false };
+    return this.http.patch<Employee>(`${this.usersApiUrl}${employeeId}/`, body);
+  }
+
   addEmployee(employee: Employee): Observable<Employee> {
     return this.http.post<Employee>(`${this.apiUrl}`, employee);
   }
 
-  editEmployee(employee: Employee): Observable<Employee> {
-    return this.http.put<Employee>(`${this.usersApiUrl}${employee.id}/`, employee);
+  editEmployee(employeeId: number, employee: Employee): Observable<Employee> {
+    return this.http.patch<Employee>(`${this.usersApiUrl}${employeeId}/`, employee);
   }
 
   deleteEmployee(employeeId: number): Observable<any> {
@@ -51,9 +56,11 @@ export class EmployeesService {
 }
 
 export class Employee {
+  dateJoined: string;
   id: number;
   username: string;
   firstName: string;
   lastName: string;
   email: string;
+  isActive: string;
 }

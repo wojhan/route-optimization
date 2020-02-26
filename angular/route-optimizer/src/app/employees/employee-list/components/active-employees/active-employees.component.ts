@@ -26,6 +26,7 @@ export class ActiveEmployeesComponent implements OnInit {
   ngOnInit() {}
 
   onPageChanged(page: string) {
+    console.log(page);
     this.pageChange.emit(page);
   }
 }
