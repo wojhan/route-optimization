@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'genetic',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -95,6 +96,10 @@ DATABASES = {
         "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
         "HOST": os.environ.get("SQL_HOST", "localhost"),
         "PORT": os.environ.get("SQL_PORT", "5432"),
+        "TEST": {
+            "ENGINE": 'django.db.backends.sqlite3',
+            "NAME": os.path.join(BASE_DIR, 'db.sqlite3')
+        }
     }
 }
 
@@ -123,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pl'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
 
 USE_I18N = True
 
@@ -149,6 +154,9 @@ REST_FRAMEWORK = {
         'data.parsers.CamelCaseJSONRenderer',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
     'PAGE_SIZE': 100
 }
 
