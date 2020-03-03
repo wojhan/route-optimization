@@ -12,11 +12,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # voivodeships = ['hotels', 'podlaskie']
-        voivodeships = ['warmińsko_mazurskie']
+        voivodeships = ['hotels', 'dolnośląskie', 'podlaskie', 'warmińsko_mazurskie']
         pages = {
             'podlaskie': 113,
             'hotels': 9,
-            'warmińsko_mazurskie': 133
+            'warmińsko_mazurskie': 133,
+            'dolnośląskie': 247
         }
         logger.info('Started sync companies from json files')
         for voivodeship in voivodeships:

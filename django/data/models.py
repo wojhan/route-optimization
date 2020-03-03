@@ -92,12 +92,13 @@ class Hotel(Company):
 class BusinessTrip(models.Model):
     start_date = models.DateTimeField(verbose_name="data rozpoczęcia")
     finish_date = models.DateTimeField(verbose_name="data zakończenia")
-    route_version = models.IntegerField(verbose_name="Wersja", default=1)
+    route_version = models.IntegerField(verbose_name="Wersja", default=0)
     distance_constraint = models.IntegerField(
         verbose_name="Maksymalny limit kilometrów jednego dnia")
     assignee = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
-    is_processed = models.BooleanField(verbose_name="przetworzona", default=False)
+    is_processed = models.BooleanField(
+        verbose_name="przetworzona", default=False)
 
     @cached_property
     def duration(self):

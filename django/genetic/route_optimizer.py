@@ -161,7 +161,8 @@ class RouteOptimizer:
 
     def __add_random_company_to_route(self, route: Route, route_part: RoutePart, index: int):
         random_index_company = int(round(random.random() * (len(route.available_vertices) - 1)))
-        random_company = self.vertex_ids[random_index_company]
+        availabe_list = list(route.available_vertices)
+        random_company = self.vertex_ids[availabe_list[random_index_company]]
 
         route.add_stop(route_part, index, random_company)
 
@@ -218,10 +219,11 @@ class RouteOptimizer:
                     continue
 
                 random_index = random.randint(1, current.length - 2) if current.length > 2 else 1
-                # self.__add_random_profitable_company_to_route(route, current, random_index, 5)
-                # random_index = random.randint(1, current.length - 2) if current.length > 2 else 1
-                # self.__add_random_nearest_company_to_route(route, current, random_index, 5)
                 self.__add_random_company_to_route(route, current, random_index)
+                random_index = random.randint(1, current.length - 2) if current.length > 2 else 1
+                self.__add_random_profitable_company_to_route(route, current, random_index, 5)
+                random_index = random.randint(1, current.length - 2) if current.length > 2 else 1
+                self.__add_random_nearest_company_to_route(route, current, random_index, 5)
                 route.max_distance = self.max_distance
                 self.__add_nearest_hotel_to_route(route)
 

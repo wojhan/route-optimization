@@ -134,6 +134,9 @@ class Route:
         if index < 0 or index > route_part.length:
             raise ValueError("insertion index is bigger than route length or is negative")
 
+        if isinstance(vertex, Company) and vertex.id not in self.available_vertices:
+            return False
+
         added = False
 
         if index == 0:
@@ -143,13 +146,13 @@ class Route:
         else:
             added = add_method(route_part, index, vertex)
             if added:
-                self.available_vertices.discard(vertex)
+                self.available_vertices.discard(vertex.id)
             return added
 
         added = add_method(route_part, vertex)
 
         if added:
-            self.available_vertices.discard(vertex)
+            self.available_vertices.discard(vertex.id)
 
         return added
 
@@ -185,7 +188,7 @@ class Route:
             remove_method = self.__remove_on_last_in_route_part
         else:
             if isinstance(route_part.route[index], Company):
-                self.available_vertices.add(route_part.route[index.id])
+                self.available_vertices.add(route_part.route[index].id)
             remove_method(route_part, index)
             return
 

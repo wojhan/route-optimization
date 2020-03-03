@@ -1,13 +1,17 @@
-<div class="container" *ngIf="pageLoaded; else loading">
+<div class="container-fluid" *ngIf="pageLoaded; else loading">
   <div class="row">
     <div class="col">
-      <h1>Edycja</h1>
+      <h1 class="section-header">Edycja delegacji</h1>
     </div>
   </div>
   <div class="row">
     <div class="col">
-      <app-business-trip-form [businessTripForm]="businessTripForm" (formSent)="editBusinessTrip($event)"
-        [requistions]="requistions" submitButton="Zapisz" [submitButtonEnabled]="isFormEdited()">
+      <app-business-trip-form
+        [businessTripForm]="businessTripForm"
+        (formSent)="editBusinessTrip($event)"
+        submitButton="Zapisz"
+        [submitButtonEnabled]="isFormEdited()"
+      >
       </app-business-trip-form>
     </div>
   </div>
