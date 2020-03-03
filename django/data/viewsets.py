@@ -1,7 +1,6 @@
 import json
 
-from django.db.models import Q, Count
-from datetime import datetime
+from django.db.models import Q
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import UpdateAPIView
@@ -11,17 +10,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
-from genetic import utils as genetic
-# from genetic.serializers import RouteSerializer
 from genetic.tasks import do_generate_route
 
 from .models import BusinessTrip, Company, Hotel, Profile, Requistion, Route
-from .permissions import IsAdminOrReadOnly, IsOwner, IsOwnerOrReadOnly, IsCreationOrAuthenticated
+from .permissions import IsOwnerOrReadOnly, IsCreationOrAuthenticated
 from .serializers import (BasicUserSerializer, BusinessTripSerializer,
                           CompanySerializer, HotelSerializer,
                           ProfileSerializer, RequistionSerializer,
-                          TokenSerializer, UserSerializer, ChangePasswordSerializer, ProfileBusinessTripStatsSerializer, RouteSerializer, RouteSerializerWithDetails)
+                          TokenSerializer, UserSerializer, ChangePasswordSerializer, ProfileBusinessTripStatsSerializer,
+                          RouteSerializer, RouteSerializerWithDetails)
 from .utils import generate_data_for_route
+from . import filters as data_filters
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -33,7 +32,6 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 class CurrentUserView(APIView):
     def get(self, request):
-        print(request.user)
         serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
 
@@ -80,8 +78,6 @@ class ProfileStatsViewSet(APIView):
 
 class CompanyEmployeeHistoryViewSet(APIView):
     def get(self, request, *args, **kwargs):
-        print(self.kwargs)
-
         user_pk = self.kwargs.get('employee_pk')
         company_pk = self.kwargs.get('company_pk')
         user = User.objects.get(pk=user_pk)
@@ -90,14 +86,10 @@ class CompanyEmployeeHistoryViewSet(APIView):
             company_id=company_pk, business_trip__assignee=user.profile)
 
         result = Route.objects.none()
-        print(result)
-        print(user_pk, company_pk)
         for requisition in requisitions:
             business_trip = requisition.business_trip
             result |= Route.objects.filter(
                 end_point_id=company_pk, business_trip=business_trip, route_version=business_trip.route_version)
-
-        print(result)
 
         serializer = RouteSerializerWithDetails(
             result, context={'request': request}, many=True)
@@ -112,16 +104,22 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.filter(is_staff=False, is_active=True)
+    queryset = User.objects.filter(is_staff=False)
     serializer_class = BasicUserSerializer
     pagination_class = StandardResultsSetPagination
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, ]
     search_fields = ['username', 'first_name', 'last_name']
     permission_classes = [IsAdminUser]
 
+    def get_queryset(self):
+        active_param = self.request.query_params.get('is_active')
+        queryset = self.queryset
+        if active_param:
+            queryset = queryset.filter(is_active=True if active_param in ('true', 'True', 1, True) else False)
+        else:
+            queryset = queryset.filter(is_active=True)
 
-class InActiveEmployeeViewSet(EmployeeViewSet):
-    queryset = User.objects.filter(is_staff=False, is_active=False)
+        return queryset
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
@@ -130,9 +128,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
 
 class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
-    lookup_field = 'pk'
-    lookup_url_kwarg = 'business_trip_pk'
     serializer_class = BusinessTripSerializer
+    filterset_class = data_filters.EmployeeBusinessTripsFilterSet
     pagination_class = StandardResultsSetPagination
     http_method_names = ['get', 'options']
 
@@ -140,33 +137,12 @@ class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
         return BusinessTrip.objects.filter(assignee_id=self.kwargs.get('pk'))
 
 
-class EmployeePastBusinessTrips(EmployeeBusinessTrips):
-
-    def get_queryset(self):
-        return super().get_queryset().filter(finish_date__lt=datetime.now())
-
-
-class EmployeeCurrentBusinessTrips(EmployeeBusinessTrips):
-
-    def get_queryset(self):
-        return super().get_queryset().filter(finish_date__gt=datetime.now(), start_date__lt=datetime.now())
-
-
-class EmployeeFutureBusinessTrips(EmployeeBusinessTrips):
-
-    def get_queryset(self):
-        return super().get_queryset().filter(start_date__gt=datetime.now())
-
-
 class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    # lookup_field = 'pk'
-    # lookup_url_kwarg = 'requisition_pk'
     serializer_class = RequistionSerializer
     pagination_class = StandardResultsSetPagination
     http_method_names = ['get', 'options']
 
     def get_queryset(self):
-        q_filter = dict()
         user_pk = self.kwargs.get('pk')
         user = User.objects.get(pk=user_pk)
 
@@ -174,19 +150,14 @@ class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
 
         if user.is_staff:
             return objects.filter(created_by=None)
-            # q_filter['created_by'] = None
         else:
             return objects.filter(Q(created_by=None) | Q(created_by=user.profile))
-            # q_filter['created_by'] = user.profile
-
-        # return Requistion.objects.filter(**q_filter)
 
 
 class EmployeeCompanyHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     lookup_field = 'end_point_id'
     lookup_url_kwarg = 'company_pk'
     serializer_class = RouteSerializer
-    # pagination_class = StandardResultsSetPagination
     http_method_names = ['get', 'options']
 
     def get_queryset(self):
@@ -198,14 +169,10 @@ class EmployeeCompanyHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewS
             company_id=company_pk, business_trip__assignee=user.profile)
 
         result = Route.objects.none()
-        print(result)
-        print(user_pk, company_pk)
         for requisition in requisitions:
             business_trip = requisition.business_trip
             result |= Route.objects.filter(
                 end_point_id=company_pk, business_trip=business_trip, route_version=business_trip.route_version)
-
-        print(result)
 
         return result
 
@@ -223,34 +190,6 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
         # do_generate_route.delay(data)
         do_generate_route(data)
 
-        # from genetic.route_optimizer import RouteOptimizer
-        # from genetic.vertices import Depot, Company, Hotel
-        #
-        # depot = Depot(data['depots']['name'], data['depots']['coords'])
-        # companies = [Company(company['name'], company['coords'], company['profit']) for company in data['companies']]
-        # hotels = [Hotel(hotel['name'], hotel['coords']) for hotel in data['hotels']]
-        #
-        # for cross in range(4, 9):
-        #     for mutate in range(1, 6):
-        #         for elite in range(1, 4):
-        #             for pop in (40, 60, 80):
-        #                 for it in (50, 100, 200, 500):
-        #                     cross_rate = cross / 10
-        #                     mutate_rate = mutate / 10
-        #                     elite_rate = elite / 10
-        #                     print("Start cross {}, mutation {}, elitism {}, pop {}, {} iterations".format(cross_rate, mutate_rate, elite_rate, pop, it))
-        #                     p = cProfile.Profile()
-        #                     p.enable()
-        #                     ro = RouteOptimizer(1, dict(depot=depot, companies=companies, hotels=hotels), 1400, 3, crossover_probability=cross_rate, mutation_probability=mutate_rate, elitsm_rate=elite_rate, population_size=pop)
-        #                     ro.generate_random_routes()
-        #                     ro.run(it)
-        #                     p.disable()
-        #                     p.dump_stats('cross{}-mutation{}-elitism-{}-pop{}-{}iterations'.format(cross_rate, mutate_rate, elite_rate, pop, it))
-        #                     print("Stop cross {}, mutation {}, elitism {}, pop {}, {} iterations".format(cross_rate,
-        #                                                                                                   mutate_rate,
-        #                                                                                                   elite_rate,
-        #                                                                                                   pop, it))
-
         return super().partial_update(request, pk=pk)
 
     def get_permissions(self):
@@ -262,8 +201,7 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class RequistionViewSet(viewsets.ModelViewSet):
-    # queryset = Requistion.objects.filter(Q(business_trip=None) & (Q(created_by_id=2) | Q(created_by=None)))
+class RequisitionViewSet(viewsets.ModelViewSet):
     queryset = Requistion.objects.filter(business_trip=None)
     serializer_class = RequistionSerializer
     pagination_class = StandardResultsSetPagination

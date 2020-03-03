@@ -86,11 +86,12 @@ pyOpenSSL==19.1.0
 pyparsing==2.4.6
 pyrsistent==0.15.7
 pytest==5.3.5
+pytest-django==3.8.0
 python-dateutil==2.8.1
 python-jose==3.0.1
 pytz==2019.2
 PyYAML==5.3
-ray
+ray==0.8.1
 redis==3.3.11
 requests==2.22.0
 rsa==4.0

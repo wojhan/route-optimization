@@ -123,7 +123,7 @@ class BusinessTrip(models.Model):
         return distance
 
     def __str__(self):
-        return self.start_date.strftime("%d-%m-%Y") + " - " + self.finish_date.strftime("%d-%m-%Y") + ", " + self.assignee.__str__()
+        return self.start_date.strftime("%d-%m-%Y") + " - " + self.finish_date.strftime("%d-%m-%Y")
 
     class Meta:
         verbose_name = 'delegacja'
