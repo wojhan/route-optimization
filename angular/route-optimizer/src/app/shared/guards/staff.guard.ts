@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Location } from '@angular/common';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { Observable, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { UserService, AuthenticatedUser } from '../services/user.service';
-import { switchMap, filter, map, tap } from 'rxjs/operators';
+import { AuthenticatedUser, UserService } from '../services/user.service';
+import { filter, map, switchMap, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StaffGuard implements CanActivate {
-  constructor(private authService: AuthService, private userService: UserService, private router: Router, private location: Location) {}
+  constructor(private authService: AuthService, private userService: UserService, private router: Router) {}
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
     const isAuthenticated = of(this.authService.isAuthenticated);

@@ -2,46 +2,33 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserService } from '../shared/services/user.service';
 import { Company } from '../companies/companies.service';
-import { Observable, timer, EMPTY, defer, from, of } from 'rxjs';
+import { concat, defer, EMPTY, from, Observable } from 'rxjs';
 import { Page, queryPaginated } from '../pagination';
 import { environment } from 'src/environments/environment';
-import { tap, mapTo, mergeMap } from 'rxjs/operators';
-import { concat } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RequistionsService {
-  apiUrl = `${environment.apiUrl}api/requistions/`;
-  perPage = 40;
-  defaultHeaders = new HttpHeaders();
+  private apiRequisitionsUrl = `${environment.apiUrl}api/requisitions`;
+  private apiEmployeesUrl = `${environment.apiUrl}api/employees/`;
+  private perPage = environment.defaultPaginationSize;
 
   constructor(private http: HttpClient, private userService: UserService) {}
 
-  list(urlOrFilter?: string | object): Observable<Page<Requistion>> {
-    return queryPaginated<Requistion>(this.http, this.defaultHeaders, this.apiUrl, this.perPage, urlOrFilter);
+  public getApiRequisitionsPageUrl(page?: string): string {
+    return this.apiRequisitionsUrl + `?page=${page ? page : 1}&page_size=${this.perPage}`;
   }
 
-  private fetchPage(url = `${this.apiUrl}?format=json&page=1&page_size=${this.perPage}`) {
-    return this.http.get<Page<Requistion>>(url);
-  }
-
-  getRequistions(page?): Observable<any> {
-    return defer(() => {
-      const page$ = page ? page : `${this.apiUrl}?format=json&page=1&page_size=${this.perPage}`;
-      return this.list(page$).pipe(
-        mergeMap(({ results, next }) => {
-          const results$ = from(results);
-          const next$ = next ? this.getRequistions(next) : EMPTY;
-          return concat(results$, next$);
-        })
-      );
-    });
+  list(urlOrFilter?: string | object): Observable<Page<Requisition>> {
+    return queryPaginated<Requisition>(this.http, new HttpHeaders(), this.apiRequisitionsUrl, this.perPage, urlOrFilter);
   }
 
   getRequisitions(employeeId, page?): Observable<any> {
     return defer(() => {
-      const page$ = page ? page : `http://localhost:8000/api/employees/${employeeId}/requisitions/`;
+      const url = this.apiEmployeesUrl + `${employeeId}/requisitions/`;
+      const page$ = page ? page : url;
       return this.list(page$).pipe(
         mergeMap(({ results, next }) => {
           const results$ = from(results);
@@ -52,28 +39,26 @@ export class RequistionsService {
     });
   }
 
-  getRequisition(id: number): Observable<Requistion> {
-    return this.http.get<Requistion>(`${this.apiUrl}${id}`);
+  addRequisition(requisition: Requisition): Observable<Requisition> {
+    return this.http.post<Requisition>(this.apiRequisitionsUrl, requisition);
   }
 
-  addRequisition(requisition: Requistion): Observable<Requistion> {
-    return this.http.post<Requistion>(this.apiUrl, requisition);
-  }
-
-  updateRequisition(requisition: Requistion): Observable<Requistion> {
-    return this.http.put<Requistion>(`${this.apiUrl}${requisition.id}/`, requisition);
+  updateRequisition(requisition: Requisition): Observable<Requisition> {
+    const url = this.apiRequisitionsUrl + `${requisition.id}/`;
+    return this.http.put<Requisition>(url, requisition);
   }
 
   deleteRequisition(requisitionId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}${requisitionId}/`);
+    const url = this.apiRequisitionsUrl + `${requisitionId}/`;
+    return this.http.delete(url);
   }
 
-  canEditRequisition(requisition: Requistion): boolean {
+  canEditRequisition(requisition: Requisition): boolean {
     return this.userService.isStaff.getValue() || requisition.createdBy === this.userService.user.getValue().id;
   }
 }
 
-export class Requistion {
+export class Requisition {
   id: number;
   estimatedProfit: number;
   company: Company;

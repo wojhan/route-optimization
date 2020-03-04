@@ -1,0 +1,24 @@
+version: "3.3"
+
+services:
+  django:
+    build: ./django
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./django/:/usr/src/app/
+    ports:
+      - 8000:8000
+      - 4444:4444
+      - 8265:8265
+    env_file:
+      - ./django/.env.dev
+    stdin_open: true
+    tty: true
+  celery:
+    restart: always
+    build: ./django
+    command: celery -A route_optimizer worker -l debug
+    volumes:
+      - ./django/:/usr/src/app/
+    env_file:
+      - ./django/.env.dev

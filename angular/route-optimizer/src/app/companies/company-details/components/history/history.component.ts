@@ -1,9 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Company, CompanyHistory, CompaniesService } from 'src/app/companies/companies.service';
-import { Requistion } from 'src/app/requistions/requistions.service';
-import { BusinessTrip } from 'src/app/business-trips/business-trips.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { CompaniesService, CompanyHistory } from 'src/app/companies/companies.service';
 import { Observable } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-company-details-history',

@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
-import { BusinessTripsService, BusinessTrip } from '../business-trips.service';
-import { of, Observable } from 'rxjs';
-import { Employee, EmployeesService } from 'src/app/employees/employees.service';
-import { RequistionsService, Requistion } from 'src/app/requistions/requistions.service';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { BusinessTrip, BusinessTripsService } from '../business-trips.service';
+import { Observable } from 'rxjs';
+import { Employee } from 'src/app/employees/employees.service';
+import { Requisition, RequistionsService } from 'src/app/requistions/requistions.service';
 import { WebSocketService } from 'src/app/shared/services/websocket.service';
 import { Router } from '@angular/router';
 
@@ -14,11 +14,6 @@ import { Router } from '@angular/router';
 })
 export class BusinessTripAddComponent implements OnInit {
   businessTripForm: FormGroup;
-
-  myControl = new FormControl();
-  options: Employee[];
-  filteredOptions: Observable<Employee[]>;
-  requistions: Requistion[];
 
   constructor(
     private businessTripsService: BusinessTripsService,
@@ -35,17 +30,6 @@ export class BusinessTripAddComponent implements OnInit {
       assignee: new FormControl(null, [Validators.required]),
       maxDistance: new FormControl('', [Validators.required]),
       requistions: new FormArray([])
-    });
-
-    this.requistions = [];
-
-    this.requistionsService.getRequistions().subscribe({
-      next: requistion => {
-        this.requistions.push(requistion);
-      },
-      complete: () => {
-        this.cdRef.detectChanges();
-      }
     });
   }
 

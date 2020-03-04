@@ -1,10 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { BusinessTripsService, BusinessTrip } from '../business-trips.service';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { BusinessTrip, BusinessTripsService } from '../business-trips.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
-import { map, tap, mergeMap, last } from 'rxjs/operators';
-import { Requistion, RequistionsService } from 'src/app/requistions/requistions.service';
-import { concat, of } from 'rxjs';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+
 @Component({
   selector: 'app-business-trip-edit',
   templateUrl: './business-trip-edit.component.html',

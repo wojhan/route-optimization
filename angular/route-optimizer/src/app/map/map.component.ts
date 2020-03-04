@@ -4,6 +4,7 @@ import { BusinessTrip } from '../business-trips/business-trips.service';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet.icon.glyph';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-map',
@@ -11,6 +12,8 @@ import 'leaflet.icon.glyph';
   styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements OnInit, AfterViewInit {
+  private osrmServerUrl = environment.osrmServerUrl;
+
   @Input()
   mapId = 'map';
 
@@ -44,7 +47,7 @@ export class MapComponent implements OnInit, AfterViewInit {
     this.routeMap = new L.Map(this.mapId);
 
     this.mapRouter = L.Routing.osrmv1({
-      serviceUrl: 'http://localhost:5000/route/v1',
+      serviceUrl: this.osrmServerUrl,
       language: 'pl'
     });
 

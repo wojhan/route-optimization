@@ -3,32 +3,32 @@ import { Employee } from '../employees/employees.service';
 import { Company } from '../companies/companies.service';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { UserService } from '../shared/services/user.service';
-import { queryPaginated, Page } from '../pagination';
-import { WebSocketService } from '../shared/services/websocket.service';
-import { Requistion } from '../requistions/requistions.service';
+import { Page, queryPaginated } from '../pagination';
+import { Requisition } from '../requistions/requistions.service';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BusinessTripsService {
-  apiUrl = 'http://localhost:8000/api/business-trips/';
-  perPage = 40;
-  defaultHeaders = new HttpHeaders();
+  private apiBusinessTripsUrl = `${environment.apiUrl}api/business-trips/`;
+  private apiEmployeesUrl = `${environment.apiUrl}api/employees/`;
+  private perPage = environment.defaultPaginationSize;
 
-  constructor(private http: HttpClient, private userService: UserService, private wsService: WebSocketService) {}
+  constructor(private http: HttpClient) {}
 
   list(employeeId?: number, urlOrFilter?: string | object): Observable<Page<BusinessTrip>> {
-    let apiUrl = this.apiUrl;
+    let apiUrl = this.apiBusinessTripsUrl;
     if (employeeId) {
-      apiUrl = `http://localhost:8000/api/employees/${employeeId}/business-trips/`;
+      apiUrl = this.apiEmployeesUrl + `${employeeId}/business-trips/`;
     }
-    return queryPaginated<BusinessTrip>(this.http, this.defaultHeaders, apiUrl, this.perPage, urlOrFilter);
+    return queryPaginated<BusinessTrip>(this.http, new HttpHeaders(), apiUrl, this.perPage, urlOrFilter);
   }
 
   getBusinessTrip(id: number): Observable<BusinessTrip> {
-    return this.http.get<BusinessTrip>(`${this.apiUrl}${id}/`).pipe(
+    const url = this.apiBusinessTripsUrl + `${id}/`;
+    return this.http.get<BusinessTrip>(url).pipe(
       map((businessTrip: any) => {
         businessTrip.assignee = businessTrip.assignee.user;
         return businessTrip;
@@ -37,15 +37,17 @@ export class BusinessTripsService {
   }
 
   addBusinessTrip(businessTrip: BusinessTrip): Observable<BusinessTrip> {
-    return this.http.post<BusinessTrip>(`${this.apiUrl}`, businessTrip);
+    return this.http.post<BusinessTrip>(this.apiBusinessTripsUrl, businessTrip);
   }
 
   partialUpdateBusinessTrip(businessTripId: number, data: object): Observable<BusinessTrip> {
-    return this.http.patch<BusinessTrip>(`${this.apiUrl}${businessTripId}/`, data);
+    const url = this.apiBusinessTripsUrl + `${businessTripId}/`;
+    return this.http.patch<BusinessTrip>(url, data);
   }
 
   deleteBusinessTrip(businessTripId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}${businessTripId}/`);
+    const url = this.apiBusinessTripsUrl + `${businessTripId}/`;
+    return this.http.delete(url);
   }
 }
 
@@ -68,7 +70,7 @@ export class BusinessTrip {
   assignee: Employee;
   estimatedProfit: number;
   routes: Route[];
-  requistions: Requistion[];
+  requistions: Requisition[];
   maxDistance: number;
   isProcessed: boolean;
 }

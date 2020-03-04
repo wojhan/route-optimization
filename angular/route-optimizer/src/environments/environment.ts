@@ -5,9 +5,9 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:8000/',
-  apiEnabled: false,
-  adminToken: 'f865c5b8f7538f1f06d1eec6df9b87e5fb5ddcdc',
-  userToken: ''
+  defaultPaginationSize: 40,
+  numberOfBusinessTripsInCategory: 6,
+  osrmServerUrl: 'http://80.211.216.83:5000/'
 };
 
 /*
