@@ -1,6 +1,7 @@
 import uuid
 from typing import Tuple
 
+
 class Vertex:
     def __init__(self, name, coords):
         self.id = None

@@ -1,5 +1,6 @@
-import mpu
 import random
+
+import mpu
 import numpy as np
 
 from genetic import vertices

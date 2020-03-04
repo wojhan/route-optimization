@@ -1,17 +1,13 @@
-import math
 from datetime import datetime
 
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
+from django.contrib import auth
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils.functional import cached_property
 
 
 class Profile(models.Model):
     user = models.OneToOneField(
-        get_user_model(), related_name="profile", on_delete=models.CASCADE)
+        auth.get_user_model(), related_name="profile", on_delete=models.CASCADE)
 
     @property
     def total_business_trips(self):
@@ -168,10 +164,3 @@ class Route(models.Model):
 
     def __str__(self):
         return str(self.start_point.pk) + " -> " + str(self.end_point.pk)
-
-
-@receiver(post_save, sender=User)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-    instance.profile.save()

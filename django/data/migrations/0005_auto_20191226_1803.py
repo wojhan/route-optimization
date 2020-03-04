@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='company',
             name='street',
-            field=models.CharField(blank=True, max_length=60, verbose_name='ulica'),
+            field=models.CharField(
+                blank=True, max_length=60, verbose_name='ulica'),
         ),
     ]

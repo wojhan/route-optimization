@@ -1,11 +1,12 @@
-import factory
-import factory.fuzzy
 import datetime
 
-from data import models
-from rest_framework.authtoken import models as authtoken_models
+import factory
+import factory.fuzzy
 from django.contrib.auth import get_user_model
 from django.db.models import signals
+from rest_framework.authtoken import models as authtoken_models
+
+from data import models
 
 
 def get_user_with_token():

@@ -1,7 +1,9 @@
 import json
 import logging
+
 from django.core.management.base import BaseCommand
 from django.db.utils import IntegrityError
+
 from data.models import Company, Hotel
 
 logger = logging.getLogger('data')
@@ -12,7 +14,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # voivodeships = ['hotels', 'podlaskie']
-        voivodeships = ['hotels', 'dolnośląskie', 'podlaskie', 'warmińsko_mazurskie']
+        voivodeships = ['hotels', 'dolnośląskie',
+                        'podlaskie', 'warmińsko_mazurskie']
         pages = {
             'podlaskie': 113,
             'hotels': 9,

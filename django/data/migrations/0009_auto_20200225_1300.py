@@ -12,15 +12,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='company',
-            options={'ordering': ['name'], 'verbose_name': 'firma', 'verbose_name_plural': 'firmy'},
+            options={'ordering': [
+                'name'], 'verbose_name': 'firma', 'verbose_name_plural': 'firmy'},
         ),
         migrations.AlterModelOptions(
             name='requistion',
-            options={'ordering': ['-pk'], 'verbose_name': 'zapotrzebowanie', 'verbose_name_plural': 'zapotrzebowania'},
+            options={'ordering': [
+                '-pk'], 'verbose_name': 'zapotrzebowanie', 'verbose_name_plural': 'zapotrzebowania'},
         ),
         migrations.AddField(
             model_name='businesstrip',
             name='is_processed',
-            field=models.BooleanField(default=False, verbose_name='przetworzona'),
+            field=models.BooleanField(
+                default=False, verbose_name='przetworzona'),
         ),
     ]

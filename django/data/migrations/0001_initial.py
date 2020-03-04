@@ -14,17 +14,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Company',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=300, verbose_name='nazwa pełna')),
-                ('name_short', models.CharField(max_length=250, verbose_name='nazwa skrócona')),
+                ('name_short', models.CharField(
+                    max_length=250, verbose_name='nazwa skrócona')),
                 ('nip', models.CharField(max_length=11, verbose_name='nip')),
                 ('street', models.CharField(max_length=60, verbose_name='ulica')),
-                ('house_no', models.CharField(max_length=10, verbose_name='numer budynku')),
-                ('postcode', models.CharField(max_length=6, verbose_name='kod pocztowy')),
+                ('house_no', models.CharField(
+                    max_length=10, verbose_name='numer budynku')),
+                ('postcode', models.CharField(
+                    max_length=6, verbose_name='kod pocztowy')),
                 ('city', models.CharField(max_length=40, verbose_name='miasto')),
-                ('voivodeship', models.CharField(max_length=20, verbose_name='województwo')),
-                ('latitude', models.FloatField(null=True, verbose_name='szerokość geograficzna')),
-                ('longitude', models.FloatField(null=True, verbose_name='długość geograficzna')),
+                ('voivodeship', models.CharField(
+                    max_length=20, verbose_name='województwo')),
+                ('latitude', models.FloatField(null=True,
+                                               verbose_name='szerokość geograficzna')),
+                ('longitude', models.FloatField(
+                    null=True, verbose_name='długość geograficzna')),
             ],
             options={
                 'verbose_name_plural': 'companies',

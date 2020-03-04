@@ -1,11 +1,13 @@
-import unittest
-import mpu
 import random
+import unittest
+
+import mpu
 from django.test import TestCase
+
 from genetic import vertices
 from genetic.routes import Route, RoutePart
-from .utils import TestData
 
+from .utils import TestData
 
 
 class RoutePartTestCase(unittest.TestCase):
@@ -71,13 +73,14 @@ class RoutePartTestCase(unittest.TestCase):
     def test_init_with_one_company_in_route_gives_correct_profit(self):
         result = self.__prepare_route_part_with_n_companies(1)
 
-        expected_profit= 0
+        expected_profit = 0
         self.assertEqual(result.profit, expected_profit)
 
     def test_init_with_one_company_in_route_gives_correct_route(self):
         result = self.__prepare_route_part_with_n_companies(1)
 
-        expected_route = [TestData.depots[0]] + [TestData.companies[0]] + [TestData.depots[0]]
+        expected_route = [TestData.depots[0]] + \
+            [TestData.companies[0]] + [TestData.depots[0]]
         self.assertEqual(result.route, expected_route)
 
     # replace_stop tests
@@ -95,18 +98,21 @@ class RoutePartTestCase(unittest.TestCase):
 
         route_part.replace_stop(1, TestData.companies[1])
 
-        expected_route = [TestData.depots[0], TestData.companies[1], TestData.depots[0]]
+        expected_route = [TestData.depots[0],
+                          TestData.companies[1], TestData.depots[0]]
         self.assertEqual(route_part.route, expected_route)
 
     # recount_route
+
 
 class RouteTestCase(unittest.TestCase):
     def setUp(self) -> None:
         pass
 
-    def __prepare_route(self, route_parts, max_distance = 10000):
+    def __prepare_route(self, route_parts, max_distance=10000):
         route = Route(len(route_parts), max_distance, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
 
         for i in range(len(route_parts)):
             route.add_route_part(route_parts[i])
@@ -128,7 +134,8 @@ class RouteTestCase(unittest.TestCase):
         return self.__prepare_route(route_parts)
 
     def __prepare_route_with_one_route_part_with_n_companies(self, n):
-        route_part = RoutePart([TestData.depots[0]] + list(TestData.companies[:n]) + [TestData.depots[0]])
+        route_part = RoutePart(
+            [TestData.depots[0]] + list(TestData.companies[:n]) + [TestData.depots[0]])
 
         return self.__prepare_route((route_part, ))
 
@@ -137,11 +144,16 @@ class RouteTestCase(unittest.TestCase):
 
         for i in range(n):
             if i == 0:
-                vertices = [TestData.depots[0]] + list(TestData.companies[:m]) + [TestData.hotels[0]]
+                vertices = [TestData.depots[0]] + \
+                    list(TestData.companies[:m]) + [TestData.hotels[0]]
             elif i == n - 1:
-                vertices = [TestData.hotels[0]] + list(TestData.companies[i * m: i * m + m]) + [TestData.depots[0]]
+                vertices = [TestData.hotels[0]] + \
+                    list(TestData.companies[i * m: i *
+                                            m + m]) + [TestData.depots[0]]
             else:
-                vertices = [TestData.hotels[0]] + list(TestData.companies[i * m: i * m + m]) + [TestData.hotels[0]]
+                vertices = [TestData.hotels[0]] + \
+                    list(TestData.companies[i * m: i *
+                                            m + m]) + [TestData.hotels[0]]
 
             route_part = RoutePart(vertices)
             route_parts.append(route_part)
@@ -149,7 +161,8 @@ class RouteTestCase(unittest.TestCase):
         return self.__prepare_route(route_parts)
 
     def __prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(self, n, m, o):
-        route = self.__prepare_route_with_n_start_route_parts_with_m_companies(n, m)
+        route = self.__prepare_route_with_n_start_route_parts_with_m_companies(
+            n, m)
 
         route.days = o
 
@@ -182,16 +195,19 @@ class RouteTestCase(unittest.TestCase):
 
         route.count_profit()
 
-        expected_profit = self.__get_profit_for_companies(TestData.companies[:2])
+        expected_profit = self.__get_profit_for_companies(
+            TestData.companies[:2])
         self.assertEqual(route.profit, expected_profit)
 
     def test_count_profit_when_duplicated_companies_in_route_for_one_day_gives_correct_profit(self):
-        route_part = self.__prepare_route_part_with_vertices([TestData.depots[0], TestData.companies[0], TestData.companies[0], TestData.companies[1], TestData.depots[0]])
+        route_part = self.__prepare_route_part_with_vertices(
+            [TestData.depots[0], TestData.companies[0], TestData.companies[0], TestData.companies[1], TestData.depots[0]])
         route = self.__prepare_route((route_part,))
 
         route.count_profit()
 
-        expected_profit = self.__get_profit_for_companies(TestData.companies[:2])
+        expected_profit = self.__get_profit_for_companies(
+            TestData.companies[:2])
         self.assertEqual(route.profit, expected_profit)
 
     def test_count_profit_when_no_companies_in_route_for_n_days_gives_correct_profit(self):
@@ -203,30 +219,35 @@ class RouteTestCase(unittest.TestCase):
         self.assertEqual(route.profit, expected_profit)
 
     def test_count_profit_when_unique_companies_in_route_for_n_days_gives_correct_profit(self):
-        route = self.__prepare_route_with_n_start_route_parts_with_m_companies(2, 2)
+        route = self.__prepare_route_with_n_start_route_parts_with_m_companies(
+            2, 2)
 
         route.count_profit()
 
-        expected_profit = self.__get_profit_for_companies(TestData.companies[:4])
+        expected_profit = self.__get_profit_for_companies(
+            TestData.companies[:4])
         self.assertEqual(route.profit, expected_profit)
 
     def test_count_profit_when_duplicated_companies_in_route_for_n_days_gives_correct_profit(self):
         route_parts = (
-            self.__prepare_route_part_with_vertices([TestData.depots[0], TestData.companies[0], TestData.hotels[0]]),
-            self.__prepare_route_part_with_vertices([TestData.hotels[0], TestData.companies[0], TestData.hotels[0]])
+            self.__prepare_route_part_with_vertices(
+                [TestData.depots[0], TestData.companies[0], TestData.hotels[0]]),
+            self.__prepare_route_part_with_vertices(
+                [TestData.hotels[0], TestData.companies[0], TestData.hotels[0]])
         )
         route = self.__prepare_route(route_parts)
 
         route.count_profit()
 
-        expected_profit = self.__get_profit_for_companies(TestData.companies[:1])
+        expected_profit = self.__get_profit_for_companies(
+            TestData.companies[:1])
         self.assertEqual(route.profit, expected_profit)
-
 
     # add_route_part
 
     def test_add_route_part_when_number_of_route_parts_is_equal_to_number_of_days_is_not_added(self):
-        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(1, 1, 1)
+        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(
+            1, 1, 1)
 
         route.add_route_part(self.__prepare_route_part_with_vertices([]))
 
@@ -234,7 +255,8 @@ class RouteTestCase(unittest.TestCase):
         self.assertEqual(len(route.routes), expected_routes_length)
 
     def test_add_route_part_when_number_of_route_parts_is_less_than_number_of_days_is_added(self):
-        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(1, 1, 2)
+        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(
+            1, 1, 2)
 
         route.add_route_part(self.__prepare_route_part_with_vertices([]))
 
@@ -242,32 +264,42 @@ class RouteTestCase(unittest.TestCase):
         self.assertEqual(len(route.routes), expected_routes_length)
 
     def test_add_route_part_when_number_of_route_parts_is_less_than_number_of_days_is_added_and_increase_route_distance(self):
-        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(1, 1, 2)
+        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(
+            1, 1, 2)
         distance_before = route.distance
 
-        route.add_route_part(self.__prepare_route_part_with_vertices([TestData.depots[0], TestData.companies[1], TestData.depots[0]]))
+        route.add_route_part(self.__prepare_route_part_with_vertices(
+            [TestData.depots[0], TestData.companies[1], TestData.depots[0]]))
 
-        expected_distance = distance_before + (TestData.count_distance(TestData.depots[0], TestData.companies[1])) * 2
+        expected_distance = distance_before + \
+            (TestData.count_distance(
+                TestData.depots[0], TestData.companies[1])) * 2
         self.assertEqual(route.distance, expected_distance)
 
     def test_add_route_part_when_number_of_route_parts_is_less_than_number_of_days_decrease_length_of_available_companies_set_if_contains_these_companies(self):
-        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(0, 0, 2)
+        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(
+            0, 0, 2)
         available_length_before = len(route.available_vertices)
 
-        route.add_route_part(self.__prepare_route_part_with_vertices([TestData.depots[0], TestData.companies[0], TestData.depots[0]]))
+        route.add_route_part(self.__prepare_route_part_with_vertices(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]]))
 
         expected_available_vertices_length = available_length_before - 1
-        self.assertEqual(len(route.available_vertices), expected_available_vertices_length)
+        self.assertEqual(len(route.available_vertices),
+                         expected_available_vertices_length)
 
     def test_add_route_part_when_number_of_route_parts_is_less_than_number_of_days_does_not_decrease_length_of_available_companies_set_if_does_not_contain_these_companies(self):
-        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(1, 1, 2)
+        route = self.__prepare_route_with_n_start_route_parts_with_m_companies_for_o_days(
+            1, 1, 2)
         available_length_before = len(route.available_vertices)
 
         route.add_route_part(
             self.__prepare_route_part_with_vertices([TestData.depots[0], TestData.companies[0], TestData.depots[0]]))
 
         expected_available_vertices_length = available_length_before
-        self.assertEqual(len(route.available_vertices), expected_available_vertices_length)
+        self.assertEqual(len(route.available_vertices),
+                         expected_available_vertices_length)
+
 
 class AddingStopsTestCase(unittest.TestCase):
     def setUp(self) -> None:
@@ -278,11 +310,13 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_first_in_start_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, 0, TestData.companies[0])
-        expected_distance = self.__count_distance(TestData.depots[0], TestData.companies[0])
+        expected_distance = self.__count_distance(
+            TestData.depots[0], TestData.companies[0])
         expected_route_length = 3
 
         self.assertEqual(route.distance, expected_distance)
@@ -292,7 +326,8 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_first_the_same_as_first_in_start_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, 0, TestData.depots[0])
@@ -306,11 +341,14 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_first_in_existing_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
-        route_part = RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, 0, TestData.companies[1])
-        expected_distance = self.__count_distance(TestData.companies[1], TestData.depots[0]) + (self.__count_distance(TestData.depots[0], TestData.companies[0]) * 2)
+        expected_distance = self.__count_distance(TestData.companies[1], TestData.depots[0]) + (
+            self.__count_distance(TestData.depots[0], TestData.companies[0]) * 2)
         expected_route_length = 4
 
         self.assertEqual(route.distance, expected_distance)
@@ -320,11 +358,14 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_first_the_same_as_first_in_existing_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
-        route_part = RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, 0, TestData.depots[0])
-        expected_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) * 2
+        expected_distance = self.__count_distance(
+            TestData.depots[0], TestData.companies[0]) * 2
         expected_route_length = 4
 
         self.assertEqual(route.distance, expected_distance)
@@ -334,11 +375,13 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_last_in_start_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, 2, TestData.companies[0])
-        expected_distance = self.__count_distance(TestData.depots[0], TestData.companies[0])
+        expected_distance = self.__count_distance(
+            TestData.depots[0], TestData.companies[0])
         expected_route_length = 3
 
         self.assertEqual(route.distance, expected_distance)
@@ -348,7 +391,8 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_last_the_same_as_last_in_start_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, route_part.length, TestData.depots[0])
@@ -362,11 +406,14 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_last_in_existing_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
-        route_part = RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, route_part.length, TestData.companies[1])
-        expected_distance = self.__count_distance(TestData.companies[1], TestData.depots[0]) + (self.__count_distance(TestData.depots[0], TestData.companies[0]) * 2)
+        expected_distance = self.__count_distance(TestData.companies[1], TestData.depots[0]) + (
+            self.__count_distance(TestData.depots[0], TestData.companies[0]) * 2)
         expected_route_length = 4
 
         self.assertEqual(route.distance, expected_distance)
@@ -376,11 +423,14 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_last_the_same_as_last_in_existing_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
-        route_part = RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, route_part.length, TestData.depots[0])
-        expected_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) * 2
+        expected_distance = self.__count_distance(
+            TestData.depots[0], TestData.companies[0]) * 2
         expected_route_length = 4
 
         self.assertEqual(route.distance, expected_distance)
@@ -390,11 +440,13 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_non_edge_position_in_start_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, 1, TestData.companies[0])
-        expected_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) * 2
+        expected_distance = self.__count_distance(
+            TestData.depots[0], TestData.companies[0]) * 2
         expected_route_length = 3
 
         self.assertAlmostEqual(route.distance, expected_distance)
@@ -404,11 +456,14 @@ class AddingStopsTestCase(unittest.TestCase):
 
     def test_add_on_non_edge_position_in_existing_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
-        route_part = RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.add_stop(route_part, 1, TestData.companies[1])
-        expected_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) + self.__count_distance(TestData.companies[0], TestData.companies[1]) + self.__count_distance(TestData.companies[1], TestData.depots[0])
+        expected_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) + self.__count_distance(
+            TestData.companies[0], TestData.companies[1]) + self.__count_distance(TestData.companies[1], TestData.depots[0])
         expected_route_length = 4
 
         self.assertAlmostEqual(route.distance, expected_distance)
@@ -427,7 +482,8 @@ class RemovingStopsTestCase(unittest.TestCase):
 
     def test_remove_first_vertex_in_start_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.remove_stop(route_part, 0)
@@ -440,11 +496,14 @@ class RemovingStopsTestCase(unittest.TestCase):
 
     def test_remove_first_vertex_in_existing_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
-        route_part = RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.remove_stop(route_part, 0)
-        expected_distance = self.__count_distance(TestData.companies[0], TestData.depots[0])
+        expected_distance = self.__count_distance(
+            TestData.companies[0], TestData.depots[0])
         expected_route_length = 2
 
         self.assertAlmostEqual(route.distance, expected_distance)
@@ -454,7 +513,8 @@ class RemovingStopsTestCase(unittest.TestCase):
 
     def test_remove_last_vertex_in_start_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.remove_stop(route_part, route_part.length - 1)
@@ -467,11 +527,14 @@ class RemovingStopsTestCase(unittest.TestCase):
 
     def test_remove_last_vertex_in_existing_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
-        route_part = RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.remove_stop(route_part, route_part.length - 1)
-        expected_distance = self.__count_distance(TestData.companies[0], TestData.depots[0])
+        expected_distance = self.__count_distance(
+            TestData.companies[0], TestData.depots[0])
         expected_route_length = 2
 
         self.assertAlmostEqual(route.distance, expected_distance)
@@ -481,8 +544,10 @@ class RemovingStopsTestCase(unittest.TestCase):
 
     def test_remove_not_edge_vertex_in_existing_route_part(self):
         route = Route(1, 10000, TestData.distances)
-        route.available_vertices = set([company.id for company in TestData.companies])
-        route_part = RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]])
+        route.available_vertices = set(
+            [company.id for company in TestData.companies])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[0], TestData.depots[0]])
         route.add_route_part(route_part)
         route.remove_stop(route_part, 1)
         expected_distance = 0
@@ -505,9 +570,9 @@ class ReplacingStopsTestCase(unittest.TestCase):
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
 
-
         replacing_company = TestData.companies[0]
-        expected_distance = self.__count_distance(TestData.companies[0], TestData.depots[0])
+        expected_distance = self.__count_distance(
+            TestData.companies[0], TestData.depots[0])
 
         route.replace_stop(route_part, 0, replacing_company)
         self.assertEqual(route.distance, expected_distance)
@@ -519,22 +584,25 @@ class ReplacingStopsTestCase(unittest.TestCase):
         route_part = RoutePart([TestData.depots[0], TestData.depots[0]])
         route.add_route_part(route_part)
 
-
         replacing_company = TestData.companies[0]
-        expected_distance = self.__count_distance(TestData.companies[0], TestData.depots[0])
+        expected_distance = self.__count_distance(
+            TestData.companies[0], TestData.depots[0])
 
-        route.replace_stop(route_part, route_part.length - 1, replacing_company)
+        route.replace_stop(route_part, route_part.length -
+                           1, replacing_company)
         self.assertEqual(route.distance, expected_distance)
         self.assertEqual(route_part.distance, expected_distance)
         self.assertEqual(route_part.route[-1], replacing_company)
 
     def test_replace_not_edge_element_in_route_part_gives_correct_distance(self):
         route = Route(1, 10000, TestData.distances)
-        route_part = RoutePart([TestData.depots[0], TestData.companies[1], TestData.depots[0]])
+        route_part = RoutePart(
+            [TestData.depots[0], TestData.companies[1], TestData.depots[0]])
         route.add_route_part(route_part)
 
         replacing_company = TestData.companies[0]
-        expected_distance = self.__count_distance(TestData.companies[0], TestData.depots[0]) * 2
+        expected_distance = self.__count_distance(
+            TestData.companies[0], TestData.depots[0]) * 2
 
         route.replace_stop(route_part, 1, replacing_company)
         self.assertEqual(route.distance, expected_distance)
@@ -555,24 +623,34 @@ class CrossoverTestCase(unittest.TestCase):
             Route(1, 10000, TestData.distances)
         ]
 
-        routes[0].available_vertices = set([company.id for company in TestData.companies])
-        routes[1].available_vertices = set([company.id for company in TestData.companies])
+        routes[0].available_vertices = set(
+            [company.id for company in TestData.companies])
+        routes[1].available_vertices = set(
+            [company.id for company in TestData.companies])
 
         route_parts = [
-            RoutePart([TestData.depots[0], TestData.companies[0], TestData.depots[0]]),
-            RoutePart([TestData.depots[0], TestData.companies[1], TestData.companies[2], TestData.companies[3], TestData.depots[0]])
+            RoutePart(
+                [TestData.depots[0], TestData.companies[0], TestData.depots[0]]),
+            RoutePart([TestData.depots[0], TestData.companies[1],
+                       TestData.companies[2], TestData.companies[3], TestData.depots[0]])
         ]
 
         routes[0].add_route_part(route_parts[0])
         routes[1].add_route_part(route_parts[1])
 
-        expected_first_route = [TestData.depots[0], TestData.companies[0], TestData.companies[2], TestData.companies[3], TestData.depots[0]]
-        expected_second_route = [TestData.depots[0], TestData.companies[1], TestData.depots[0]]
-        expected_first_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) + self.__count_distance(TestData.companies[0], TestData.companies[2]) + self.__count_distance(TestData.companies[2], TestData.companies[3]) + self.__count_distance(TestData.companies[3], TestData.depots[0])
-        expected_second_distance = self.__count_distance(TestData.depots[0], TestData.companies[1]) * 2
+        expected_first_route = [TestData.depots[0], TestData.companies[0],
+                                TestData.companies[2], TestData.companies[3], TestData.depots[0]]
+        expected_second_route = [TestData.depots[0],
+                                 TestData.companies[1], TestData.depots[0]]
+        expected_first_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) + self.__count_distance(
+            TestData.companies[0], TestData.companies[2]) + self.__count_distance(TestData.companies[2], TestData.companies[3]) + self.__count_distance(TestData.companies[3], TestData.depots[0])
+        expected_second_distance = self.__count_distance(
+            TestData.depots[0], TestData.companies[1]) * 2
 
-        first_crossover = routes[0].crossover(routes[0].get_route_part(0), routes[1].get_route_part(0), 1)
-        second_crossover = routes[1].crossover(routes[1].get_route_part(0), routes[0].get_route_part(0), 1)
+        first_crossover = routes[0].crossover(
+            routes[0].get_route_part(0), routes[1].get_route_part(0), 1)
+        second_crossover = routes[1].crossover(
+            routes[1].get_route_part(0), routes[0].get_route_part(0), 1)
 
         self.assertEqual(first_crossover[0], expected_first_route)
         self.assertAlmostEqual(first_crossover[1], expected_first_distance)
@@ -585,24 +663,34 @@ class CrossoverTestCase(unittest.TestCase):
             Route(1, 10000, TestData.distances)
         ]
 
-        routes[0].available_vertices = set([company.id for company in TestData.companies])
-        routes[1].available_vertices = set([company.id for company in TestData.companies])
+        routes[0].available_vertices = set(
+            [company.id for company in TestData.companies])
+        routes[1].available_vertices = set(
+            [company.id for company in TestData.companies])
 
         route_parts = [
-            RoutePart([TestData.depots[0], TestData.companies[0], TestData.companies[1], TestData.depots[0]]),
-            RoutePart([TestData.depots[0], TestData.companies[2], TestData.companies[3], TestData.companies[4], TestData.depots[0]])
+            RoutePart([TestData.depots[0], TestData.companies[0],
+                       TestData.companies[1], TestData.depots[0]]),
+            RoutePart([TestData.depots[0], TestData.companies[2],
+                       TestData.companies[3], TestData.companies[4], TestData.depots[0]])
         ]
 
         routes[0].add_route_part(route_parts[0])
         routes[1].add_route_part(route_parts[1])
 
-        expected_first_route = [TestData.depots[0], TestData.companies[0], TestData.companies[3], TestData.companies[4], TestData.depots[0]]
-        expected_second_route = [TestData.depots[0], TestData.companies[2], TestData.companies[1], TestData.depots[0]]
-        expected_first_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) + self.__count_distance(TestData.companies[0], TestData.companies[3]) + self.__count_distance(TestData.companies[3], TestData.companies[4]) + self.__count_distance(TestData.companies[4], TestData.depots[0])
-        expected_second_distance = self.__count_distance(TestData.depots[0], TestData.companies[2]) + self.__count_distance(TestData.companies[2], TestData.companies[1]) + self.__count_distance(TestData.companies[1], TestData.depots[0])
+        expected_first_route = [TestData.depots[0], TestData.companies[0],
+                                TestData.companies[3], TestData.companies[4], TestData.depots[0]]
+        expected_second_route = [
+            TestData.depots[0], TestData.companies[2], TestData.companies[1], TestData.depots[0]]
+        expected_first_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) + self.__count_distance(
+            TestData.companies[0], TestData.companies[3]) + self.__count_distance(TestData.companies[3], TestData.companies[4]) + self.__count_distance(TestData.companies[4], TestData.depots[0])
+        expected_second_distance = self.__count_distance(TestData.depots[0], TestData.companies[2]) + self.__count_distance(
+            TestData.companies[2], TestData.companies[1]) + self.__count_distance(TestData.companies[1], TestData.depots[0])
 
-        first_crossover = routes[0].crossover(routes[0].get_route_part(0), routes[1].get_route_part(0), 1)
-        second_crossover = routes[1].crossover(routes[1].get_route_part(0), routes[0].get_route_part(0), 1)
+        first_crossover = routes[0].crossover(
+            routes[0].get_route_part(0), routes[1].get_route_part(0), 1)
+        second_crossover = routes[1].crossover(
+            routes[1].get_route_part(0), routes[0].get_route_part(0), 1)
 
         self.assertEqual(first_crossover[0], expected_first_route)
         self.assertAlmostEqual(first_crossover[1], expected_first_distance)
@@ -615,24 +703,34 @@ class CrossoverTestCase(unittest.TestCase):
             Route(1, 10000, TestData.distances)
         ]
 
-        routes[0].available_vertices = set([company.id for company in TestData.companies])
-        routes[1].available_vertices = set([company.id for company in TestData.companies])
+        routes[0].available_vertices = set(
+            [company.id for company in TestData.companies])
+        routes[1].available_vertices = set(
+            [company.id for company in TestData.companies])
 
         route_parts = [
-            RoutePart([TestData.depots[0], TestData.companies[0], TestData.companies[1], TestData.companies[5], TestData.companies[6], TestData.depots[0]]),
-            RoutePart([TestData.depots[0], TestData.companies[2], TestData.companies[3], TestData.companies[4], TestData.companies[7], TestData.depots[0]])
+            RoutePart([TestData.depots[0], TestData.companies[0], TestData.companies[1],
+                       TestData.companies[5], TestData.companies[6], TestData.depots[0]]),
+            RoutePart([TestData.depots[0], TestData.companies[2], TestData.companies[3],
+                       TestData.companies[4], TestData.companies[7], TestData.depots[0]])
         ]
 
         routes[0].add_route_part(route_parts[0])
         routes[1].add_route_part(route_parts[1])
 
-        expected_first_route = [TestData.depots[0], TestData.companies[0], TestData.companies[1], TestData.companies[5], TestData.companies[7], TestData.depots[0]]
-        expected_second_route = [TestData.depots[0], TestData.companies[2], TestData.companies[3], TestData.companies[4], TestData.companies[6], TestData.depots[0]]
-        expected_first_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) + self.__count_distance(TestData.companies[0], TestData.companies[1]) + self.__count_distance(TestData.companies[1], TestData.companies[5]) + self.__count_distance(TestData.companies[5], TestData.companies[7]) + self.__count_distance(TestData.companies[7], TestData.depots[0])
-        expected_second_distance = self.__count_distance(TestData.depots[0], TestData.companies[2]) + self.__count_distance(TestData.companies[2], TestData.companies[3]) + self.__count_distance(TestData.companies[3], TestData.companies[4]) + self.__count_distance(TestData.companies[4], TestData.companies[6]) + self.__count_distance(TestData.companies[6], TestData.depots[0])
+        expected_first_route = [TestData.depots[0], TestData.companies[0], TestData.companies[1],
+                                TestData.companies[5], TestData.companies[7], TestData.depots[0]]
+        expected_second_route = [TestData.depots[0], TestData.companies[2],
+                                 TestData.companies[3], TestData.companies[4], TestData.companies[6], TestData.depots[0]]
+        expected_first_distance = self.__count_distance(TestData.depots[0], TestData.companies[0]) + self.__count_distance(TestData.companies[0], TestData.companies[1]) + self.__count_distance(
+            TestData.companies[1], TestData.companies[5]) + self.__count_distance(TestData.companies[5], TestData.companies[7]) + self.__count_distance(TestData.companies[7], TestData.depots[0])
+        expected_second_distance = self.__count_distance(TestData.depots[0], TestData.companies[2]) + self.__count_distance(TestData.companies[2], TestData.companies[3]) + self.__count_distance(
+            TestData.companies[3], TestData.companies[4]) + self.__count_distance(TestData.companies[4], TestData.companies[6]) + self.__count_distance(TestData.companies[6], TestData.depots[0])
 
-        first_crossover = routes[0].crossover(routes[0].get_route_part(0), routes[1].get_route_part(0), 3)
-        second_crossover = routes[1].crossover(routes[1].get_route_part(0), routes[0].get_route_part(0), 3)
+        first_crossover = routes[0].crossover(
+            routes[0].get_route_part(0), routes[1].get_route_part(0), 3)
+        second_crossover = routes[1].crossover(
+            routes[1].get_route_part(0), routes[0].get_route_part(0), 3)
 
         self.assertEqual(first_crossover[0], expected_first_route)
         self.assertAlmostEqual(first_crossover[1], expected_first_distance)

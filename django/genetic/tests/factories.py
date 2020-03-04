@@ -1,8 +1,8 @@
 import factory
 import factory.fuzzy
-
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
+
 from data.models import BusinessTrip, Company, Hotel, Profile, Requistion
 from genetic import utils
 

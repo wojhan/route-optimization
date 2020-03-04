@@ -1,8 +1,13 @@
 import unittest
+
 import mpu
+
 from genetic import vertices
 from genetic.routes import Route, RoutePart
-from genetic.utils import crossover, get_indexes_all_companies_in_route, mutate_by_swap_within_the_same_route_part, mutate_by_swap_within_different_route_parts
+from genetic.utils import (crossover, get_indexes_all_companies_in_route,
+                           mutate_by_swap_within_different_route_parts,
+                           mutate_by_swap_within_the_same_route_part)
+
 from .utils import TestData
 
 
@@ -165,8 +170,10 @@ class CrossoverTestCase(unittest.TestCase):
             Route(1, 10000, TestData.distances)
         ]
 
-        routes[0].available_vertices = set([company.id for company in TestData.companies])
-        routes[1].available_vertices = set([company.id for company in TestData.companies])
+        routes[0].available_vertices = set(
+            [company.id for company in TestData.companies])
+        routes[1].available_vertices = set(
+            [company.id for company in TestData.companies])
 
         route_parts = [
             RoutePart(
@@ -203,8 +210,10 @@ class CrossoverTestCase(unittest.TestCase):
             Route(1, 265, TestData.distances),
             Route(1, 10000, TestData.distances)
         ]
-        routes[0].available_vertices = set([company.id for company in TestData.companies])
-        routes[1].available_vertices = set([company.id for company in TestData.companies])
+        routes[0].available_vertices = set(
+            [company.id for company in TestData.companies])
+        routes[1].available_vertices = set(
+            [company.id for company in TestData.companies])
 
         route_parts = [
             RoutePart(
@@ -242,8 +251,10 @@ class CrossoverTestCase(unittest.TestCase):
             Route(1, 30, TestData.distances)
         ]
 
-        routes[0].available_vertices = set([company.id for company in TestData.companies])
-        routes[1].available_vertices = set([company.id for company in TestData.companies])
+        routes[0].available_vertices = set(
+            [company.id for company in TestData.companies])
+        routes[1].available_vertices = set(
+            [company.id for company in TestData.companies])
 
         route_parts = [
             RoutePart(
