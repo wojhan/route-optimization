@@ -1,11 +1,11 @@
 import random
-from typing import List, Tuple
-from .routes import Route, RoutePart
-from .vertices import Company
+from typing import List, Set, Tuple
+
+from genetic import routes
 
 
 def crossover(options):
-    parents: List[Route] = options[0]
+    parents: List[routes.Route] = options[0]
     crossover_probability: float = options[1]
     mutation_probability: float = options[2]
 
@@ -13,8 +13,10 @@ def crossover(options):
 
     if random.random() <= crossover_probability:
         for day in range(days):
-            parent_a_route_part: RoutePart = parents[0].get_route_part(day)
-            parent_b_route_part: RoutePart = parents[1].get_route_part(day)
+            parent_a_route_part: routes.RoutePart = parents[0].get_route_part(
+                day)
+            parent_b_route_part: routes.RoutePart = parents[1].get_route_part(
+                day)
 
             if parent_a_route_part.length == 2 or parent_b_route_part.length == 2:
                 continue
@@ -22,12 +24,15 @@ def crossover(options):
             if parent_a_route_part.length + parent_b_route_part.length < 7:
                 continue
 
-            max_cross_index = min(parent_a_route_part.length - 2, parent_b_route_part.length - 2)
-            # random_cross_index = random.randint(1, max_cross_index)
-            random_cross_index = int(1 + (random.random() * (max_cross_index - 1)))
+            max_cross_index = min(
+                parent_a_route_part.length - 2, parent_b_route_part.length - 2)
+            random_cross_index = int(
+                1 + (random.random() * (max_cross_index - 1)))
 
-            new_first_route, new_first_distance = parents[0].crossover(parent_a_route_part, parent_b_route_part, random_cross_index)
-            new_second_route, new_second_distance = parents[1].crossover(parent_b_route_part, parent_a_route_part, random_cross_index)
+            new_first_route, new_first_distance = parents[0].crossover(
+                parent_a_route_part, parent_b_route_part, random_cross_index)
+            new_second_route, new_second_distance = parents[1].crossover(
+                parent_b_route_part, parent_a_route_part, random_cross_index)
 
             if new_first_route:
                 parent_a_route_part.route = new_first_route
@@ -44,7 +49,8 @@ def crossover(options):
     return [mutate([parents[0], mutation_probability]), mutate([parents[1], mutation_probability])]
 
 
-def get_indexes_all_companies_in_route(route: Route, total_companies: int) -> List[Tuple[int, int]]:
+def get_indexes_all_companies_in_route(route: routes.Route, total_companies: int) -> Tuple[
+        Set[Tuple[int, int]], List[Tuple[int, int]]]:
     company_indexes = set()
     company_indexes_list = list()
 
@@ -57,12 +63,13 @@ def get_indexes_all_companies_in_route(route: Route, total_companies: int) -> Li
 
         index_in_route_part = index + 1 - route_part_offset
         company_indexes.add((current_route_part_index, index_in_route_part))
-        company_indexes_list.append((current_route_part_index, index_in_route_part))
+        company_indexes_list.append(
+            (current_route_part_index, index_in_route_part))
 
     return company_indexes, company_indexes_list
 
 
-def mutate_by_swap_within_the_same_route_part(route: Route, route_part: RoutePart, first_index: int, second_index: int):
+def mutate_by_swap_within_the_same_route_part(route: routes.Route, route_part: routes.RoutePart, first_index: int, second_index: int):
     if first_index > second_index:
         tmp = first_index
         first_index = second_index
@@ -74,25 +81,35 @@ def mutate_by_swap_within_the_same_route_part(route: Route, route_part: RoutePar
         neighbour = True
 
     count = route.count_distance
-    existing_distance_to_first = count(route_part.route[first_index - 1], route_part.route[first_index])
-    existing_distance_from_second = count(route_part.route[second_index], route_part.route[second_index + 1])
+    existing_distance_to_first = count(
+        route_part.route[first_index - 1], route_part.route[first_index])
+    existing_distance_from_second = count(
+        route_part.route[second_index], route_part.route[second_index + 1])
     existing_distance_to_second = 0
     existing_distance_from_first = 0
     if not neighbour:
-        existing_distance_from_first = count(route_part.route[first_index], route_part.route[first_index + 1])
-        existing_distance_to_second = count(route_part.route[second_index - 1], route_part.route[second_index])
+        existing_distance_from_first = count(
+            route_part.route[first_index], route_part.route[first_index + 1])
+        existing_distance_to_second = count(
+            route_part.route[second_index - 1], route_part.route[second_index])
 
-    existing_distance = existing_distance_from_first + existing_distance_to_first + existing_distance_from_second + existing_distance_to_second
+    existing_distance = existing_distance_from_first + existing_distance_to_first + \
+        existing_distance_from_second + existing_distance_to_second
 
-    new_distance_to_second = count(route_part.route[first_index - 1], route_part.route[second_index])
-    new_distance_from_first = count(route_part.route[first_index], route_part.route[second_index + 1])
+    new_distance_to_second = count(
+        route_part.route[first_index - 1], route_part.route[second_index])
+    new_distance_from_first = count(
+        route_part.route[first_index], route_part.route[second_index + 1])
     new_distance_to_first = 0
     new_distance_from_second = 0
     if not neighbour:
-        new_distance_to_first = count(route_part.route[second_index - 1], route_part.route[first_index])
-        new_distance_from_second = count(route_part.route[second_index], route_part.route[first_index + 1])
+        new_distance_to_first = count(
+            route_part.route[second_index - 1], route_part.route[first_index])
+        new_distance_from_second = count(
+            route_part.route[second_index], route_part.route[first_index + 1])
 
-    new_distance = new_distance_from_first + new_distance_to_first + new_distance_from_second + new_distance_to_second
+    new_distance = new_distance_from_first + new_distance_to_first + \
+        new_distance_from_second + new_distance_to_second
 
     distance = new_distance - existing_distance
 
@@ -104,20 +121,30 @@ def mutate_by_swap_within_the_same_route_part(route: Route, route_part: RoutePar
         route_part.distance += distance
 
 
-def mutate_by_swap_within_different_route_parts(route: Route, first_route_part: RoutePart, second_route_part: RoutePart, first_index: int, second_index: int):
+def mutate_by_swap_within_different_route_parts(route: routes.Route, first_route_part: routes.RoutePart, second_route_part: routes.RoutePart, first_index: int, second_index: int):
     count = route.count_distance
-    existing_distance_to_first = count(first_route_part.route[first_index - 1], first_route_part.route[first_index])
-    existing_distance_from_first = count(first_route_part.route[first_index], first_route_part.route[first_index + 1])
-    existing_distance_to_second = count(second_route_part.route[second_index - 1], second_route_part.route[second_index])
-    existing_distance_from_second = count(second_route_part.route[second_index], second_route_part.route[second_index + 1])
+    existing_distance_to_first = count(
+        first_route_part.route[first_index - 1], first_route_part.route[first_index])
+    existing_distance_from_first = count(
+        first_route_part.route[first_index], first_route_part.route[first_index + 1])
+    existing_distance_to_second = count(
+        second_route_part.route[second_index - 1], second_route_part.route[second_index])
+    existing_distance_from_second = count(
+        second_route_part.route[second_index], second_route_part.route[second_index + 1])
 
-    existing_distance_for_first = existing_distance_to_first + existing_distance_from_first
-    existing_distance_for_second = existing_distance_to_second + existing_distance_from_second
+    existing_distance_for_first = existing_distance_to_first + \
+        existing_distance_from_first
+    existing_distance_for_second = existing_distance_to_second + \
+        existing_distance_from_second
 
-    new_distance_to_first = count(first_route_part.route[first_index - 1], second_route_part.route[second_index])
-    new_distance_from_first = count(second_route_part.route[second_index], first_route_part.route[first_index + 1])
-    new_distance_to_second = count(second_route_part.route[second_index - 1], first_route_part.route[first_index])
-    new_distance_from_second = count(first_route_part.route[first_index], second_route_part.route[second_index + 1])
+    new_distance_to_first = count(
+        first_route_part.route[first_index - 1], second_route_part.route[second_index])
+    new_distance_from_first = count(
+        second_route_part.route[second_index], first_route_part.route[first_index + 1])
+    new_distance_to_second = count(
+        second_route_part.route[second_index - 1], first_route_part.route[first_index])
+    new_distance_from_second = count(
+        first_route_part.route[first_index], second_route_part.route[second_index + 1])
 
     new_distance_for_first = new_distance_to_first + new_distance_from_first
     new_distance_for_second = new_distance_to_second + new_distance_from_second
@@ -134,26 +161,30 @@ def mutate_by_swap_within_different_route_parts(route: Route, first_route_part: 
         second_route_part.distance += distance_for_second
 
 
-def mutate_by_swap(route: Route, first_route_part_index: int,  first_vertex_index: int, second_route_part_index: int, second_vertex_index: int):
+def mutate_by_swap(route: routes.Route, first_route_part_index: int,  first_vertex_index: int, second_route_part_index: int, second_vertex_index: int):
     if first_route_part_index == second_route_part_index:
         route_part = route.get_route_part(first_route_part_index)
-        mutate_by_swap_within_the_same_route_part(route, route_part, first_vertex_index, second_vertex_index)
+        mutate_by_swap_within_the_same_route_part(
+            route, route_part, first_vertex_index, second_vertex_index)
     else:
         first_route_part = route.get_route_part(first_route_part_index)
         second_route_part = route.get_route_part(second_route_part_index)
-        mutate_by_swap_within_different_route_parts(route, first_route_part, second_route_part, first_vertex_index, second_vertex_index)
+        mutate_by_swap_within_different_route_parts(
+            route, first_route_part, second_route_part, first_vertex_index, second_vertex_index)
 
 
-def mutate_by_insert_company(route: Route, route_part: RoutePart, insert_index: int):
+def mutate_by_insert_company(route: routes.Route, route_part: routes.RoutePart, insert_index: int):
     if route.available_vertices:
-        random_index = int(random.random() * (len(route.available_vertices) - 1))
+        random_index = int(random.random() *
+                           (len(route.available_vertices) - 1))
         random_company_index = list(route.available_vertices)[random_index]
 
         random_company = route.vertices_ids[random_company_index]
 
         route.add_stop(route_part, insert_index, random_company)
 
-def remove_duplicates(route: Route):
+
+def remove_duplicates(route: routes.Route):
     added = list()
 
     for route_part in route.routes:
@@ -169,7 +200,7 @@ def remove_duplicates(route: Route):
 
 
 def mutate(options):
-    route: Route = options[0]
+    route: routes.Route = options[0]
     mutation_rate = options[1]
 
     total_companies = 0
@@ -183,17 +214,16 @@ def mutate(options):
     swap_method = False
     insert_method = False
 
-    # if random.random() <= 0.4:
-        # remove_duplicates(route)
-
     if mutation_method_random <= 0.6:
         swap_method = True
 
     if mutation_method_random >= 0.4:
         insert_method = True
 
-    random_indexes = random.sample(range(total_companies), int(round(mutation_rate * total_companies)))
-    company_indexes, company_indexes_list = get_indexes_all_companies_in_route(route, total_companies)
+    random_indexes = random.sample(range(total_companies), int(
+        round(mutation_rate * total_companies)))
+    company_indexes, company_indexes_list = get_indexes_all_companies_in_route(
+        route, total_companies)
     swap_indexes = company_indexes.copy()
 
     for random_index in random_indexes:
@@ -203,11 +233,14 @@ def mutate(options):
         swap_indexes.discard(company_indexes_list[random_index])
 
         if swap_indexes and swap_method:
-            random_index_to_swap = int(random.random() * (len(swap_indexes) - 1))
+            random_index_to_swap = int(
+                random.random() * (len(swap_indexes) - 1))
             random_vertex_indexes = list(swap_indexes)[random_index_to_swap]
-            mutate_by_swap(route, route_part_index, vertex_index, random_vertex_indexes[0], random_vertex_indexes[1])
+            mutate_by_swap(route, route_part_index, vertex_index,
+                           random_vertex_indexes[0], random_vertex_indexes[1])
 
         if insert_method:
-            mutate_by_insert_company(route, route.get_route_part(route_part_index), vertex_index)
+            mutate_by_insert_company(route, route.get_route_part(
+                route_part_index), vertex_index)
 
     return route

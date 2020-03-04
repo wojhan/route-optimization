@@ -1,5 +1,6 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 
 class RouteConsumer(AsyncWebsocketConsumer):
@@ -21,21 +22,6 @@ class RouteConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
-
-        # await self.channel_layer.group_send(
-        #     self.room_group_name,
-        #     {
-        #         'type': 'progress_message',
-        #         'message': self.progress
-        #     }
-        # )
-        # await self.channel_layer.group_send(
-        #     self.room_group_name,
-        #     {
-        #         'type': 'connect',
-        #         'message': 'no elo'
-        #     }
-        # )
 
     async def disconnect(self, code):
         # Leave room group

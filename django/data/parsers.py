@@ -1,7 +1,10 @@
-from rest_framework.parsers import JSONParser
-from django.conf import settings
-import re
 import json
+import re
+
+import six
+from django.conf import settings
+from rest_framework.exceptions import ParseError
+from rest_framework.parsers import JSONParser
 
 first_cap_re = re.compile('(.)([A-Z][a-z]+)')
 all_cap_re = re.compile('([a-z0-9])([A-Z])')

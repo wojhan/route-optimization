@@ -22,7 +22,6 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.user.is_staff:
             return True
 
-        # Instance must have an attribute named `owner`.
         if hasattr(obj, 'created_by'):
             return obj.created_by == request.user.profile
 

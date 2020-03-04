@@ -1,14 +1,17 @@
+from datetime import datetime, timedelta
+
 import pytest
 from django.urls import reverse
+
 from data.tests import factories
-from datetime import datetime, timedelta
+
 
 @pytest.mark.django_db
 class TestViewSets:
     def __prepare_business_trip_without_assignment(self):
         return factories.BusinessTripFactory()
 
-    def __prepare_business_trip_with_assignment(self, user, start_date = None, finish_date = None):
+    def __prepare_business_trip_with_assignment(self, user, start_date=None, finish_date=None):
         business_trip = self.__prepare_business_trip_without_assignment()
         business_trip.assignee = user.profile
         if start_date:
@@ -86,7 +89,8 @@ class TestViewSets:
         user, token = factories.get_user_with_token()
         business_trip = self.__prepare_business_trip_with_assignment(user)
 
-        response, response_json = self.__get_response(client, token, self.__reverse_employee_business_trips_url(user.id), 'get')
+        response, response_json = self.__get_response(
+            client, token, self.__reverse_employee_business_trips_url(user.id), 'get')
 
         expected_business_trip_count = 1
         assert response_json['count'] == expected_business_trip_count
@@ -95,7 +99,8 @@ class TestViewSets:
         user, token = factories.get_user_with_token()
         business_trip = self.__prepare_business_trip_with_assignment(user)
 
-        response, response_json = self.__get_response(client, token, self.__reverse_past_employee_business_trips_url(user.id), 'get')
+        response, response_json = self.__get_response(
+            client, token, self.__reverse_past_employee_business_trips_url(user.id), 'get')
 
         expected_business_trip_count = 0
         assert response_json['count'] == expected_business_trip_count
@@ -105,7 +110,8 @@ class TestViewSets:
         business_trip = self.__prepare_past_business_trip_with_assigment(user)
 
         url = self.__reverse_past_employee_business_trips_url(user.id)
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_business_trip_count = 1
         assert response_json['count'] == expected_business_trip_count
@@ -115,7 +121,8 @@ class TestViewSets:
         business_trip = self.__prepare_past_business_trip_with_assigment(user)
 
         url = self.__reverse_current_employee_business_trips_url(user.id)
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_business_trip_count = 0
         assert response_json['count'] == expected_business_trip_count
@@ -125,7 +132,8 @@ class TestViewSets:
         business_trip = self.__prepare_business_trip_with_assignment(user)
 
         url = self.__reverse_current_employee_business_trips_url(user.id)
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_business_trip_count = 1
         assert response_json['count'] == expected_business_trip_count
@@ -135,7 +143,8 @@ class TestViewSets:
         business_trip = self.__prepare_business_trip_with_assignment(user)
 
         url = self.__reverse_future_employee_business_trips_url(user.id)
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_business_trip_count = 0
         assert response_json['count'] == expected_business_trip_count
@@ -143,10 +152,12 @@ class TestViewSets:
     def test_employee_business_trips_viewset_with_future_start_date_gives_one_result_if_one_business_trip_meets_criteria(
             self, client):
         user, token = factories.get_user_with_token()
-        business_trip = self.__prepare_future_business_trip_with_assignment(user)
+        business_trip = self.__prepare_future_business_trip_with_assignment(
+            user)
 
         url = self.__reverse_future_employee_business_trips_url(user.id)
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_business_trip_count = 1
         assert response_json['count'] == expected_business_trip_count
@@ -165,7 +176,8 @@ class TestViewSets:
         user, token = factories.get_user_with_token()
 
         url = self.__reverse_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_status_code = 403
 
@@ -175,7 +187,8 @@ class TestViewSets:
         user, token = factories.get_admin_user_with_token()
 
         url = self.__reverse_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_status_code = 200
 
@@ -185,7 +198,8 @@ class TestViewSets:
         user, token = factories.get_admin_user_with_token()
 
         url = self.__reverse_inactive_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_status_code = 200
 
@@ -195,7 +209,8 @@ class TestViewSets:
         user, token = factories.get_admin_user_with_token()
 
         url = self.__reverse_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_employee_count = 0
         assert response_json['count'] == expected_employee_count
@@ -205,7 +220,8 @@ class TestViewSets:
         factories.get_user_with_token()
 
         url = self.__reverse_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_employee_count = 1
         assert response_json['count'] == expected_employee_count
@@ -215,7 +231,8 @@ class TestViewSets:
         factories.get_inactive_user_with_token()
 
         url = self.__reverse_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_employee_count = 0
         assert response_json['count'] == expected_employee_count
@@ -225,7 +242,8 @@ class TestViewSets:
         factories.get_user_with_token()
 
         url = self.__reverse_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_employee_count = 1
         assert response_json['count'] == expected_employee_count
@@ -235,7 +253,8 @@ class TestViewSets:
         factories.get_user_with_token()
 
         url = self.__reverse_inactive_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_employee_count = 0
         assert response_json['count'] == expected_employee_count
@@ -245,7 +264,8 @@ class TestViewSets:
         factories.get_inactive_user_with_token()
 
         url = self.__reverse_inactive_employees_url()
-        response, response_json = self.__get_response(client, token, url, 'get')
+        response, response_json = self.__get_response(
+            client, token, url, 'get')
 
         expected_employee_count = 1
         assert response_json['count'] == expected_employee_count

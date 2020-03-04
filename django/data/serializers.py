@@ -1,12 +1,10 @@
-from django.contrib.auth import password_validation
+from django.contrib import auth
+from django.core.exceptions import FieldError
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 
-from data.models import (BusinessTrip, Company, Hotel, Profile, Requistion,
-                         Route)
-from django.contrib.auth.models import User
-from django.core.exceptions import FieldError
+from data import models
 
 
 class BasicUserSerializer(serializers.ModelSerializer):
@@ -15,7 +13,7 @@ class BasicUserSerializer(serializers.ModelSerializer):
         return super().validate(data)
 
     class Meta:
-        model = User
+        model = auth.get_user_model()
         fields = ['id', 'username', 'first_name',
                   'last_name', 'email', 'date_joined', 'is_active']
         extra_kwargs = {
@@ -31,7 +29,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     class Meta:
-        model = User
+        model = auth.get_user_model()
         fields = ['url', 'id', 'username', 'password', 'first_name',
                   'last_name', 'email', 'is_staff', 'is_active', 'date_joined']
 
@@ -45,7 +43,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         }
 
     def create(self, validated_data):
-        user = User(**validated_data)
+        user = auth.get_user_model()(**validated_data)
         user.set_password(validated_data['password'])
         user.is_active = False
         user.save()
@@ -56,14 +54,14 @@ class ProfileSerializer(serializers.ModelSerializer):
     user = BasicUserSerializer()
 
     class Meta:
-        model = Profile
+        model = models.Profile
         fields = ['user']
 
 
 class CompanySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = Company
+        model = models.Company
         fields = ['id', 'name', 'name_short', 'nip', 'street',
                   'house_no', 'postcode', 'city', 'latitude', 'longitude', 'added_by']
         extra_kwargs = {
@@ -76,7 +74,7 @@ class CompanySerializer(serializers.HyperlinkedModelSerializer):
 class HotelSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta(CompanySerializer):
-        model = Hotel
+        model = models.Hotel
         fields = ['id', 'name', 'name_short', 'nip', 'street',
                   'house_no', 'postcode', 'city', 'latitude', 'longitude']
 
@@ -107,7 +105,7 @@ class RequistionSerializer(serializers.ModelSerializer):
             company[key] = v
 
         try:
-            company_obj = Company.objects.get_or_create(**company)
+            company_obj = models.Company.objects.get_or_create(**company)
         except FieldError:
             raise serializers.ValidationError(
                 'Przypisana firma nie jest instancją firmy.')
@@ -116,14 +114,14 @@ class RequistionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict):
         company = validated_data.pop('company')
-        company_obj = Company.objects.get_or_create(**company)[0]
+        company_obj = models.Company.objects.get_or_create(**company)[0]
 
         validated_data['company'] = company_obj
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
         company = validated_data.pop('company')
-        company_obj = Company.objects.get_or_create(**company)[0]
+        company_obj = models.Company.objects.get_or_create(**company)[0]
         print(company_obj)
 
         instance.company = company_obj
@@ -133,7 +131,7 @@ class RequistionSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     class Meta:
-        model = Requistion
+        model = models.Requistion
         fields = ['id', 'estimated_profit', 'company',
                   'assignment_date', 'created_by']
 
@@ -144,7 +142,7 @@ class RouteSerializer(serializers.HyperlinkedModelSerializer):
     end_point = CompanySerializer()
 
     class Meta:
-        model = Route
+        model = models.Route
         fields = ['start_point', 'end_point',
                   'segment_order', 'day', 'distance']
 
@@ -152,7 +150,7 @@ class RouteSerializer(serializers.HyperlinkedModelSerializer):
 class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Profile
+        model = models.Profile
         fields = ['total_business_trips',
                   'visited_companies', 'total_distance']
 
@@ -167,14 +165,14 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
                              required=False, source='get_routes_for_version')
     max_distance = serializers.IntegerField(source='distance_constraint')
 
-    def _validate_company(self, value):
+    def validate_company(self, value):
         company = {}
 
         for key, v in value.items():
             company[key] = v
 
         try:
-            company_obj = Company.objects.get_or_create(**company)
+            company_obj = models.Company.objects.get_or_create(**company)
         except FieldError:
             raise serializers.ValidationError(
                 'Przypisana firma nie jest instancją firmy.')
@@ -193,7 +191,8 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
                 requistion['company'])
 
             try:
-                requistion_obj = Requistion.objects.get_or_create(**requistion)
+                requistion_obj = models.Requistion.objects.get_or_create(
+                    **requistion)
             except FieldError:
                 raise serializers.ValidationError(
                     'Oferta nie jest instancją oferty.')
@@ -207,7 +206,7 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
         for key, v in value['user'].items():
             assignee[key] = v
         try:
-            user = User.objects.get_or_create(**assignee)
+            user = auth.get_user_model().objects.get_or_create(**assignee)
         except FieldError:
             raise serializers.ValidationError(
                 "Przypisany nie jest instancją użytkownika")
@@ -223,7 +222,6 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
 
         if 'requistions' in validated_data:
             requistions_data = validated_data.pop('requistions')
-            modify_version = True
 
             modify_version = True
 
@@ -240,7 +238,7 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
         return super().update(instance, validated_data)
 
     class Meta:
-        model = BusinessTrip
+        model = models.BusinessTrip
         fields = ['id', 'start_date', 'finish_date', 'duration', 'distance',
                   'assignee', 'requistions', 'routes', 'estimated_profit', 'max_distance', 'is_processed']
 
@@ -265,7 +263,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         if data['password'] != data['password2']:
             raise serializers.ValidationError(
                 {'password2': "Podane hasła się nie zgadzają."})
-        password_validation.validate_password(
+        auth.password_validation.validate_password(
             data['password'], self.context['request'].user)
         return data
 
@@ -275,6 +273,12 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
 
 
 class RouteSerializerWithDetails(RouteSerializer):
@@ -286,6 +290,6 @@ class RouteSerializerWithDetails(RouteSerializer):
         return RequistionSerializer(obj.end_point.requistions.filter(business_trip=obj.business_trip).first(), context=self._context).data
 
     class Meta:
-        model = Route
+        model = models.Route
         fields = ['start_point', 'end_point', 'segment_order',
                   'day', 'distance', 'business_trip', 'requisition']

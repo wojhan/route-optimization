@@ -1,27 +1,25 @@
-from typing import List, Dict
-from .vertices import Vertex, Company
+from typing import List
 
-import numpy as np
+from genetic import vertices
 
 
 class RoutePart:
-    def __init__(self, route: List[Vertex]) -> None:
+    def __init__(self, route: List[vertices.Vertex]) -> None:
         self.distance = 0
         self.profit = 0
         self.route = route
-        # self.distances = distances
 
     @property
     def length(self):
         return len(self.route)
 
-    def add_stop(self, index, vertex: Vertex):
+    def add_stop(self, index, vertex: vertices.Vertex):
         self.route.insert(index, vertex)
 
     def remove_stop(self, index: int) -> None:
         del self.route[index]
 
-    def replace_stop(self, index: int, vertex: Vertex) -> None:
+    def replace_stop(self, index: int, vertex: vertices.Vertex) -> None:
         if index < len(self.route):
             self.route[index] = vertex
 
@@ -47,15 +45,15 @@ class Route:
         return self.distances[v_from.id, v_to.id][1]
 
     def count_profit(self):
-        vertices = list()
+        vertex_list = list()
 
         profit = 0
         for part in self.routes:
-            vertices += part.route
+            vertex_list += part.route
 
-        vertices = set(vertices)
+        vertex_list = set(vertex_list)
 
-        for vertex in vertices:
+        for vertex in vertex_list:
             profit += vertex.profit
 
         self.profit = profit
@@ -71,7 +69,8 @@ class Route:
             raise ValueError("start index is bigger than stop index")
 
         if start_index < 0 or start_index > route_part.length - 1:
-            raise ValueError("start index is negative or is bigger than route length")
+            raise ValueError(
+                "start index is negative or is bigger than route length")
 
         if stop_index > route_part.length - 1:
             raise ValueError("stop index is bigger than route length")
@@ -79,7 +78,8 @@ class Route:
         distance = 0
 
         for i, vertex in enumerate(route_part.route[start_index + 1:stop_index + 1]):
-            distance += self.count_distance(route_part.route[start_index + i], vertex)
+            distance += self.count_distance(
+                route_part.route[start_index + i], vertex)
 
         return distance
 
@@ -116,7 +116,8 @@ class Route:
         return False
 
     def __add_stop(self, route_part: RoutePart, index, vertex) -> bool:
-        existing_distance = self.count_distance(route_part.route[index - 1], route_part.route[index])
+        existing_distance = self.count_distance(
+            route_part.route[index - 1], route_part.route[index])
         distance_to_new = self.distances[route_part.route[index - 1].id][vertex.id][1]
         distance_from_new = self.distances[route_part.route[index].id][vertex.id][1]
 
@@ -132,9 +133,10 @@ class Route:
         add_method = self.__add_stop
 
         if index < 0 or index > route_part.length:
-            raise ValueError("insertion index is bigger than route length or is negative")
+            raise ValueError(
+                "insertion index is bigger than route length or is negative")
 
-        if isinstance(vertex, Company) and vertex.id not in self.available_vertices:
+        if isinstance(vertex, vertices.Company) and vertex.id not in self.available_vertices:
             return False
 
         added = False
@@ -157,20 +159,25 @@ class Route:
         return added
 
     def __remove_on_first_in_route_part(self, route_part: RoutePart) -> None:
-        distance = self.count_distance(route_part.route[0], route_part.route[1]) if route_part.length >= 2 else 0
+        distance = self.count_distance(
+            route_part.route[0], route_part.route[1]) if route_part.length >= 2 else 0
         route_part.remove_stop(0)
         self.__decrement_distance(route_part, distance)
 
     def __remove_on_last_in_route_part(self, route_part: RoutePart) -> None:
-        distance = self.count_distance(route_part.route[-2], route_part.route[-1])
+        distance = self.count_distance(
+            route_part.route[-2], route_part.route[-1])
         route_part.remove_stop(-1)
         self.__decrement_distance(route_part, distance)
 
     def __remove_stop(self, route_part: RoutePart, index: int) -> None:
-        existing_distance_from = self.count_distance(route_part.route[index - 1], route_part.route[index])
-        existing_distance_to = self.count_distance(route_part.route[index], route_part.route[index + 1])
+        existing_distance_from = self.count_distance(
+            route_part.route[index - 1], route_part.route[index])
+        existing_distance_to = self.count_distance(
+            route_part.route[index], route_part.route[index + 1])
         existing_distance = existing_distance_from + existing_distance_to
-        new_distance = self.count_distance(route_part.route[index - 1], route_part.route[index + 1])
+        new_distance = self.count_distance(
+            route_part.route[index - 1], route_part.route[index + 1])
 
         route_part.remove_stop(index)
         self.__decrement_distance(route_part, existing_distance)
@@ -180,24 +187,26 @@ class Route:
         remove_method = self.__remove_stop
 
         if index < 0 or index > route_part.length - 1:
-            raise ValueError("Deletion index is bigger than route length or is negative")
+            raise ValueError(
+                "Deletion index is bigger than route length or is negative")
 
         if index == 0:
             remove_method = self.__remove_on_first_in_route_part
         elif index == route_part.length - 1:
             remove_method = self.__remove_on_last_in_route_part
         else:
-            if isinstance(route_part.route[index], Company):
+            if isinstance(route_part.route[index], vertices.Company):
                 self.available_vertices.add(route_part.route[index].id)
             remove_method(route_part, index)
             return
 
-        if isinstance(route_part.route[index], Company):
+        if isinstance(route_part.route[index], vertices.Company):
             self.available_vertices.add(route_part.route[index].id)
         remove_method(route_part)
 
-    def __replace_first_stop(self, route_part: RoutePart, vertex: Vertex) -> bool:
-        existing_distance = self.count_distance(route_part.route[0], route_part.route[1])
+    def __replace_first_stop(self, route_part: RoutePart, vertex: vertices.Vertex) -> bool:
+        existing_distance = self.count_distance(
+            route_part.route[0], route_part.route[1])
         new_distance = self.count_distance(vertex, route_part.route[1])
         distance = new_distance - existing_distance
 
@@ -208,8 +217,9 @@ class Route:
         self.__increment_distance(route_part, distance)
         return True
 
-    def __replace_last_stop(self, route_part: RoutePart, vertex: Vertex) -> bool:
-        existing_distance = self.count_distance(route_part.route[-2], route_part.route[-1])
+    def __replace_last_stop(self, route_part: RoutePart, vertex: vertices.Vertex) -> bool:
+        existing_distance = self.count_distance(
+            route_part.route[-2], route_part.route[-1])
         new_distance = self.count_distance(route_part.route[-2], vertex)
         distance = new_distance - existing_distance
 
@@ -220,13 +230,17 @@ class Route:
         self.__increment_distance(route_part, distance)
         return True
 
-    def __replace_stop(self, route_part: RoutePart, index: int, vertex: Vertex) -> bool:
-        existing_distance_to_vertex = self.count_distance(route_part.route[index - 1], route_part.route[index])
-        existing_distance_from_vertex = self.count_distance(route_part.route[index], route_part.route[index + 1])
+    def __replace_stop(self, route_part: RoutePart, index: int, vertex: vertices.Vertex) -> bool:
+        existing_distance_to_vertex = self.count_distance(
+            route_part.route[index - 1], route_part.route[index])
+        existing_distance_from_vertex = self.count_distance(
+            route_part.route[index], route_part.route[index + 1])
         existing_distance = existing_distance_from_vertex + existing_distance_to_vertex
 
-        new_distance_to_vertex = self.count_distance(route_part.route[index - 1], vertex)
-        new_distance_from_vertex = self.count_distance(vertex, route_part.route[index + 1])
+        new_distance_to_vertex = self.count_distance(
+            route_part.route[index - 1], vertex)
+        new_distance_from_vertex = self.count_distance(
+            vertex, route_part.route[index + 1])
         new_distance = new_distance_from_vertex + new_distance_to_vertex
 
         distance = new_distance - existing_distance
@@ -237,10 +251,11 @@ class Route:
         self.__increment_distance(route_part, distance)
         return True
 
-    def replace_stop(self, route_part: RoutePart, index: int, vertex: Vertex) -> bool:
+    def replace_stop(self, route_part: RoutePart, index: int, vertex: vertices.Vertex) -> bool:
 
         if index < 0 or index > route_part.length - 1:
-            raise ValueError("Replace index is bigger than route length or is negative")
+            raise ValueError(
+                "Replace index is bigger than route length or is negative")
 
         replace_method = self.__replace_stop
 
@@ -251,13 +266,13 @@ class Route:
         else:
             replaced = replace_method(route_part, index, vertex)
             if replaced:
-                if isinstance(vertex, Company):
+                if isinstance(vertex, vertices.Company):
                     self.available_vertices.discard(vertex)
             return replaced
 
         replaced = replace_method(route_part, vertex)
         if replaced:
-            if isinstance(vertex, Company):
+            if isinstance(vertex, vertices.Company):
                 self.available_vertices.discard(vertex)
         return replaced
 
@@ -269,27 +284,31 @@ class Route:
 
         # origin part distance
         if cross_index < origin.length / 2:
-            part_distance = self.__count_part_route_part(origin, 0, cross_index)
+            part_distance = self.__count_part_route_part(
+                origin, 0, cross_index)
             new_distance += part_distance
         else:
-            part_distance = self.__count_part_route_part(origin, cross_index, origin.length - 1)
+            part_distance = self.__count_part_route_part(
+                origin, cross_index, origin.length - 1)
             new_distance += origin.distance - part_distance
 
         for vertex in origin.route[cross_index + 1:]:
-            if isinstance(vertex, Company):
+            if isinstance(vertex, vertices.Company):
                 self.available_vertices.add(vertex.id)
 
         # another part distance
-        possible_to_add = [company for company in another.route[cross_index + 1:-1] if company.id in self.available_vertices]
+        possible_to_add = [company for company in another.route[cross_index +
+                                                                1:-1] if company.id in self.available_vertices]
         tmp_route_part = RoutePart(possible_to_add + [another.route[-1]])
         self.recount_route_part(tmp_route_part)
 
         new_distance += tmp_route_part.distance
-        new_distance += self.count_distance(origin.route[cross_index], tmp_route_part.route[0])
+        new_distance += self.count_distance(
+            origin.route[cross_index], tmp_route_part.route[0])
 
         if new_distance > self.max_distance:
             for vertex in origin.route[cross_index + 1:]:
-                if isinstance(vertex, Company):
+                if isinstance(vertex, vertices.Company):
                     self.available_vertices.discard(vertex.id)
             return [None, None]
 
@@ -309,6 +328,3 @@ class Route:
         route.append(self.routes[-1].route[-1])
 
         return "->".join(map(str, route))
-
-
-

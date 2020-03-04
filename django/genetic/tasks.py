@@ -1,6 +1,5 @@
 from data import models
-from .route_optimizer import RouteOptimizer
-from .vertices import Company, Depot, Hotel
+from genetic import route_optimizer, vertices
 
 
 # @task
@@ -14,10 +13,10 @@ def do_generate_route(data):
     population_size = data['population_size']
     iterations = data['iterations']
 
-    depot = Depot(data['depots']['name'], data['depots']['coords'])
-    companies = [Company(company['name'], company['coords'], company['profit'])
+    depot = vertices.Depot(data['depots']['name'], data['depots']['coords'])
+    companies = [vertices.Company(company['name'], company['coords'], company['profit'])
                  for company in data['companies']]
-    hotels = [Hotel(hotel['name'], hotel['coords'])
+    hotels = [vertices.Hotel(hotel['name'], hotel['coords'])
               for hotel in data['hotels']]
 
     data = dict(depot=depot, companies=companies, hotels=hotels)
@@ -25,9 +24,9 @@ def do_generate_route(data):
     import cProfile
     p = cProfile.Profile()
     p.enable()
-    ro = RouteOptimizer(business_trip_id, data, tmax, days, crossover_probability=crossover_probability,
-                        mutation_probability=mutation_probability, elitsm_rate=elitism_rate,
-                        population_size=population_size, iterations=iterations)
+    ro = route_optimizer.RouteOptimizer(business_trip_id, data, tmax, days, crossover_probability=crossover_probability,
+                                        mutation_probability=mutation_probability, elitsm_rate=elitism_rate,
+                                        population_size=population_size, iterations=iterations)
     ro.generate_random_routes()
     ro.run()
     p.disable()

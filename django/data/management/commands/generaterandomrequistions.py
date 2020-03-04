@@ -1,9 +1,10 @@
-from data.models import Requistion, Company, BusinessTrip
-
 import json
 import logging
 import random
+
 from django.core.management.base import BaseCommand
+
+from data.models import BusinessTrip, Company, Requistion
 
 logger = logging.getLogger('data')
 

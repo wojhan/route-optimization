@@ -1,5 +1,7 @@
 import django_filters
-from . import models
+
+from data import models
+
 
 class EmployeeBusinessTripsFilterSet(django_filters.FilterSet):
     class Meta:

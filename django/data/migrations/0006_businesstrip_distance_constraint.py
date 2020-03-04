@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='businesstrip',
             name='distance_constraint',
-            field=models.IntegerField(default=50, verbose_name='Maksymalny limit kilometrów jednego dnia'),
+            field=models.IntegerField(
+                default=50, verbose_name='Maksymalny limit kilometrów jednego dnia'),
             preserve_default=False,
         ),
     ]

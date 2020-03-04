@@ -1,29 +1,36 @@
 import unittest
 
 from genetic.route_optimizer import RouteOptimizer
+
 from .utils import TestData
+
 
 class RouteOptimizerTestCase(unittest.TestCase):
     def setUp(self) -> None:
         pass
 
-    def __get_route_optimizer_without_breeding(self, days, pop_size = 1, elite_rate = 0.1):
-        data = dict(depot=TestData.depots[0], companies=list(TestData.companies), hotels=list(TestData.hotels))
-        ro = RouteOptimizer(1, data, 10000, days, population_size=pop_size, crossover_probability=0, mutation_probability=0, elitsm_rate=elite_rate)
+    def __get_route_optimizer_without_breeding(self, days, pop_size=1, elite_rate=0.1):
+        data = dict(depot=TestData.depots[0], companies=list(
+            TestData.companies), hotels=list(TestData.hotels))
+        ro = RouteOptimizer(1, data, 10000, days, population_size=pop_size,
+                            crossover_probability=0, mutation_probability=0, elitsm_rate=elite_rate)
         return ro
 
-    def __get_route_optimizer_default_object(self, days, pop_size = 1):
-        data = dict(depot=TestData.depots[0], companies=list(TestData.companies), hotels=list(TestData.hotels))
+    def __get_route_optimizer_default_object(self, days, pop_size=1):
+        data = dict(depot=TestData.depots[0], companies=list(
+            TestData.companies), hotels=list(TestData.hotels))
         ro = RouteOptimizer(1, data, 10000, days, population_size=pop_size)
         return ro
 
     def __get_route_optimizer_with_no_companies_possible(self, days):
-        data = dict(depot=TestData.depots[0], companies=list(), hotels=list(TestData.hotels))
+        data = dict(depot=TestData.depots[0], companies=list(
+        ), hotels=list(TestData.hotels))
         ro = RouteOptimizer(1, data, 0, days, population_size=1)
         return ro
 
     def __get_route_optimizer_with_only_one_possible_company(self, days):
-        data = dict(depot=TestData.depots[0], companies=[TestData.companies[0]], hotels=list(TestData.hotels))
+        data = dict(depot=TestData.depots[0], companies=[
+                    TestData.companies[0]], hotels=list(TestData.hotels))
         ro = RouteOptimizer(1, data, 10000, days, population_size=1)
         return ro
 
@@ -36,7 +43,8 @@ class RouteOptimizerTestCase(unittest.TestCase):
     def test_init_distances_length_is_equal_to_sum_of_vertices(self):
         ro = self.__get_route_optimizer_default_object(1)
 
-        expected_length = len(TestData.depots + TestData.companies + TestData.hotels)
+        expected_length = len(
+            TestData.depots + TestData.companies + TestData.hotels)
         self.assertEqual(len(ro.distances), expected_length)
 
     # def test_init_distances_each_distance_dict_is_equal_to_sum_of_vertices(self):
@@ -69,7 +77,8 @@ class RouteOptimizerTestCase(unittest.TestCase):
         ro.generate_random_routes()
 
         expected_first_element = TestData.depots[0]
-        self.assertEqual(ro.population[0][0].get_route_part(0).route[0], expected_first_element)
+        self.assertEqual(ro.population[0][0].get_route_part(
+            0).route[0], expected_first_element)
 
     def test_generate_random_route_for_one_day_has_depot_on_last_element_of_route(self):
         ro = self.__get_route_optimizer_default_object(1)
@@ -77,15 +86,18 @@ class RouteOptimizerTestCase(unittest.TestCase):
         ro.generate_random_routes()
 
         expected_last_element = TestData.depots[0]
-        self.assertEqual(ro.population[0][0].get_route_part(0).route[-1], expected_last_element)
+        self.assertEqual(ro.population[0][0].get_route_part(
+            0).route[-1], expected_last_element)
 
     def test_generate_random_route_for_one_day_has_n_additional_companies_in_route(self):
         ro = self.__get_route_optimizer_default_object(1)
 
         ro.generate_random_routes()
 
-        expected_route_length = min(3*ro.generate_tries, len(TestData.companies)) + 2
-        self.assertEqual(len(ro.population[0][0].get_route_part(0).route), expected_route_length)
+        expected_route_length = min(
+            3*ro.generate_tries, len(TestData.companies)) + 2
+        self.assertEqual(
+            len(ro.population[0][0].get_route_part(0).route), expected_route_length)
 
     def test_generate_random_route_for_one_day_creates_a_population_with_only_one_route(self):
         ro = self.__get_route_optimizer_default_object(1)
@@ -100,9 +112,11 @@ class RouteOptimizerTestCase(unittest.TestCase):
 
         ro.generate_random_routes()
 
-        route_set_length = len(set(ro.population[0][0].get_route_part(0).route))
+        route_set_length = len(
+            set(ro.population[0][0].get_route_part(0).route))
         expected_route_length = route_set_length + 1
-        self.assertEqual(len(ro.population[0][0].get_route_part(0).route), expected_route_length)
+        self.assertEqual(
+            len(ro.population[0][0].get_route_part(0).route), expected_route_length)
 
     def test_generate_random_route_for_one_day_has_correct_profit(self):
         ro = self.__get_route_optimizer_with_only_one_possible_company(1)
@@ -127,8 +141,10 @@ class RouteOptimizerTestCase(unittest.TestCase):
         ro.generate_random_routes()
 
         expected_first_element = TestData.depots[0]
-        first_element_of_first_route_part = ro.population[0][0].get_route_part(0).route[0]
-        self.assertEqual(first_element_of_first_route_part, expected_first_element)
+        first_element_of_first_route_part = ro.population[0][0].get_route_part(
+            0).route[0]
+        self.assertEqual(first_element_of_first_route_part,
+                         expected_first_element)
 
     def test_generate_random_route_for_two_days_has_depot_on_last_element_of_second_route_part(self):
         ro = self.__get_route_optimizer_default_object(2)
@@ -136,8 +152,10 @@ class RouteOptimizerTestCase(unittest.TestCase):
         ro.generate_random_routes()
 
         expected_last_element = TestData.depots[0]
-        last_element_of_second_route_part = ro.population[0][0].get_route_part(1).route[-1]
-        self.assertEqual(last_element_of_second_route_part, expected_last_element)
+        last_element_of_second_route_part = ro.population[0][0].get_route_part(
+            1).route[-1]
+        self.assertEqual(last_element_of_second_route_part,
+                         expected_last_element)
 
     # def test_generate_random_route_for_two_days_both_route_parts_has_common_hotel(self):
     #     ro = self.__get_route_optimizer_default_object(2)
@@ -155,8 +173,10 @@ class RouteOptimizerTestCase(unittest.TestCase):
 
         first_route_part_route = ro.population[0][0].get_route_part(0).route
         second_route_part_route = ro.population[0][0].get_route_part(1).route
-        route_length = len(first_route_part_route[1:-1] + second_route_part_route[1:-1]) + 4
-        expected_route_length = len(set(first_route_part_route[1:-1] + second_route_part_route[1:-1])) + 4
+        route_length = len(
+            first_route_part_route[1:-1] + second_route_part_route[1:-1]) + 4
+        expected_route_length = len(
+            set(first_route_part_route[1:-1] + second_route_part_route[1:-1])) + 4
         self.assertEqual(route_length, expected_route_length)
 
     def test_generate_random_route_for_more_than_two_days_has_route_part_distances_less_than_equal_max_distance(self):
@@ -182,7 +202,8 @@ class RouteOptimizerTestCase(unittest.TestCase):
         ro.generate_random_routes()
 
         expected_start_element = TestData.depots[0]
-        self.assertEqual(ro.population[0][0].get_route_part(0).route[0], expected_start_element)
+        self.assertEqual(ro.population[0][0].get_route_part(
+            0).route[0], expected_start_element)
 
     def test_generate_random_route_for_more_than_two_days_stops_at_depot(self):
         ro = self.__get_route_optimizer_default_object(3)
@@ -190,7 +211,8 @@ class RouteOptimizerTestCase(unittest.TestCase):
         ro.generate_random_routes()
 
         expected_stop_element = TestData.depots[0]
-        self.assertEqual(ro.population[0][0].get_route_part(2).route[-1], expected_stop_element)
+        self.assertEqual(ro.population[0][0].get_route_part(
+            2).route[-1], expected_stop_element)
 
     # run
 
