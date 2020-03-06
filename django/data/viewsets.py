@@ -10,13 +10,10 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from genetic.tasks import do_generate_route
-
 from data import filters as data_filters
-from data import models
-from data import permissions
-from data import serializers
+from data import models, permissions, serializers
 from data.utils import generate_data_for_route
+from genetic.tasks import do_generate_route
 
 
 class StandardResultsSetPagination(PageNumberPagination):
