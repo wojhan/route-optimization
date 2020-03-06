@@ -119,6 +119,7 @@ class TestModels:
         profile = self.__prepare_user_profile()
         business_trip = self.prepare_business_trip_with_route()
         business_trip.assignee = profile
+        business_trip.finish_date = datetime.datetime.now() - datetime.timedelta(days=1)
         business_trip.save()
 
         expected_total_distance = 20
