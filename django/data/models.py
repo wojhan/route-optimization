@@ -88,7 +88,7 @@ class Hotel(Company):
 class BusinessTrip(models.Model):
     start_date = models.DateTimeField(verbose_name="data rozpoczęcia")
     finish_date = models.DateTimeField(verbose_name="data zakończenia")
-    route_version = models.IntegerField(verbose_name="Wersja", default=0)
+    route_version = models.IntegerField(verbose_name="Wersja", default=1)
     distance_constraint = models.IntegerField(
         verbose_name="Maksymalny limit kilometrów jednego dnia")
     assignee = models.ForeignKey(
@@ -114,7 +114,7 @@ class BusinessTrip(models.Model):
     @cached_property
     def distance(self):
         distance = 0
-        for route in self.routes.all():
+        for route in self.get_routes_for_version():
             distance += route.distance
         return distance
 
