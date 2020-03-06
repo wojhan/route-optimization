@@ -7,7 +7,7 @@ export class DashboardService {
   private isSidebarHidden: boolean;
 
   constructor() {
-    this.isSidebarHidden = localStorage.getItem('isSidebarHidden') === 'false' ? false : true;
+    this.isSidebarHidden = localStorage.getItem('isSidebarHidden') !== 'false';
     if (!this.isSidebarHidden) {
       this.isSidebarHidden = false;
     }

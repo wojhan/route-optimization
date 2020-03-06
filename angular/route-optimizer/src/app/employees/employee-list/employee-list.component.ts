@@ -24,12 +24,8 @@ export class EmployeeListComponent implements OnInit {
   activeEmployeePage: Observable<Page<Employee>>;
   inactiveEmployeePage: Observable<Page<Employee>>;
 
-  activeEmployeePageUrl: BehaviorSubject<string> = new BehaviorSubject<string>(
-    `${environment.apiUrl}api/employees/?format=json&page=1&page_size=40`
-  );
-  inactiveEmployeePageUrl: BehaviorSubject<string> = new BehaviorSubject<string>(
-    `${environment.apiUrl}api/inactive-employees/?format=json&page=1&page_size=40`
-  );
+  activeEmployeePageUrl: BehaviorSubject<string>;
+  inactiveEmployeePageUrl: BehaviorSubject<string>;
 
   constructor(private employeesService: EmployeesService, public dialog: MatDialog) {}
 
@@ -42,11 +38,15 @@ export class EmployeeListComponent implements OnInit {
       search: new FormControl()
     });
 
+    const pageSize = this.employeesService.perPage;
+    this.activeEmployeePageUrl = new BehaviorSubject(`${environment.apiUrl}api/employees/?page=1&page_size=${pageSize}`);
+    this.inactiveEmployeePageUrl = new BehaviorSubject(`${environment.apiUrl}api/employees/?is_active=false&page=1&page_size=${pageSize}`);
+
     this.activeEmployeePage = merge(
       this.activeEmployeeFilterForm.valueChanges.pipe(debounceTime(200), startWith(this.activeEmployeeFilterForm.value)),
       this.activeEmployeePageUrl
     ).pipe(
-      switchMap(urlOrFilter => this.employeesService.list(this.activeEmployeePageUrl.getValue(), urlOrFilter)),
+      switchMap(urlOrFilter => this.employeesService.list(urlOrFilter)),
       share()
     );
 
@@ -54,36 +54,17 @@ export class EmployeeListComponent implements OnInit {
       this.inactiveEmployeeFilterForm.valueChanges.pipe(debounceTime(200), startWith(this.inactiveEmployeeFilterForm.value)),
       this.inactiveEmployeePageUrl
     ).pipe(
-      switchMap(urlOrFilter => this.employeesService.list(this.inactiveEmployeePageUrl.getValue(), urlOrFilter)),
+      switchMap(urlOrFilter => this.employeesService.list(urlOrFilter)),
       share()
     );
   }
 
-  remove(employee: Employee): void {
-    // const dialogRef = this.dialog.open(DeleteModalComponent, {
-    //   width: '250px',
-    //   data: {
-    //     content: `Czy na pewno chcesz usunąć pracownika ${employee.firstName} ${employee.lastName}?`,
-    //     ok: true
-    //   }
-    // });
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if (result) {
-    //     this.employeesService.deleteEmployee(employee.id).subscribe(data => {
-    //       this.onPageChanged(this.pageUrl.getValue());
-    //     });
-    //   }
-    // });
-  }
-
   onActiveEmployeesPageChanged(page: string) {
-    // this.activeEmployeePageUrl.next(`${environment.apiUrl}api/employees/?format=json&page=${page}&page_size=40`);
     this.activeEmployeePageUrl.next(page);
     this.inactiveEmployeePageUrl.next(this.inactiveEmployeePageUrl.getValue());
   }
 
   onInactiveEmployeesPageChanged(page: string) {
-    // this.inactiveEmployeePageUrl.next(`${environment.apiUrl}api/inactive-employees/?format=json&page=${page}&page_size=40`);
     this.inactiveEmployeePageUrl.next(page);
     this.activeEmployeePageUrl.next(this.activeEmployeePageUrl.getValue());
   }

@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from 'src/app/shared/services/user.service';
 import { DashboardHomeService } from '../../dashboard-home.service';
 import { Observable } from 'rxjs';
-import { Requistion } from 'src/app/requistions/requistions.service';
+import { Requisition } from 'src/app/requistions/requistions.service';
 import { delay, tap } from 'rxjs/operators';
-import { IconDefinition, faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBillWave, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-last-requisitions',
@@ -32,6 +31,6 @@ export class LastRequisitionsComponent implements OnInit {
 }
 
 interface LastRequisitions {
-  requisitions: Observable<Requistion[]>;
+  requisitions: Observable<Requisition[]>;
   loading: boolean;
 }

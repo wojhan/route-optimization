@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardHomeService } from '../../dashboard-home.service';
-import { delay, tap, map } from 'rxjs/operators';
+import { delay, map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { BusinessTrip } from 'src/app/business-trips/business-trips.service';
+import { BusinessTripState } from '../../../../my-business-trips/my-business-trips.service';
 
 @Component({
   selector: 'app-last-business-trip',
@@ -15,7 +16,7 @@ export class LastBusinessTripComponent implements OnInit {
   constructor(private dashboardHomeService: DashboardHomeService) {}
 
   ngOnInit() {
-    const businessTrip = this.dashboardHomeService.getLastBusinessTrips(1, 'past/').pipe(
+    const businessTrip = this.dashboardHomeService.getLastBusinessTrips(1, BusinessTripState.PAST).pipe(
       delay(1000),
       tap(() => (this.lastBusinessTrip.loading = false)),
       map((businessTrips: BusinessTrip[]) =>

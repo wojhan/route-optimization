@@ -1,29 +1,29 @@
 import { Injectable } from '@angular/core';
-import { of, Observable, defer, from, concat, EMPTY } from 'rxjs';
-import { map, mergeMap, switchMap } from 'rxjs/operators';
+import { concat, defer, EMPTY, from, Observable } from 'rxjs';
+import { mergeMap, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Page, queryPaginated } from '../pagination';
-import { UserService, AuthenticatedUser } from '../shared/services/user.service';
+import { AuthenticatedUser, UserService } from '../shared/services/user.service';
 import { BusinessTrip } from '../business-trips/business-trips.service';
-import { Requistion } from '../requistions/requistions.service';
+import { Requisition } from '../requistions/requistions.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompaniesService {
-  apiUrl = 'http://localhost:8000/api/companies/';
-  perPage = 40;
-  defaultHeaders = new HttpHeaders();
+  private apiCompaniesUrl = `${environment.apiUrl}api/companies/`;
+  private perPage = environment.defaultPaginationSize;
 
   constructor(private readonly http: HttpClient, private userService: UserService) {}
 
   list(urlOrFilter?: string | object): Observable<Page<Company>> {
-    return queryPaginated<Company>(this.http, this.defaultHeaders, this.apiUrl, this.perPage, urlOrFilter);
+    return queryPaginated<Company>(this.http, new HttpHeaders(), this.apiCompaniesUrl, this.perPage, urlOrFilter);
   }
 
   getCompany(companyId: number): Observable<Company> {
-    return this.http.get<Company>(`${this.apiUrl}${companyId}/`);
+    const url = this.apiCompaniesUrl + `${companyId}/`;
+    return this.http.get<Company>(url);
   }
 
   getCompanies(urlOrFilter: string | any): Observable<Company> {
@@ -34,10 +34,8 @@ export class CompaniesService {
     let page = urlOrFilter;
 
     if (urlOrFilter instanceof Object) {
-      page = `${this.apiUrl}?search=${urlOrFilter.search}&format=json`;
+      page = this.apiCompaniesUrl + `?search=${urlOrFilter.search}`;
     }
-
-    // const page = urlOrFilter ?  :`${this.apiUrl}?search=${search}&format=json`;
 
     return defer(() => {
       return this.list(page).pipe(
@@ -54,7 +52,8 @@ export class CompaniesService {
     return this.userService.user.pipe(
       switchMap((user: AuthenticatedUser) => {
         if (user.id) {
-          return this.http.get<CompanyHistory[]>(`${this.apiUrl}${companyId}/employee/${user.id}/`);
+          const url = this.apiCompaniesUrl + `${companyId}/employee/${user.id}/`;
+          return this.http.get<CompanyHistory[]>(url);
         } else {
           return EMPTY;
         }
@@ -62,32 +61,22 @@ export class CompaniesService {
     );
   }
 
-  // getCompanies(page?): Observable<any> {
-  //   return defer(() => {
-  //     const page$ = page ? page : `${this.apiUrl}?format=json&page=1&page_size=${this.perPage}`;
-  //     return this.list(page$).pipe(
-  //       mergeMap(({ results, next }) => {
-  //         const results$ = from(results);
-  //         const next$ = next ? this.getCompanies(next) : EMPTY;
-  //         return concat(results$, next$);
-  //       })
-  //     );
-  //   });
-  // }
-
   addCompany(company: Company): Observable<Company> {
-    return this.http.post<Company>(`${this.apiUrl}`, company);
+    return this.http.post<Company>(this.apiCompaniesUrl, company);
   }
 
   editCompany(company: Company): Observable<Company> {
-    return this.http.put<Company>(`${this.apiUrl}${company.id}/`, company);
+    const url = this.apiCompaniesUrl + `${company.id}/`;
+    return this.http.put<Company>(url, company);
   }
 
   deleteCompany(companyId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}${companyId}/`);
+    const url = this.apiCompaniesUrl + `${companyId}/`;
+    return this.http.delete(url);
   }
 
   getCoordsFromAddress(address: string): Observable<any> {
+    // TODO: move it to map service
     return this.http.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${localStorage.getItem('apiKey')}`);
   }
 
@@ -114,5 +103,5 @@ export class CompanyHistory {
   endPoint: Company;
   day: number;
   businessTrip: BusinessTrip;
-  requisition: Requistion;
+  requisition: Requisition;
 }

@@ -1,11 +1,9 @@
-import { Component, OnInit, Output, EventEmitter, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, FormArray } from '@angular/forms';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Employee, EmployeesService } from 'src/app/employees/employees.service';
-import { Observable, merge, BehaviorSubject, Subject, of, concat, from } from 'rxjs';
-import { startWith, map, debounceTime, switchMap, share, filter, tap, finalize } from 'rxjs/operators';
-import { Page } from 'src/app/pagination';
-import { Requistion, RequistionsService } from 'src/app/requistions/requistions.service';
-import { Company } from 'src/app/companies/companies.service';
+import { concat, from, of, Subject } from 'rxjs';
+import { debounceTime, filter, finalize, map, share, startWith, switchMap, tap } from 'rxjs/operators';
+import { Requisition, RequistionsService } from 'src/app/requistions/requistions.service';
 
 @Component({
   selector: 'app-business-trip-form',
@@ -25,7 +23,7 @@ export class BusinessTripFormComponent implements OnInit {
   @Input()
   public submitButtonEnabled = true;
 
-  requistions: Requistion[] = [];
+  requistions: Requisition[] = [];
   availableEmployees: AutoCompleteEmployee = { loading: new Subject<boolean>(), results: [] };
 
   constructor(
@@ -71,10 +69,15 @@ export class BusinessTripFormComponent implements OnInit {
       tap(() => (this.requistions = [])),
       switchMap(() =>
         concat(
-          from(this.businessTripForm.get('requistions').value).pipe(map((requisition: Requistion) => ({ requisition, checked: true }))),
+          from(this.businessTripForm.get('requistions').value).pipe(
+            map((requisition: Requisition) => ({
+              requisition,
+              checked: true
+            }))
+          ),
           this.requisitionsService
             .getRequisitions(this.businessTripForm.get('assignee').value.id)
-            .pipe(map((requisition: Requistion) => ({ requisition, checked: false })))
+            .pipe(map((requisition: Requisition) => ({ requisition, checked: false })))
         ).pipe(
           finalize(() => {
             this.cdRef.detectChanges();
@@ -115,8 +118,7 @@ export class BusinessTripFormComponent implements OnInit {
   isRequistionChecked(requistion) {
     const formArray: FormArray = this.businessTripForm.get('requistions') as FormArray;
     if (formArray.controls.length > 0) {
-      const foundRequistion = formArray.controls.find(element => JSON.stringify(element.value) === JSON.stringify(requistion));
-      return foundRequistion;
+      return formArray.controls.find(element => JSON.stringify(element.value) === JSON.stringify(requistion));
     } else {
       return false;
     }

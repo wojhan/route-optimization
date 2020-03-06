@@ -1,14 +1,17 @@
 import { Injectable } from '@angular/core';
-import { UserService } from './user.service';
-import { CookieService } from 'ngx-cookie-service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private userService: UserService, public http: HttpClient, public cookieService: CookieService) {}
+  private apiTokenUrl = `${environment.apiUrl}api/token`;
+
+  constructor(private userService: UserService, public http: HttpClient) {}
 
   public isAuthenticated = false;
 
@@ -19,17 +22,7 @@ export class AuthService {
         subscriber.next(false);
       } else {
         this.http
-          .post(
-            'http://localhost:8000/api/token',
-            { token },
-            {
-              headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Token ${token}`
-              }),
-              responseType: 'json'
-            }
-          )
+          .post<UserToken>(this.apiTokenUrl, { token })
           .subscribe(
             (data: UserToken) => {
               this.userService.userHyperlink.next(data.user);
