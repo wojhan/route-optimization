@@ -1,26 +1,20 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { CookieService } from 'ngx-cookie-service';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { UserService } from './shared/services/user.service';
-import { AuthGuard } from './shared/guards/auth.guard';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { LoginModule } from './login/login.module';
-import { CompaniesModule } from './companies/companies.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { EmployeesModule } from './employees/employees.module';
-import { BusinessTripsModule } from './business-trips/business-trips.module';
 import { registerLocaleData } from '@angular/common';
 import localePl from '@angular/common/locales/pl';
 import localePlExtra from '@angular/common/locales/extra/pl';
-import { HttpConfigInterceptor } from './shared/http-config.interceptor';
-import { RegistrationModule } from './registration/registration.module';
-import { RequistionsModule } from './requistions/requistions.module';
-import { MyBusinessTripsModule } from './my-business-trips/my-business-trips.module';
-import { MapComponent } from './map/map.component';
+import { HttpConfigInterceptor } from './core/interceptors/http-config.interceptor';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { LoginModule } from './modules/login/login.module';
+import { RegistrationModule } from './modules/registration/registration.module';
+import { CompaniesModule } from './modules/dashboard/pages/companies/companies.module';
+import { RequisitionsModule } from './modules/dashboard/pages/requisitions/requisitions.module';
+import { MyBusinessTripsModule } from './modules/dashboard/pages/my-business-trips/my-business-trips.module';
 registerLocaleData(localePl, localePlExtra);
 
 @NgModule({
@@ -29,17 +23,15 @@ registerLocaleData(localePl, localePlExtra);
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    DashboardModule,
-    LoginModule,
-    RegistrationModule,
-    CompaniesModule,
     BrowserAnimationsModule,
-    EmployeesModule,
-    BusinessTripsModule,
+    DashboardModule,
+    CompaniesModule,
+    RequisitionsModule,
     MyBusinessTripsModule,
-    RequistionsModule
+    LoginModule,
+    RegistrationModule
   ],
-  providers: [UserService, AuthGuard, CookieService, { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }],
+  providers: [{ provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

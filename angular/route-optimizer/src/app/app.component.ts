@@ -1,19 +1,12 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from './core/services/authentication.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  templateUrl: './app.component.html'
 })
-export class AppComponent implements OnInit, AfterViewInit {
-  public currentUser: any;
-
-  constructor(private cdRef: ChangeDetectorRef) {}
+export class AppComponent implements OnInit {
+  constructor(private readonly authenticationService: AuthenticationService) {}
 
   ngOnInit() {}
-
-  ngAfterViewInit() {
-    this.cdRef.detectChanges();
-  }
 }

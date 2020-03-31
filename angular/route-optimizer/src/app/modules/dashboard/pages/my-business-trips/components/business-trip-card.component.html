@@ -1,0 +1,24 @@
+<div class="card h-100 px-0">
+  <div class="card-header">
+    <a [routerLink]="['/dashboard/business-trips', businessTrip.id]">
+      {{ businessTrip.startDate | date: 'dd.MM.y':undefined:'pl' }} -
+      {{ businessTrip.finishDate | date: 'dd.MM.y':undefined:'pl' }}
+    </a>
+  </div>
+  <div class="card-body">
+    <div *ngIf="!businessTrip.isProcessed" class="h-100">
+      <div style="display: flex; flex-direction: column; justify-content: center; align-items:center; height:100%; margin: auto;">
+        <h3>Trwa przeliczanie trasy</h3>
+        <app-lds-roller></app-lds-roller>
+      </div>
+    </div>
+    <!--    <app-map *ngIf="businessTrip.isProcessed" [mapId]="mapId" [businessTrip]="businessTrip"></app-map>-->
+  </div>
+  <div class="card-footer">
+    <div class="row">
+      <div class="col-auto">Czas trwania: {{ businessTrip.duration }} dni</div>
+      <div class="col-auto" *ngIf="businessTrip.isProcessed">Dystans: {{ businessTrip.distance }} km</div>
+      <div class="col-auto" *ngIf="businessTrip.isProcessed">Liczba firm: {{ businessTrip.routes.length }}</div>
+    </div>
+  </div>
+</div>
