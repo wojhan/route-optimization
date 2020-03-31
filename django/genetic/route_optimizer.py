@@ -2,6 +2,7 @@ import logging
 import math
 import random
 from datetime import datetime
+from time import sleep
 from typing import List
 
 import channels.layers
@@ -12,6 +13,10 @@ from asgiref.sync import async_to_sync
 from genetic import routes, utils, vertices
 
 logger = logging.getLogger('data')
+
+class NotEnoughCompaniesException(Exception):
+    def __init__(self):
+        super().__init__("Not enough companies to create a route for given number of days.");
 
 
 class RouteObserver:
@@ -233,7 +238,7 @@ class RouteOptimizer:
                         break
                     current_index = (current_index + 1) % len(to_process)
                     continue
-
+                #TODO: after first add, try to add the nearest hotel, then in the end, update the nearest hotels for whole route.
                 random_index = random.randint(
                     1, current.length - 2) if current.length > 2 else 1
                 self.__add_random_company_to_route(
@@ -345,3 +350,4 @@ class RouteOptimizer:
                 break
             logger.info('Finished processing iteration %d of %d' %
                         (i, self.iterations))
+            sleep(10)

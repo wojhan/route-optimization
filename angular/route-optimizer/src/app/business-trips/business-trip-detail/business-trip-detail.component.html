@@ -1,5 +1,10 @@
 <div class="container" *ngIf="pageLoaded; else loading">
-  <div class="row" *ngIf="businessTrip && businessTrip.routes.length > 0; else processingData">
+  <div class="row" *ngIf="errors">
+    <div class="alert alert-danger">
+      <p *ngFor="let error of errors">{{ error }}</p>
+    </div>
+  </div>
+  <div class="row" *ngIf="businessTrip && !errors; else processingData">
     <div class="col">
       <p>Delegacja pracownika {{ businessTrip.assignee.firstName }} {{ businessTrip.assignee.lastName }}</p>
     </div>
@@ -15,7 +20,7 @@
       </mat-form-field>
     </div>
   </div>
-  <div class="row" style="height: 600px">
+  <div <div class="row" style="height: 600px">
     <div class="col">
       <div id="map" class="map" style="width: 100%; height: 100%"></div>
     </div>

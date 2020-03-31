@@ -3,6 +3,7 @@ from data import models
 
 def generate_data_for_route(business_trip, data, crossover_probability=0.7, mutation_probability=0.4, elitism_rate=0.1,
                             population_size=40, iterations=1000):
+
     requisitions = [models.Requistion.objects.get(
         id=requistion_data['id']) for requistion_data in data['requistions']]
 

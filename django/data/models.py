@@ -95,6 +95,7 @@ class BusinessTrip(models.Model):
         Profile, on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
     is_processed = models.BooleanField(
         verbose_name="przetworzona", default=False)
+    task_id = models.CharField(max_length=36, null=True)
 
     @cached_property
     def duration(self):

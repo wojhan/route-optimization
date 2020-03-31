@@ -165,7 +165,7 @@ class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
                              required=False, source='get_routes_for_version')
     max_distance = serializers.IntegerField(source='distance_constraint')
 
-    def validate_company(self, value):
+    def _validate_company(self, value):
         company = {}
 
         for key, v in value.items():

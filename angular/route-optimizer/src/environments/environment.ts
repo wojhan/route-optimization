@@ -4,10 +4,10 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8000/',
+  apiUrl: 'http://192.168.8.69:8000/',
   defaultPaginationSize: 40,
   numberOfBusinessTripsInCategory: 6,
-  osrmServerUrl: 'http://80.211.216.83:5000/'
+  osrmServerUrl: 'http://192.168.8.69:5000/'
 };
 
 /*

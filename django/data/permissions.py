@@ -5,6 +5,9 @@ class IsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
 
+        if request.user.is_staff:
+            return True
+
         if hasattr(obj, 'assignee'):
             return obj.assignee == request.user.profile
 
