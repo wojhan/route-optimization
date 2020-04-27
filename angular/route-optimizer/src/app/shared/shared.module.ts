@@ -4,20 +4,20 @@ import { CommonModule } from '@angular/common';
 import { JwPaginationComponent } from 'jw-angular-pagination';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { AgmCoreModule, GoogleMapsAPIWrapper } from '@agm/core';
 
-// import { BreadcrumbModule } from 'primeng';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
-
-import { AgmDirectionModule } from 'agm-direction';
-import { DeleteModalComponent } from './components/delete-modal/delete-modal.component';
-import { MaterialModule } from '../material/material.module';
-import { PaginatorComponent } from '../paginator/paginator.component';
+import { MaterialModule } from '../modules/material/material.module';
 import { LdsRollerComponent } from './components/lds-roller/lds-roller.component';
-import { MapComponent } from '../map/map.component';
+import { PaginatorComponent } from './components/paginator/paginator.component';
+
+// import { DeleteModalComponent } from './components/delete-modal/delete-modal.component';
+// import { MaterialModule } from '../material/material.module';
+// import { PaginatorComponent } from '../paginator/paginator.component';
+// import { LdsRollerComponent } from './components/lds-roller/lds-roller.component';
+// import { MapComponent } from '../map/map.component';
 
 @NgModule({
-  declarations: [MapComponent, JwPaginationComponent, DeleteModalComponent, PaginatorComponent, LdsRollerComponent],
+  declarations: [LdsRollerComponent, JwPaginationComponent, PaginatorComponent],
   imports: [
     CommonModule,
     FontAwesomeModule,
@@ -26,16 +26,9 @@ import { MapComponent } from '../map/map.component';
     MatInputModule,
     ReactiveFormsModule,
     MaterialModule,
-    AgmCoreModule.forRoot({
-      apiKey: localStorage.getItem('apiKey')
-    }),
-    AgmDirectionModule,
     BreadcrumbModule
   ],
-  entryComponents: [DeleteModalComponent],
   exports: [
-    AgmCoreModule,
-    AgmDirectionModule,
     ReactiveFormsModule,
     JwPaginationComponent,
     CommonModule,
@@ -43,12 +36,12 @@ import { MapComponent } from '../map/map.component';
     MatFormFieldModule,
     MatInputModule,
     MaterialModule,
-    DeleteModalComponent,
-    PaginatorComponent,
+    // DeleteModalComponent,
+    // PaginatorComponent,
     LdsRollerComponent,
     BreadcrumbModule,
-    MapComponent
-  ],
-  providers: [GoogleMapsAPIWrapper]
+    PaginatorComponent
+    // MapComponent
+  ]
 })
 export class SharedModule {}

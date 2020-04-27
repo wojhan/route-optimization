@@ -1,14 +1,15 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { LoginComponent } from './login/pages/login/login.component';
-import { RegistrationComponent } from './registration/registration.component';
-import { RegistrationCompleteComponent } from './registration/registration-complete/registration-complete.component';
+import { RouterModule, Routes } from '@angular/router';
+import { LoginPage } from './modules/login/pages/login.page';
+import { RegistrationPage } from './modules/registration/pages/registration.page';
+import { RegistrationCompletePage } from './modules/registration/pages/registration-complete.page';
+import { NoAuthGuard } from './core/guards/no-auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'prefix' },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegistrationComponent },
-  { path: 'register/complete', component: RegistrationCompleteComponent }
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: 'login', component: LoginPage, canActivate: [NoAuthGuard] },
+  { path: 'register', component: RegistrationPage, canActivate: [NoAuthGuard] },
+  { path: 'register/complete', component: RegistrationCompletePage, canActivate: [NoAuthGuard] }
 ];
 
 @NgModule({

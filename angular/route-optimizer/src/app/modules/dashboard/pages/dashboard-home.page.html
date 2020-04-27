@@ -1,0 +1,35 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <h1 class="section-header">Panel użytkownika</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div id="dashboard-home">
+        <div class="row">
+          <div class="col-auto">
+            <app-profile></app-profile>
+          </div>
+          <div class="col">
+            <app-last-requisitions *ngIf="(isStaff | async) === true"></app-last-requisitions>
+            <!--            <app-inactive-users *ngIf="(isStaff | async) === true"></app-inactive-users>-->
+          </div>
+        </div>
+      </div>
+      <div id="current-information">
+        <div class="row">
+          <div class="col">
+            <app-current-business-trip></app-current-business-trip>
+          </div>
+          <div class="col">
+            <app-last-business-trip></app-last-business-trip>
+          </div>
+          <div class="col">
+            <app-business-trip-stats></app-business-trip-stats>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

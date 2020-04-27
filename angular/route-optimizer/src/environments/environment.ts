@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   apiUrl: 'http://192.168.8.69:8000/',
   defaultPaginationSize: 40,
+  maxPaginationSize: 100,
   numberOfBusinessTripsInCategory: 6,
   osrmServerUrl: 'http://192.168.8.69:5000/'
 };

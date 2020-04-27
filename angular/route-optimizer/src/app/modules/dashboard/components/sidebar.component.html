@@ -1,0 +1,51 @@
+<div class="border-right" id="sidebar-wrapper">
+  <div class="sidebar-heading">Route Optimizer</div>
+  <div class="list-group list-group-flush">
+    <a [routerLink]="['/dashboard']" routerLinkActive="router-link-active" class="list-group-item list-group-item-action">
+      <fa-icon [icon]="faTachometerAlt"></fa-icon>
+      Panel użytkownika
+    </a>
+    <a [routerLink]="['/dashboard/my-business-trips']" routerLinkActive="router-link-active" class="list-group-item list-group-item-action"
+      >Twoje delegacje</a
+    >
+    <a [routerLink]="['/dashboard/companies']" routerLinkActive="router-link-active" class="list-group-item list-group-item-action">
+      <fa-icon [icon]="faBuilding"></fa-icon>
+      Firmy
+    </a>
+    <div class="list-group list-group-flush">
+      <a [routerLink]="['/dashboard/companies']" routerLinkActive="router-link-active" class="list-group-item list-group-item-action"
+        >Przeglądaj</a
+      >
+      <a [routerLink]="['/dashboard/companies/add']" href="#" class="list-group-item list-group-item-action">Dodaj firmę</a>
+    </div>
+    <a [routerLink]="['/dashboard/requisitions']" routerLinkActive="router-link-active" class="list-group-item list-group-item-action">
+      <fa-icon [icon]="faMoneyBillWave"></fa-icon>
+      Oferty
+    </a>
+    <div class="list-group list-group-flush">
+      <a [routerLink]="['/dashboard/requisitions']" routerLinkActive="router-link-active" class="list-group-item list-group-item-action"
+        >Przeglądaj</a
+      >
+      <a [routerLink]="['/dashboard/requisitions/add']" routerLinkActive="router-link-active" class="list-group-item list-group-item-action"
+        >Dodaj ofertę</a
+      >
+    </div>
+    <!--    <a-->
+    <!--      class="list-group-item list-group-item-action"-->
+    <!--      [routerLink]="['/dashboard/employees']"-->
+    <!--      *ngIf="isStaff"-->
+    <!--      routerLinkActive="router-link-active"-->
+    <!--    >-->
+    <!--      <fa-icon [icon]="faUsers"></fa-icon>-->
+    <!--      Pracownicy-->
+    <!--    </a>-->
+    <!--    <div class="list-group list-group-flush" *ngIf="isStaff">-->
+    <!--      <a class="list-group-item list-group-item-action" [routerLink]="['/dashboard/employees']" routerLinkActive="router-link-active"-->
+    <!--        >Przeglądaj</a-->
+    <!--      >-->
+    <!--      <a class="list-group-item list-group-item-action" [routerLink]="['/dashboard/business-trips']" routerLinkActive="router-link-active"-->
+    <!--        >Delegacje</a-->
+    <!--      >-->
+    <!--    </div>-->
+  </div>
+</div>
