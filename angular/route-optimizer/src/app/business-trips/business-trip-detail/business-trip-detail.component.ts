@@ -19,6 +19,7 @@ export class BusinessTripDetailComponent implements OnInit, OnDestroy, AfterView
   businessTrip: BusinessTrip;
 
   routes = [];
+  errors = [];
 
   currentProgress = 0;
   timeLeft;
@@ -52,44 +53,74 @@ export class BusinessTripDetailComponent implements OnInit, OnDestroy, AfterView
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id');
+    this.errors = [];
 
     this.businessTripsService
       .getBusinessTrip(id)
       .pipe(
-        delay(1000),
-        map(businessTrip => (this.businessTrip = businessTrip)),
-        switchMap(businessTrip => {
-          if (businessTrip.routes.length > 0) {
-            return of(businessTrip);
+        switchMap((businessTrip: BusinessTrip) => {
+          if (businessTrip.isProcessed && businessTrip.routes.length > 0) {
+            return of({ type: 'businessTrip', data: businessTrip });
           } else {
-            return this.wsService.connect(`ws://localhost:8000/ws/business_trip/${id}/`).pipe(
-              switchMap((message: any) => {
-                if (message.message === 1) {
-                  return concat(this.businessTripsService.getBusinessTrip(id), EMPTY);
-                } else {
-                  return of(message);
-                }
-              })
-            );
+            return this.wsService.connect(`ws://localhost:8000/ws/business_trip/${id}/`).pipe(map(data => ({ type: 'ws', data })));
           }
         })
       )
-      .subscribe(data => {
-        if (data.id) {
-          this.businessTrip = data;
-          for (let i = 0; i < this.businessTrip.duration; i++) {
-            this.routes[i] = this.businessTrip.routes.filter(singleRoute => singleRoute.day === i);
+      .subscribe({
+        next: (result: BusinessTripWSResponse) => {
+          if (result.type === 'businessTrip') {
+            this.pageLoaded = true;
+            this.businessTrip = result.data as BusinessTrip;
           }
-
+          if (result.type === 'ws') {
+            const data: BusinessTripTask = result.data as BusinessTripTask;
+            if (data.error) {
+              this.pageLoaded = true;
+              this.errors.push(data.message);
+            }
+          }
+          console.log(result);
           this.cdRef.detectChanges();
-        } else {
-          this.currentProgress = parseFloat(data.message);
-          this.timeLeft = data.timeLeft;
-          this.cdRef.detectChanges();
-        }
-        this.pageLoaded = true;
-        this.cdRef.detectChanges();
+        },
+        error: err => console.log(err)
       });
+    // this.businessTripsService
+    //   .getBusinessTrip(id)
+    //   .pipe(
+    //     delay(1000),
+    //     map(businessTrip => (this.businessTrip = businessTrip)),
+    //     switchMap(businessTrip => {
+    //       if (businessTrip.routes.length > 0) {
+    //         return of(businessTrip);
+    //       } else {
+    //         return this.wsService.connect(`ws://localhost:8000/ws/business_trip/${id}/`).pipe(
+    //           switchMap((message: any) => {
+    //             if (message.message === 1) {
+    //               return concat(this.businessTripsService.getBusinessTrip(id), EMPTY);
+    //             } else {
+    //               return of(message);
+    //             }
+    //           })
+    //         );
+    //       }
+    //     })
+    //   )
+    //   .subscribe(data => {
+    //     if (data.id) {
+    //       this.businessTrip = data;
+    //       for (let i = 0; i < this.businessTrip.duration; i++) {
+    //         this.routes[i] = this.businessTrip.routes.filter(singleRoute => singleRoute.day === i);
+    //       }
+    //
+    //       this.cdRef.detectChanges();
+    //     } else {
+    //       this.currentProgress = parseFloat(data.message);
+    //       this.timeLeft = data.timeLeft;
+    //       this.cdRef.detectChanges();
+    //     }
+    //     this.pageLoaded = true;
+    //     this.cdRef.detectChanges();
+    //   });
   }
 
   ngAfterViewChecked() {
@@ -195,4 +226,14 @@ export class BusinessTripDetailComponent implements OnInit, OnDestroy, AfterView
 interface UpdateMapControl {
   source?: MatSelect;
   value: string;
+}
+
+interface BusinessTripWSResponse {
+  type: string;
+  data: BusinessTripTask | BusinessTrip;
+}
+
+interface BusinessTripTask {
+  error: boolean;
+  message: string;
 }

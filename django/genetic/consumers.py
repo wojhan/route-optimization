@@ -1,6 +1,9 @@
 import json
 
+from celery.result import AsyncResult
 from channels.generic.websocket import AsyncWebsocketConsumer
+
+from data import models
 
 
 class RouteConsumer(AsyncWebsocketConsumer):
@@ -22,6 +25,23 @@ class RouteConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
+
+        business_trip = models.BusinessTrip.objects.get(pk=int(self.room_name))
+        task = business_trip.task_id
+        if task:
+            result = AsyncResult(task)
+            if result.ready():
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'task_result',
+                        'error': result.state != 'SUCCESS',
+                        'result': str(result.result)
+                    }
+                )
+                business_trip.is_processed = True
+                business_trip.save()
+
 
     async def disconnect(self, code):
         # Leave room group
@@ -50,4 +70,15 @@ class RouteConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps({
             'message': message
+        }))
+
+    async def task_result(self, event):
+        error = event['error']
+        result = event['result']
+
+        print(result)
+
+        await self.send(text_data=json.dumps({
+            'error': error,
+            'message': result
         }))
