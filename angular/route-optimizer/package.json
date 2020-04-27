@@ -33,6 +33,7 @@
     "leaflet": "^1.6.0",
     "leaflet-routing-machine": "^3.2.12",
     "ngx-cookie-service": "^2.3.0",
+    "ngx-toastr": "^11.3.3",
     "primeicons": "^2.0.0",
     "primeng": "^9.0.0-rc.4",
     "rxjs": "~6.4.0",
