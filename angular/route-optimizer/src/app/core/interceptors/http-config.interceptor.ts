@@ -5,10 +5,11 @@ import { EMPTY, Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
-  constructor(private location: Location, private router: Router) {}
+  constructor(private location: Location, private router: Router, private toastr: ToastrService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const { apiUrl } = environment;
@@ -30,6 +31,13 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
+        console.log(error);
+        if (error && error.status === 0 && error.url.includes(environment.apiUrl)) {
+          this.toastr.error('Brak połączenia z serwerem');
+        }
+        if (error && error.status === 500) {
+          this.toastr.error('Podczas przetwarzania żądania wystąpił błąd serwera');
+        }
         if (error && error.status === 401) {
           this.router.navigate(['/login']);
         }
