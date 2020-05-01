@@ -1,13 +1,9 @@
-export class Company {
-  id: number;
+export interface CompanyFormData {
   name: string;
   nameShort: string;
-  nip: string;
+  nip: number;
   street: string;
   houseNo: string;
   postcode: string;
   city: string;
-  latitude: number;
-  longitude: number;
-  addedBy: number;
 }

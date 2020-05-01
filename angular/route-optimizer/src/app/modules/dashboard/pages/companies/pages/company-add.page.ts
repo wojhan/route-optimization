@@ -1,35 +1,54 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { untilComponentDestroyed } from '@w11k/ngx-componentdestroyed';
+import { MapOptions, LatLng } from 'leaflet';
+import { ToastrService } from 'ngx-toastr';
+import { finalize } from 'rxjs/operators';
 
-import * as L from 'leaflet';
-import { UserService } from 'src/app/core/services/user.service';
-import { CompanyService } from '../../../../../core/services/company.service';
-import { Company } from '../../../../../core/models/Company';
-import { AuthenticationService } from '../../../../../core/services/authentication.service';
+import { environment } from '@route-optimizer/environment/environment';
+import { SpinnerOverlayService } from '@route-optimizer/core/services/spinner-overlay.service';
+import { Company } from '@route-optimizer/core/models/Company';
+import { CompanyModelErrorResponse } from '@route-optimizer/core/models/errors/CompanyModelErrorResponse';
+import { CompanyService } from '@route-optimizer/core/services/company.service';
+import { MapService } from '@route-optimizer/core/services/map.service';
+import { AuthenticationService } from '@route-optimizer/core/services/authentication.service';
+import { CompanyFormData } from '@route-optimizer/core/models/forms/CompanyFormData';
 
 @Component({
   selector: 'app-company-add',
   templateUrl: './company-add.page.html'
 })
-export class CompanyAddPage implements OnInit, AfterViewInit {
-  map;
-  marker;
-  lat = 53.13336;
-  lng = 23.1467987;
-  zoom = 7;
+export class CompanyAddPage implements OnInit, OnDestroy {
+  mapOptions: MapOptions;
+  markerCoordinate: Array<LatLng>;
+  lat = environment.map.defaultLat;
+  lng = environment.map.defaultLng;
+
+  editPage: boolean;
 
   companyForm: FormGroup;
 
   constructor(
-    private http: HttpClient,
-    private companiesService: CompanyService,
+    private companyService: CompanyService,
     private authenticationService: AuthenticationService,
-    private cdRef: ChangeDetectorRef
+    private mapService: MapService,
+    private toastr: ToastrService,
+    private spinner: SpinnerOverlayService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.editPage = this.route.snapshot.data.edit;
+    this.buildForm();
+    this.initMap();
+  }
+
+  ngOnDestroy(): void {}
+
+  private buildForm(): void {
     this.companyForm = new FormGroup({
       name: new FormControl('', [Validators.required]),
       nameShort: new FormControl('', [Validators.required]),
@@ -41,103 +60,56 @@ export class CompanyAddPage implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit() {
-    this.initMap();
-  }
-
-  updateForm(formData): void {
-    if (formData.city && formData.street && formData.houseNo) {
-      this.map.setZoom(7);
-      this.getCoordsFromAddress(`${formData.street} ${formData.houseNo}, ${formData.city}`).subscribe(
-        address => {
-          const results = address.results[0];
-          const location = results ? results.geometry.location : null;
-          if (location) {
-            this.lng = location.lng;
-            this.lat = location.lat;
-            if (!this.marker) {
-              this.marker = L.marker([this.lat, this.lng]).addTo(this.map);
-            } else {
-              const latLng = L.latLng(this.lat, this.lng);
-              this.map.panTo(latLng);
-              this.marker.setLatLng(latLng);
+  updateForm(formData: CompanyFormData): void {
+    const { street, houseNo, postcode, city } = formData;
+    if (street && houseNo && postcode && city) {
+      this.mapService
+        .getCoordsFromAddress(`${street} ${houseNo}, ${postcode} ${city}`)
+        .pipe(untilComponentDestroyed(this))
+        .subscribe({
+          next: (address: LatLng) => {
+            this.markerCoordinate = [address];
+          },
+          error: (err: HttpErrorResponse | Error) => {
+            this.markerCoordinate = [];
+            if (!(err instanceof HttpErrorResponse)) {
+              this.toastr.info('Nie udało się uzyskać położenia firmy. Upewnij się, że wpisany adres jest poprawny');
             }
-            this.map.setZoom(11);
           }
-        },
-        err => console.error(err)
-      );
+        });
     }
   }
 
-  private initMap(): void {
-    this.map = L.map('map', {
-      center: [this.lat, this.lng],
-      zoom: this.zoom
-    });
-
-    // this.marker = L.marker([this.lat, this.lng]).addTo(this.map);
-
-    const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
-
-    tiles.addTo(this.map);
-  }
-
   addCompany(): void {
-    const addressValue = this.companyForm.get('street').value + ' ' + this.companyForm.get('houseNo').value;
-    const postcodeValue = this.companyForm.get('postcode').value;
-    const cityValue = this.companyForm.get('city').value;
+    const latitude = this.markerCoordinate.length ? this.markerCoordinate[0].lat : null;
+    const longitude = this.markerCoordinate.length ? this.markerCoordinate[0].lng : null;
+    const addedBy = this.authenticationService.currentUser.getValue().id;
 
-    const address = `${addressValue}, ${postcodeValue} ${cityValue}`;
-    this.getCoordsFromAddress(address).subscribe(coords => {
-      let latitude = null;
-      let longitude = null;
-
-      if (coords.status === 'OK') {
-        latitude = coords.results[0].geometry.location.lat;
-        longitude = coords.results[0].geometry.location.lng;
-      }
-
-      const values = {
-        name: this.companyForm.get('name').value,
-        nameShort: this.companyForm.get('nameShort').value,
-        nip: this.companyForm.get('nip').value,
-        street: this.companyForm.get('street').value,
-        houseNo: this.companyForm.get('houseNo').value,
-        postcode: this.companyForm.get('postcode').value,
-        city: this.companyForm.get('city').value,
-        latitude,
-        longitude,
-        addedBy: this.authenticationService.currentUser.getValue().url
-      };
-      const company: Company = Object.assign(new Company(), values);
-
-      this.companiesService.addCompany(company).subscribe({
+    const company = Object.assign(new Company(), { ...this.companyForm.value, latitude, longitude, addedBy });
+    this.spinner.show();
+    this.companyService
+      .addCompany(company)
+      .pipe(
+        finalize(() => this.spinner.hide()),
+        untilComponentDestroyed(this)
+      )
+      .subscribe({
+        next: (c: Company) => {
+          this.toastr.success(`Firma ${c.nameShort} została dodana.`);
+          this.router.navigate(['/dashboard/companies']);
+        },
         error: (err: HttpErrorResponse) => {
-          const error: CompanyErrorResponse = err.error;
-          this.companyForm.get('nip').setErrors(error.nip ? { unique: true } : null);
-          this.cdRef.detectChanges();
+          if (err.status) {
+            const error: CompanyModelErrorResponse = err.error;
+            this.companyForm.get('nip').setErrors(error.nip ? { unique: true } : null);
+          }
         }
       });
-    });
   }
 
-  getCoordsFromAddress(address: string): Observable<any> {
-    return this.companiesService.getCoordsFromAddress(address);
-  }
-}
+  initMap() {
+    this.mapOptions = environment.map.defaultMapOptions as MapOptions;
 
-// export interface Company {
-//   name?: string;
-//   street?: string;
-//   streetNo?: string;
-//   city?: string;
-// }
-//
-export interface CompanyErrorResponse {
-  nonFieldErrors?: string[];
-  nip?: string[];
+    this.markerCoordinate = [];
+  }
 }

@@ -10,7 +10,7 @@ export function queryPaginated<T>(
   headers?: HttpHeaders
 ): Observable<Page<T>> {
   let params = new HttpParams();
-  let url = `${baseUrl}?page_size=${pageSize}`;
+  let url = `${baseUrl}?format=json&page_size=${pageSize}`;
 
   if (typeof urlOrFilter === 'string') {
     url = urlOrFilter;

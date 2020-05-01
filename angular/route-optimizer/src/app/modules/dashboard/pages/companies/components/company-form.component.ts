@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, Input, EventEmitter, AfterViewInit, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, Output, Input, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
+
+import { CompanyFormData } from '@route-optimizer/core/models/forms/CompanyFormData';
 
 @Component({
   selector: 'app-company-form',
   templateUrl: './company-form.component.html'
 })
-export class CompanyFormComponent implements OnInit, OnChanges {
+export class CompanyFormComponent implements OnChanges {
   @Output()
-  public formChanged: EventEmitter<FormGroup> = new EventEmitter();
+  public formChanged: EventEmitter<CompanyFormData> = new EventEmitter();
 
   @Output()
-  public formSent: EventEmitter<FormGroup> = new EventEmitter();
+  public formSent: EventEmitter<CompanyFormData> = new EventEmitter();
 
   @Input()
   public companyForm: FormGroup;
@@ -20,8 +22,6 @@ export class CompanyFormComponent implements OnInit, OnChanges {
   public submitButton;
 
   constructor() {}
-
-  ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.companyForm) {
@@ -36,6 +36,6 @@ export class CompanyFormComponent implements OnInit, OnChanges {
   }
 
   sendForm() {
-    this.formSent.emit(this.companyForm);
+    this.formSent.emit(this.companyForm.value);
   }
 }

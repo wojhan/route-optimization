@@ -12,7 +12,16 @@
     </div>
     <div class="row">
       <div class="col">
-        <div id="map" class="map"></div>
+        <app-map
+          height="300px"
+          width="100%"
+          [lat]="company.latitude"
+          [lng]="company.longitude"
+          mapId="map"
+          [mapOptions]="mapOptions"
+          [markerCoordinates]="markerCoordinates"
+        ></app-map>
+        <!--        <div id="map" class="map"></div>-->
       </div>
     </div>
     <div class="row">
@@ -20,13 +29,13 @@
         <div class="company-information">
           <p>NIP: {{ company.nip }}</p>
           <p>Adres: {{ company.street }} {{ company.houseNo }}, {{ company.postcode }} {{ company.city }}</p>
-          <div class="buttons" *ngIf="companiesService.canEdit(company)">
+          <div class="buttons" *ngIf="canEdit(company)">
             <button class="btn btn-outline-primary btn-sm" [routerLink]="['/dashboard/companies', company.id, 'edit']">Edytuj</button>
             <button class="btn btn-outline-primary btn-sm" (click)="deleteCompany()">Usuń</button>
           </div>
         </div>
       </div>
     </div>
-    <!--    <app-company-details-history [companyId]="company.id"></app-company-details-history>-->
+    <app-company-details-history [companyId]="company.id"></app-company-details-history>
   </div>
 </div>

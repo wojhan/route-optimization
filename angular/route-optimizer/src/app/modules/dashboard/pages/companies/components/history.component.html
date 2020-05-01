@@ -6,18 +6,20 @@
       </h2>
     </div>
   </div>
-  <div class="row" *ngIf="history.loading">
+  <div class="row my-5" *ngIf="history.loading">
     <div class="d-flex justify-content-center align-items-center h-100 m-auto">
       <app-lds-roller></app-lds-roller>
     </div>
   </div>
-  <div *ngIf="history.records | async; let records">
-    <div *ngIf="records.length > 0; else noHistory">
-      <!-- <div class="row">
-              <div class="col">
-                <div class="alert alert-info">Lista zawiera do 5 ostatnio dodanych przez Ciebie ofert.</div>
-              </div>
-            </div> -->
+  <div *ngIf="!history.loading">
+    <div *ngIf="history.data?.length > 0; else noHistory">
+      <div class="row">
+        <div class="col">
+          <div class="alert alert-info">
+            Lista zawiera 10 ostatnich wizyt podczas delegacji. Nie uwzględnia delegacji, które nie zostały jeszcze zakończone.
+          </div>
+        </div>
+      </div>
       <div class="row">
         <div class="col">
           <div class="table-responsive">
@@ -29,7 +31,7 @@
                   <th>Zysk</th>
                 </tr>
               </thead>
-              <tbody *ngFor="let record of records">
+              <tbody *ngFor="let record of history.data">
                 <tr>
                   <td>{{ record.businessTrip.startDateAsDate | date: 'dd.MM.y':undefined:'pl' }}</td>
                   <td>
@@ -49,14 +51,6 @@
     </div>
   </div>
 </div>
-
-<ng-template #loading>
-  <div class="h-100">
-    <div class="d-flex justify-content-center align-items-center h-100">
-      <app-lds-roller></app-lds-roller>
-    </div>
-  </div>
-</ng-template>
 
 <ng-template #noHistory>
   <div class="row">
