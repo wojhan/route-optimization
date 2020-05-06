@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from celery.result import AsyncResult
 from django.contrib import auth
 from django.db import models
 from django.utils.functional import cached_property
@@ -93,11 +94,12 @@ class BusinessTrip(models.Model):
         verbose_name="Maksymalny limit kilometrów jednego dnia")
     assignee = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
-    is_processed = models.BooleanField(
-        verbose_name="przetworzona", default=False)
+    vertices_number = models.IntegerField(verbose_name="Liczba firm oraz hoteli")
     task_id = models.CharField(max_length=36, null=True)
+    task_created = models.DateTimeField(verbose_name="data stworzenia zadania", null=True, blank=True)
+    task_finished = models.DateTimeField(verbose_name="data zakończenia zadania", null=True, blank=True)
 
-    @cached_property
+    @property
     def duration(self):
         return (self.finish_date - self.start_date).days + 1
 
@@ -109,15 +111,41 @@ class BusinessTrip(models.Model):
 
         return profit
 
-    def get_routes_for_version(self):
-        return self.routes.filter(route_version=self.route_version)
-
-    @cached_property
+    @property
     def distance(self):
         distance = 0
         for route in self.get_routes_for_version():
             distance += route.distance
         return distance
+
+    @property
+    def is_processed(self):
+        if self.task_id is None or self.task_created is None:
+            return False
+
+        task = AsyncResult(self.task_id)
+        time_diff = datetime.now() - self.task_created
+
+        # If task is stuck for more than one minute, let be false positive
+        if task.status == 'PENDING' and time_diff.seconds >= 60:
+            return True
+
+        return task.ready()
+
+    def has_error(self):
+        if not self.is_processed:
+            return None
+
+        if self.task_id is None or self.task_created is None or self.task_finished is None:
+            return 1
+
+        if not self.get_routes_for_version():
+            return 2
+
+        return None
+
+    def get_routes_for_version(self):
+        return self.routes.filter(route_version=self.route_version)
 
     def __str__(self):
         return self.start_date.strftime("%d-%m-%Y") + " - " + self.finish_date.strftime(

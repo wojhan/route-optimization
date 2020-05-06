@@ -1,5 +1,6 @@
 import datetime
 import random
+from unittest import mock
 
 import pytest
 
@@ -192,3 +193,52 @@ class TestModels:
 
         expected_distance = 20
         assert business_trip.distance == expected_distance
+
+    @pytest.mark.parametrize("model_properties, async_properties, expected", [
+        ((('task_id', None),), None, False),
+        ((('task_created', None),), None, False),
+        ((('task_id', 'whatever'), ('task_created', datetime.datetime.now())), (('status', 'PENDING'), ('ready', lambda: False)), False),
+        ((('task_id', 'whatever'), ('task_created', datetime.datetime.now())), (('status', 'PENDING'), ('ready', lambda: True)), True),
+        ((('task_id', 'whatever'), ('task_created', datetime.datetime.now() - datetime.timedelta(minutes=2))), (('status', 'PENDING'),), True),
+    ])
+    @mock.patch('data.models.AsyncResult')
+    def test_business_trip_is_processed_returns_correct_value(self, async_result, model_properties, async_properties, expected):
+        business_trip = factories.BusinessTripFactory()
+        for model_property in model_properties:
+            setattr(business_trip, model_property[0], model_property[1])
+        business_trip.save()
+        mocked = mock.MagicMock()
+        async_result.return_value = mocked
+        if async_properties:
+            for async_property in async_properties:
+                setattr(mocked, async_property[0], async_property[1])
+
+        expected_is_processed_value = expected
+        assert business_trip.is_processed == expected_is_processed_value
+
+    @pytest.mark.parametrize("model_properties, is_processed, has_routes, expected", [
+        ((('task_id', None),), True, True, 1),
+        ((('task_id', None),), False, True, None),
+        ((('task_id', 'whatever'), ('task_created', datetime.datetime.now()), ('task_finished', datetime.datetime.now())), True, True, None),
+        ((('task_id', 'whatever'), ('task_created', datetime.datetime.now()), ('task_finished', datetime.datetime.now())), True, False, 2),
+        ((('task_id', 'whatever'), ('task_created', datetime.datetime.now()), ('task_finished', datetime.datetime.now())), False, True, None)
+    ])
+    @mock.patch('data.models.BusinessTrip.get_routes_for_version')
+    @mock.patch('data.models.BusinessTrip.is_processed', new_callable=mock.PropertyMock)
+    def test_business_trip_has_error_returns_correct_value(self, mocked_is_processed, mocked_get_routes_for_version, model_properties, is_processed, has_routes, expected):
+        '''
+        if is_processed is True:
+            if task_id or task_created or task_finished is null then algorithm didn't finish his work Return error 1
+            else if get_routes_for_version is null then the given route couldn't have be found Return error 2
+            else return None
+        else:
+            return None
+        '''
+        mocked_is_processed.return_value = is_processed
+        mocked_get_routes_for_version.return_value = [mock.Mock()] if has_routes else []
+        business_trip = factories.BusinessTripFactory()
+        for model_property in model_properties:
+            setattr(business_trip, model_property[0], model_property[1])
+        business_trip.save()
+
+        assert business_trip.has_error() == expected
