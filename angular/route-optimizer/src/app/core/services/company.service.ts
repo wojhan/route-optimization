@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { concat, defer, EMPTY, from, Observable, of } from 'rxjs';
+import { map, mergeMap, tap } from 'rxjs/operators';
+
+import { environment } from '@route-optimizer/environment/environment';
 import { Page } from '../models/Page';
 import { Company } from '../models/Company';
 import { queryPaginated } from '../helpers/pagination';
-import { mergeMap } from 'rxjs/operators';
 import { CompanyHistory } from '../models/CompanyHistory';
+import { AuthenticationService } from '@route-optimizer/core/services/authentication.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +17,7 @@ export class CompanyService {
   private apiCompaniesUrl = `${environment.apiUrl}api/companies/`;
   private perPage = environment.defaultPaginationSize;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private authenticationService: AuthenticationService, private http: HttpClient) {}
 
   list(urlOrFilter?: string | object): Observable<Page<Company>> {
     return queryPaginated<Company>(this.http, this.apiCompaniesUrl, this.perPage, urlOrFilter);
@@ -49,17 +51,10 @@ export class CompanyService {
   }
 
   getUserHistory(companyId: number): Observable<CompanyHistory[]> {
-    // return this.userService.user.pipe(
-    //   switchMap((user: AuthenticatedUser) => {
-    //     if (user.id) {
-    //       const url = this.apiCompaniesUrl + `${companyId}/employee/${user.id}/`;
-    //       return this.http.get<CompanyHistory[]>(url);
-    //     } else {
-    //       return EMPTY;
-    //     }
-    //   })
-    // );
-    return of([new CompanyHistory()]);
+    const userId = this.authenticationService.currentUser.getValue().id;
+    const url = this.apiCompaniesUrl + `${companyId}/employee/${userId}/`;
+
+    return this.http.get<CompanyHistory[]>(url);
   }
 
   addCompany(company: Company): Observable<Company> {
@@ -76,14 +71,8 @@ export class CompanyService {
     return this.http.delete(url);
   }
 
-  getCoordsFromAddress(address: string): Observable<any> {
-    // TODO: move it to map service
-    return this.http.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${localStorage.getItem('apiKey')}`);
-  }
-
   canEdit(company: Company): boolean {
+    // TODO: After api's change adjust this depending on new json data.
     return true;
-    // const urlWithoutParams = company.addedBy ? company.addedBy.split('?')[0] : '0';
-    // return this.userService.profileHyperLink.getValue() === urlWithoutParams || this.userService.isStaff.getValue();
   }
 }

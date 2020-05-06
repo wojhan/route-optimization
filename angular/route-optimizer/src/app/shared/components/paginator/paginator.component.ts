@@ -7,6 +7,7 @@ import { Page } from '../../../core/models/Page';
 })
 export class PaginatorComponent implements OnInit, OnChanges {
   @Input() page: Page<any>;
+  @Input() pageUrl: string;
   @Output() pageChange = new EventEmitter<string>();
 
   counter = Array;
@@ -91,5 +92,9 @@ export class PaginatorComponent implements OnInit, OnChanges {
         }
       }
     }
+  }
+
+  updatePageUrl(page: number): void {
+    this.pageChange.emit(this.pageUrl + `&page=${page}`);
   }
 }

@@ -8,7 +8,18 @@ export const environment = {
   defaultPaginationSize: 40,
   maxPaginationSize: 100,
   numberOfBusinessTripsInCategory: 6,
-  osrmServerUrl: 'http://192.168.8.69:5000/'
+  osrmServerUrl: 'http://192.168.8.69:5000/',
+  nominatimServerUrl: 'https://nominatim.openstreetmap.org/',
+  map: {
+    defaultMapOptions: {
+      center: [52.19111111, 19.35527778],
+      zoom: 6
+    },
+    defaultLat: 52.19111111,
+    defaultLng: 19.35527778,
+    defaultZoom: 6,
+    singleElementZoom: 12
+  }
 };
 
 /*

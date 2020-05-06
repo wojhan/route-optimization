@@ -1,23 +1,21 @@
-import { NgModule } from '@angular/core';
-import { MatFormFieldModule, MatInputModule } from '@angular/material';
 import { CommonModule } from '@angular/common';
-import { JwPaginationComponent } from 'jw-angular-pagination';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule, MatInputModule } from '@angular/material';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-
+import { JwPaginationComponent } from 'jw-angular-pagination';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+
 import { MaterialModule } from '../modules/material/material.module';
 import { LdsRollerComponent } from './components/lds-roller/lds-roller.component';
 import { PaginatorComponent } from './components/paginator/paginator.component';
-
-// import { DeleteModalComponent } from './components/delete-modal/delete-modal.component';
-// import { MaterialModule } from '../material/material.module';
-// import { PaginatorComponent } from '../paginator/paginator.component';
-// import { LdsRollerComponent } from './components/lds-roller/lds-roller.component';
-// import { MapComponent } from '../map/map.component';
+import { MapComponent } from './components/map/map.component';
+import { SpinnerOverlayComponent } from './components/spinner-overlay/spinner-overlay.component';
+import { ConfirmRemoveModal } from './components/confirm-remove-modal/confirm-remove.modal';
 
 @NgModule({
-  declarations: [LdsRollerComponent, JwPaginationComponent, PaginatorComponent],
+  declarations: [LdsRollerComponent, JwPaginationComponent, PaginatorComponent, MapComponent, SpinnerOverlayComponent, ConfirmRemoveModal],
+  entryComponents: [SpinnerOverlayComponent, ConfirmRemoveModal],
   imports: [
     CommonModule,
     FontAwesomeModule,
@@ -36,12 +34,10 @@ import { PaginatorComponent } from './components/paginator/paginator.component';
     MatFormFieldModule,
     MatInputModule,
     MaterialModule,
-    // DeleteModalComponent,
-    // PaginatorComponent,
     LdsRollerComponent,
     BreadcrumbModule,
-    PaginatorComponent
-    // MapComponent
+    PaginatorComponent,
+    MapComponent
   ]
 })
 export class SharedModule {}

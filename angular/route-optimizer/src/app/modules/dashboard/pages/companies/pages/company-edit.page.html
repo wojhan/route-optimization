@@ -1,23 +1,28 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col">
-      <h1 class="section-header">Edycja firmy</h1>
-    </div>
+<div class="row">
+  <div class="col">
+    <h1 class="section-header">Edycja firmy</h1>
   </div>
-  <div id="manage-company">
-    <div class="row">
-      <div class="col-sm-12 col-xl-6">
-        <app-company-form
-          [companyForm]="companyForm"
-          (formChanged)="updateForm($event)"
-          (formSent)="editCompany($event)"
-          submitButton="Zapisz"
-        >
-        </app-company-form>
-      </div>
-      <div class="col-sm-12 col-xl-6">
-        <div id="map" class="map"></div>
-      </div>
+</div>
+<div id="manage-company">
+  <div class="row">
+    <div class="col-sm-12 col-xl-6">
+      <app-company-form
+        [companyForm]="companyForm"
+        (formChanged)="updateForm($event)"
+        (formSent)="editCompany()"
+        submitButton="Zapisz"
+      ></app-company-form>
+    </div>
+    <div class="col-sm-12 col-xl-6">
+      <app-map
+        mapId="map"
+        [height]="600"
+        [width]="600"
+        [lat]="lat"
+        [lng]="lng"
+        [mapOptions]="mapOptions"
+        [markerCoordinates]="markerCoordinate"
+      ></app-map>
     </div>
   </div>
 </div>

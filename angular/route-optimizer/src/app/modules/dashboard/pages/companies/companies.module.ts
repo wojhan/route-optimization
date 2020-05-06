@@ -7,6 +7,7 @@ import { CompanyFormComponent } from './components/company-form.component';
 import { HistoryComponent } from './components/history.component';
 import { CompanyDetailsPage } from './pages/company-details.page';
 import { CompanyListPage } from './pages/company-list.page';
+import { CompaniesResolve } from './companies.resolver';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { CompanyListPage } from './pages/company-list.page';
     CompanyFormComponent,
     HistoryComponent
   ],
+  providers: [CompaniesResolve],
   imports: [SharedModule]
 })
 export class CompaniesModule {}

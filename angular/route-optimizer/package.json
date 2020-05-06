@@ -28,6 +28,7 @@
     "@fortawesome/angular-fontawesome": "^0.5.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.26",
     "@fortawesome/free-solid-svg-icons": "^5.12.0",
+    "@w11k/ngx-componentdestroyed": "^4.1.5",
     "agm-direction": "0.6.0",
     "jw-angular-pagination": "^1.1.0",
     "leaflet": "^1.6.0",

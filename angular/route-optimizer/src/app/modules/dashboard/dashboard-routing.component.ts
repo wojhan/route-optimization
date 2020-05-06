@@ -10,6 +10,7 @@ import { CompanyEditPage } from './pages/companies/pages/company-edit.page';
 import { CompanyDetailsPage } from './pages/companies/pages/company-details.page';
 import { RequistionListPage } from './pages/requisitions/pages/requistion-list.page';
 import { MyBusinessTripsPage } from './pages/my-business-trips/pages/my-business-trips.page';
+import { CompaniesResolve } from './pages/companies/companies.resolver';
 
 const dashboardRoutes: Routes = [
   {
@@ -52,14 +53,16 @@ const dashboardRoutes: Routes = [
             component: CompanyEditPage,
             data: {
               breadcrumb: 'Edycja firmy'
-            }
+            },
+            resolve: { company: CompaniesResolve }
           },
           {
             path: ':id',
             component: CompanyDetailsPage,
             data: {
               breadcrumb: 'Szczegóły firmy'
-            }
+            },
+            resolve: { company: CompaniesResolve }
           }
         ]
       },

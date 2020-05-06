@@ -32,9 +32,21 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         console.log(error);
-        if (error && error.status === 0 && error.url.includes(environment.apiUrl)) {
-          this.toastr.error('Brak połączenia z serwerem');
+
+        if (error && error.status === 0) {
+          let message;
+          if (error.url.includes(environment.apiUrl)) {
+            message = 'Brak połączenia z serwerem.';
+          }
+          if (error.url.includes(environment.nominatimServerUrl)) {
+            message = 'Nie udało się połączyć z serwerem geolokalizacyjnym.';
+          }
+
+          if (message) {
+            this.toastr.error(message);
+          }
         }
+
         if (error && error.status === 500) {
           this.toastr.error('Podczas przetwarzania żądania wystąpił błąd serwera');
         }
