@@ -58,7 +58,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['user']
 
 
-class CompanySerializer(serializers.HyperlinkedModelSerializer):
+class CompanySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Company
@@ -79,7 +79,7 @@ class HotelSerializer(serializers.HyperlinkedModelSerializer):
                   'house_no', 'postcode', 'city', 'latitude', 'longitude']
 
 
-class TokenSerializer(serializers.HyperlinkedModelSerializer):
+class  TokenSerializer(serializers.HyperlinkedModelSerializer):
     is_staff = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
 
@@ -136,7 +136,7 @@ class RequistionSerializer(serializers.ModelSerializer):
                   'assignment_date', 'created_by']
 
 
-class RouteSerializer(serializers.HyperlinkedModelSerializer):
+class RouteSerializer(serializers.ModelSerializer):
     start_point = CompanySerializer()
     end_point = CompanySerializer()
 
@@ -154,8 +154,8 @@ class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
                   'visited_companies', 'total_distance']
 
 
-class BusinessTripSerializer(serializers.HyperlinkedModelSerializer):
-    assignee = ProfileSerializer(partial=True, required=False)
+class BusinessTripSerializer(serializers.ModelSerializer):
+    assignee = BasicUserSerializer(partial=True, required=False)
     requistions = RequistionSerializer(many=True, partial=True, required=False)
     estimated_profit = serializers.ReadOnlyField()
     duration = serializers.ReadOnlyField()

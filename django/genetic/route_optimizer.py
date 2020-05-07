@@ -54,6 +54,17 @@ class RouteObserver:
         if self.progress % int(self.total / 200) == 0:
             self.update()
 
+    def update_status(self, status, message):
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                'type': 'business_trip_message',
+                'message_type': status,
+                'message': message
+            }
+        )
+        pass
+
     def update(self) -> None:
         """
         Sending websocket message with current progress
