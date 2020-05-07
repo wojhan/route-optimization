@@ -86,6 +86,7 @@ class BusinessTripFactory(factory.django.DjangoModelFactory):
     start_date = datetime.datetime.now() - datetime.timedelta(days=1)
     finish_date = datetime.datetime.now() + datetime.timedelta(days=1)
     distance_constraint = factory.fuzzy.FuzzyInteger(50, 400)
+    vertices_number = 0
 
 
 class RouteFactory(factory.django.DjangoModelFactory):
