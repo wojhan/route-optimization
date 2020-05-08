@@ -49,7 +49,7 @@ class Profile(models.Model):
 
 
 class Company(models.Model):
-    added_by = models.ForeignKey(Profile, verbose_name="dodany przez",
+    added_by = models.ForeignKey(auth.get_user_model(), verbose_name="dodany przez",
                                  on_delete=models.SET_NULL, related_name="added_companies", default=None, null=True)
     name = models.CharField(max_length=300, verbose_name='nazwa pełna')
     name_short = models.CharField(
@@ -93,7 +93,7 @@ class BusinessTrip(models.Model):
     distance_constraint = models.IntegerField(
         verbose_name="Maksymalny limit kilometrów jednego dnia")
     assignee = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
+        auth.get_user_model(), on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
     vertices_number = models.IntegerField(verbose_name="Liczba firm oraz hoteli")
     task_id = models.CharField(max_length=36, null=True)
     task_created = models.DateTimeField(verbose_name="data stworzenia zadania", null=True, blank=True)
@@ -157,7 +157,7 @@ class BusinessTrip(models.Model):
 
 
 class Requistion(models.Model):
-    created_by = models.ForeignKey(Profile, verbose_name="stworzony przez",
+    created_by = models.ForeignKey(auth.get_user_model(), verbose_name="stworzony przez",
                                    on_delete=models.SET_NULL, related_name="created_requistions", default=None, null=True, blank=True)
     estimated_profit = models.FloatField(verbose_name="oszacowany zysk")
     company = models.ForeignKey(
