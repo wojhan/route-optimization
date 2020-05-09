@@ -11,6 +11,9 @@ import { CompanyDetailsPage } from './pages/companies/pages/company-details.page
 import { RequistionListPage } from './pages/requisitions/pages/requistion-list.page';
 import { MyBusinessTripsPage } from './pages/my-business-trips/pages/my-business-trips.page';
 import { CompaniesResolve } from './pages/companies/companies.resolver';
+import { BusinessTripsPage } from '@route-optimizer/modules/business-trips/pages/business-trips.page';
+import { BusinessTripDetailPage } from '@route-optimizer/modules/business-trips/pages/business-trip-detail/business-trip-detail.page';
+import { BusinessTripsResolver } from '@route-optimizer/modules/business-trips/business-trips.resolver';
 
 const dashboardRoutes: Routes = [
   {
@@ -79,6 +82,23 @@ const dashboardRoutes: Routes = [
         data: {
           breadcrumb: 'Twoje delegacje'
         }
+      },
+      {
+        path: 'business-trips',
+        component: BusinessTripsPage,
+        data: {
+          breadcrumb: 'Delegacje'
+        },
+        children: [
+          {
+            path: ':id',
+            component: BusinessTripDetailPage,
+            data: {
+              breadcrumb: 'Szczegóły'
+            },
+            resolve: { businessTrip: BusinessTripsResolver }
+          }
+        ]
       }
       // {
       //   path: 'employees',
@@ -136,7 +156,7 @@ const dashboardRoutes: Routes = [
       //     },
       //     {
       //       path: ':id',
-      //       component: BusinessTripDetailComponent,
+      //       component: BusinessTripDetailPage,
       //       data: {
       //         breadcrumb: 'Szczegóły delegacji'
       //       }

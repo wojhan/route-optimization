@@ -14,11 +14,12 @@
 
 // 5. Components
 @import 'components/button', 'components/map', 'components/list_group', 'components/company_item', 'components/lds_roller',
-  'components/paginatedList', 'components/my-business-trip-cards';
+  'components/paginatedList', 'components/my-business-trip-cards', 'components/business-trip-detail-info',
+  'components/business-trip-failure';
 
 // 6. Page-specific styles
 @import 'pages/home', 'pages/login', 'pages/company_add', 'pages/company-details', 'pages/business_trip_add', 'pages/dashboardHome',
-  'pages/companyList', 'pages/requisition-list', 'pages/employee-list';
+  'pages/companyList', 'pages/requisition-list', 'pages/employee-list', 'pages/business-trip-detail';
 
 // 7. Themes
 @import 'themes/default';

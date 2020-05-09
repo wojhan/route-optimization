@@ -39,3 +39,9 @@ a {
     text-decoration: underline;
   }
 }
+
+.fluid-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}

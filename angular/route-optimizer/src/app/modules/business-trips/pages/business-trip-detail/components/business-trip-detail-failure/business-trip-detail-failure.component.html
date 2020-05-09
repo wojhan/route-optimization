@@ -1,0 +1,29 @@
+<div class="business-trip-failure">
+  <div class="row">
+    <div class="col d-flex justify-content-center">
+      <div class="business-trip-content">
+        <div class="row">
+          <div class="col-auto">
+            <img
+              src="https://paczaizm.pl/content/wp-content/uploads/pis-niosa-urne-trumne-wybory-murzyni-tanczacy-z-urna-przerobka.jpg"
+              alt="porażka"
+              class="failure-img"
+            />
+          </div>
+          <div class="col d-flex align-items-center">
+            <div class="failure-details">
+              <h3>Wystąpił błąd</h3>
+              <ng-content select="[message]"></ng-content>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-5">
+    <div class="col">
+      <h2 class="possible-causes">Możliwe przyczyny</h2>
+      <ng-content select="[causes]"></ng-content>
+    </div>
+  </div>
+</div>

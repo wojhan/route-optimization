@@ -15,15 +15,15 @@
         <button (click)="logout()" class="btn btn-outline-light btn-sm">Wyloguj się</button>
       </section>
     </nav>
-    <div class="container-fluid flex-fill">
-      <div id="dashboard-content">
+    <div class="container-fluid flex-fill d-flex flex-column">
+      <div id="dashboard-content" class="d-flex flex-column flex-fill">
         <div class="row">
           <div class="col">
             <p-breadcrumb [home]="home" [model]="menuItems"></p-breadcrumb>
           </div>
         </div>
-        <div class="row">
-          <div class="col">
+        <div class="row flex-fill">
+          <div class="col d-flex flex-column dashboard-router-content">
             <router-outlet></router-outlet>
           </div>
         </div>
