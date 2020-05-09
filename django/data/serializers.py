@@ -137,14 +137,13 @@ class RequistionSerializer(serializers.ModelSerializer):
 
 
 class RouteSerializer(serializers.HyperlinkedModelSerializer):
-    # days = serializers.IntegerField(source=)
     start_point = CompanySerializer()
     end_point = CompanySerializer()
 
     class Meta:
         model = models.Route
         fields = ['start_point', 'end_point',
-                  'segment_order', 'day', 'distance']
+                  'segment_order', 'day', 'distance', 'route_type']
 
 
 class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):

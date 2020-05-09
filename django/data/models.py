@@ -177,6 +177,16 @@ class Requistion(models.Model):
 
 
 class Route(models.Model):
+    ROUTE_TYPE_CHOICES = [
+        ("START", "Początek trasy"),
+        ("VISIT", "Odwiedzenie firmy"),
+        ("FINISH_AT_DEPOT", "Koniec podtrasy w filii"),
+        ("FINISH_AT_HOTEL", "Koniec podtrasy w hotelu"),
+        ("START_FROM_DEPOT", "Początek podtrasy w filii"),
+        ("START_FROM_HOTEL", "Początek podtrasy w hotelu"),
+        ("FINISH", "Koniec trasy")
+    ]
+
     start_point = models.ForeignKey(
         Company, on_delete=models.CASCADE, related_name="+")
     end_point = models.ForeignKey(
@@ -187,6 +197,7 @@ class Route(models.Model):
     day = models.IntegerField()
     business_trip = models.ForeignKey(
         BusinessTrip, on_delete=models.CASCADE, related_name="routes")
+    route_type = models.CharField(max_length=20, choices=ROUTE_TYPE_CHOICES, default="VISIT")
 
     @cached_property
     def days(self):
