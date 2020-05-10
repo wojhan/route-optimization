@@ -6,6 +6,7 @@ import { queryPaginated } from '../helpers/pagination';
 import { Page } from '../models/Page';
 import { BusinessTrip } from '../models/BusinessTrip';
 import { DateTimeConverter } from '../helpers/DateTimeConverter';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ import { DateTimeConverter } from '../helpers/DateTimeConverter';
 export class BusinessTripService {
   private apiBusinessTripsUrl = `${environment.apiUrl}api/business-trips/`;
   private apiEmployeesUrl = `${environment.apiUrl}api/employees/`;
+  private wsBusinessTripUrl = `${environment.wsBusinessTripUrl}ws/business_trip/`;
   private perPage = environment.defaultPaginationSize;
 
   constructor(private http: HttpClient) {}
@@ -23,6 +25,14 @@ export class BusinessTripService {
       apiUrl = this.apiEmployeesUrl + `${employeeId}/business-trips/`;
     }
     return queryPaginated<BusinessTrip>(this.http, apiUrl, pageSize ? pageSize : this.perPage, urlOrFilter);
+  }
+
+  getBusinessTrip(businessTripId: number): Observable<BusinessTrip> {
+    return this.http.get<BusinessTrip>(this.apiBusinessTripsUrl + `${businessTripId}/`);
+  }
+
+  getBusinessTripWS(businessTripId: number): WebSocketSubject<any> {
+    return webSocket(this.wsBusinessTripUrl + `${businessTripId}/`);
   }
 
   getPastBusinessTrips(businessTripsPageSize: number, userId?: number) {

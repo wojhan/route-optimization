@@ -1,0 +1,43 @@
+.business-trip-failure {
+  margin-top: 30px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+
+  .possible-causes {
+    font-size: 1.7rem;
+    font-weight: 300;
+    margin-bottom: 20px;
+  }
+
+  .list-group-item {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .business-trip-content,
+  .failure-details {
+    display: flex;
+  }
+  .business-trip-content {
+    .failure-img {
+      max-height: 300px;
+      margin-left: 20px;
+      width: auto;
+    }
+
+    .failure-details {
+      margin-left: 40px;
+      flex-direction: column;
+      align-items: center;
+      letter-spacing: 0.04rem;
+      h3 {
+        font-size: 1.8rem;
+        margin-bottom: 40px;
+      }
+      p {
+        text-align: center;
+        max-width: 70%;
+      }
+    }
+  }
+}

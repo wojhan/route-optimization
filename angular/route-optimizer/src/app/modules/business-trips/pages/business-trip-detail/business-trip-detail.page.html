@@ -1,0 +1,105 @@
+<div class="row">
+  <div class="col-auto">
+    <h1 class="section-header">Szczegóły delegacji</h1>
+  </div>
+  <div class="col d-flex justify-content-end align-items-center">
+    <div>
+      <button class="btn btn-outline-primary btn-sm" (click)="edit()">Edytuj</button>
+      <button class="btn btn-outline-primary btn-sm ml-3" (click)="delete()">Usuń</button>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <app-business-trip-detail-business-trip-info
+      [businessTrip]="businessTrip"
+      [isProcessed]="businessTripInfo.state === 'SUCCEEDED'"
+    ></app-business-trip-detail-business-trip-info>
+  </div>
+</div>
+<div id="business-trip-details-container" class="fluid-content-wrapper">
+  <div class="row d-flex flex-fill">
+    <ng-container *ngIf="businessTripInfo.state === undefined">
+      <div class="col d-flex justify-content-center mt-5">
+        <app-lds-roller></app-lds-roller>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="businessTripInfo.state === 'SUCCEEDED'">
+      <div class="col fluid-content-wrapper">
+        <div class="row">
+          <div class="col d-flex justify-content-center">
+            <div class="map-container map-big">
+              <app-map [markerCoordinates]="markerCoordinates" [mapOptions]="mapOptions" width="100%" height="100%" mapId="map"></app-map>
+            </div>
+          </div>
+          <div class="col-auto d-flex justify-content-end flex-column">
+            <div class="map-legend">
+              <h2>Legenda:</h2>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <app-business-trip-detail-route-info
+              [businessTripDuration]="businessTrip.duration"
+              [routes]="businessTrip.routes"
+              [routesByDay]="routesByDay"
+            ></app-business-trip-detail-route-info>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="businessTripInfo.state === 'PROCESSING'">
+      <div class="col fluid-content-wrapper">
+        <div class="row mt-5">
+          <div class="col-auto d-flex align-items-center justify-content-center">
+            <app-progress-bar
+              [currentProgress]="businessTripInfo.progress"
+              width="400px"
+              class="px-5"
+              *ngIf="businessTripInfo.progress"
+            ></app-progress-bar>
+            <app-lds-roller *ngIf="!businessTripInfo.progress" class="px-5"></app-lds-roller>
+          </div>
+          <div class="col d-flex justify-content-center">
+            <div class="processing-info">
+              <h2>Trwa przetwarzanie trasy</h2>
+              <p>
+                Mapa trasy będzie dostępna po zakończeniu przetwarzania. Możesz pozostać na stronie dopóki pasek postępu nie dojdzie do 100%
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-5 d-flex flex-fill">
+          <div class="col">
+            <div class="map-container map-loading">
+              <div class="loading">
+                <app-lds-roller></app-lds-roller>
+              </div>
+              <app-map mapId="map" width="100%" height="100%" [mapOptions]="mapOptions" [markerCoordinates]="markerCoordinates"></app-map>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="businessTripInfo.state === 'FAILED'">
+      <div class="col">
+        <app-business-trip-detail-failure>
+          <p message *ngFor="let message of businessTripInfo.errors">{{message}}</p>
+          <ul class="list-group list-group-flush" causes>
+            <ng-container *ngIf="businessTripInfo.noRoute">
+              <li class="list-group-item list-group-item-light">
+                Wybrane przez Ciebie firmy do odwiedzenia znajdowały się za daleko od filii firmy, z której rozpoczynała się delegacja
+              </li>
+              <li class="list-group-item list-group-item-light">
+                Limit kilometrów nie pozwolił na znalezienie hotelu. Spróbuj zwiększyć liczbę kilometrów lub wybrać inne firmy do
+                odwiedzenia
+              </li>
+            </ng-container>
+            <ng-container *ngIf="businessTripInfo.error"> </ng-container>
+          </ul>
+        </app-business-trip-detail-failure>
+      </div>
+    </ng-container>
+  </div>
+</div>

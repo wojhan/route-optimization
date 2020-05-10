@@ -1,0 +1,7 @@
+<div class="business-trip-detail-info">
+  <p><fa-icon [icon]="faUserTie"></fa-icon> {{ businessTrip.assignee.firstName }} {{ businessTrip.assignee.lastName }}</p>
+  <p><fa-icon [icon]="faHourGlassStart"></fa-icon> {{ businessTrip.startDate | date: 'dd MMMM yyyy HH:mm':undefined:'pl' }}</p>
+  <p><fa-icon [icon]="faHourGlassEnd"></fa-icon> {{ businessTrip.finishDate | date: 'dd MMMM yyyy HH:mm':undefined:'pl' }}</p>
+  <p><fa-icon [icon]="faRoute"></fa-icon> {{ businessTrip.maxDistance }} km dziennie</p>
+  <p *ngIf="isProcessed"><fa-icon [icon]="faWallet"></fa-icon> {{ businessTrip.estimatedProfit }} zł</p>
+</div>

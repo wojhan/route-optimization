@@ -1,0 +1,77 @@
+.processing-info {
+  max-width: 70%;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  h2 {
+    font-size: 1.6rem;
+  }
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+
+  &.map-big {
+    width: 90%;
+    min-height: 600px;
+  }
+
+  &.map-loading {
+    .loading {
+      position: absolute;
+      background-color: rgba(70, 70, 70, 0.7);
+      width: 100%;
+      height: 100%;
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .lds-roller div:after {
+        background: white;
+      }
+    }
+  }
+}
+
+.map-legend {
+  display: flex;
+  flex-direction: column;
+}
+
+#route-info,
+#route-info-content {
+  margin-top: 30px;
+  font-size: 1rem;
+  font-family: 'Roboto', sans-serif;
+}
+#route-info {
+  border-bottom: none;
+}
+#route-info-content {
+  margin-top: 0;
+
+  .ng-fa-icon {
+    margin-right: 10px;
+  }
+
+  .badge {
+    padding: 0.4rem;
+    text-transform: uppercase;
+    font-weight: 300;
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 0.04rem;
+    margin: 5px 0;
+
+    &.top {
+      margin-top: 0;
+    }
+
+    &.bottom {
+      margin-bottom: 0;
+    }
+  }
+}

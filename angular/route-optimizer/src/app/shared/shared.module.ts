@@ -12,9 +12,18 @@ import { PaginatorComponent } from './components/paginator/paginator.component';
 import { MapComponent } from './components/map/map.component';
 import { SpinnerOverlayComponent } from './components/spinner-overlay/spinner-overlay.component';
 import { ConfirmRemoveModal } from './components/confirm-remove-modal/confirm-remove.modal';
+import { ProgressBarComponent } from './components/progress-bar/progress-bar.component';
 
 @NgModule({
-  declarations: [LdsRollerComponent, JwPaginationComponent, PaginatorComponent, MapComponent, SpinnerOverlayComponent, ConfirmRemoveModal],
+  declarations: [
+    LdsRollerComponent,
+    JwPaginationComponent,
+    PaginatorComponent,
+    MapComponent,
+    SpinnerOverlayComponent,
+    ConfirmRemoveModal,
+    ProgressBarComponent
+  ],
   entryComponents: [SpinnerOverlayComponent, ConfirmRemoveModal],
   imports: [
     CommonModule,
@@ -37,7 +46,8 @@ import { ConfirmRemoveModal } from './components/confirm-remove-modal/confirm-re
     LdsRollerComponent,
     BreadcrumbModule,
     PaginatorComponent,
-    MapComponent
+    MapComponent,
+    ProgressBarComponent
   ]
 })
 export class SharedModule {}

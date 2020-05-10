@@ -1,0 +1,12 @@
+<div class="progress" [style.width]="width">
+  <div
+    class="progress-bar"
+    role="progressbar"
+    [style.width]="currentProgress | percent: '1.0-1'"
+    [attr.aria-valuenow]="currentProgress"
+    aria-valuemin="0"
+    aria-valuemax="100"
+  >
+    {{ currentProgress | percent: '1.0-1' }}
+  </div>
+</div>

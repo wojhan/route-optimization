@@ -1,0 +1,29 @@
+<li class="list-group-item list-group-item-light" *ngFor="let segment of routes; let i = index">
+  <div class="row d-flex justify-content-center" *ngIf="segment.routeType !== 'VISIT'">
+    <span class="badge badge-success top" *ngIf="segment.routeType === 'START'">Początek delegacji</span>
+    <span class="badge badge-primary top" *ngIf="segment.routeType === 'START_FROM_HOTEL' || segment.routeType === 'START_FROM_DEPOT'">
+      Początek trasy {{ segment.day + 1 }} dnia</span
+    >
+  </div>
+  <div class="row">
+    <div class="col-lg-1 d-flex align-items-center">#{{ i + 1 }}</div>
+    <div class="col-lg-11">
+      <div class="row">
+        <div class="col d-flex align-items-center">
+          <fa-icon [icon]="faMapMarker"></fa-icon> {{ segment.startPoint.nameShort }} ({{ segment.startPoint.street }}
+          {{ segment.startPoint.houseNo }}, {{ segment.startPoint.postcode }} {{ segment.startPoint.city }})
+        </div>
+        <div class="col d-flex align-items-center">
+          <fa-icon [icon]="faFlagCheckered"></fa-icon> {{ segment.endPoint.nameShort }} ({{ segment.endPoint.street }}
+          {{ segment.endPoint.houseNo }}, {{ segment.endPoint.postcode }} {{ segment.endPoint.city }})
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row d-flex justify-content-center" *ngIf="segment.routeType !== 'VISIT'">
+    <span class="badge badge-primary bottom" *ngIf="segment.routeType === 'FINISH_AT_HOTEL' || segment.routeType === 'FINISH_AT_DEPOT'"
+      >Koniec trasy {{ segment.day + 1 }} dnia</span
+    >
+    <span class="badge badge-success bottom" *ngIf="segment.routeType === 'FINISH'">Koniec trasy</span>
+  </div>
+</li>
