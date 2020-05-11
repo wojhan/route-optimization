@@ -1,12 +1,14 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+
+import { environment } from '@route-optimizer/environment/environment';
 import { queryPaginated } from '../helpers/pagination';
 import { Page } from '../models/Page';
 import { BusinessTrip } from '../models/BusinessTrip';
 import { DateTimeConverter } from '../helpers/DateTimeConverter';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { RouteType } from '../enums/RouteType';
 
 @Injectable({
   providedIn: 'root'
@@ -52,4 +54,22 @@ export class BusinessTripService {
     return this.list(userId, filter, businessTripsPageSize);
   }
   getFutureBusinessTrips() {}
+
+  getCompanyNumberInBusinessTrip(businessTrip: BusinessTrip): number[] {
+    const numbers = [];
+
+    for (let i = 0; i < businessTrip.duration; i++) {
+      let current = 0;
+      const routes = businessTrip.routes.filter(v => v.day === i);
+      routes.forEach((route, index) => {
+        if (index === routes.length - 1 || route.routeType === RouteType.VISIT) {
+          current++;
+        }
+      });
+
+      numbers.push(current);
+    }
+
+    return numbers;
+  }
 }

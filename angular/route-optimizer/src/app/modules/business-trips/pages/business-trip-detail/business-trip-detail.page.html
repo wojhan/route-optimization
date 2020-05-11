@@ -26,25 +26,27 @@
     </ng-container>
     <ng-container *ngIf="businessTripInfo.state === 'SUCCEEDED'">
       <div class="col fluid-content-wrapper">
-        <div class="row">
-          <div class="col d-flex justify-content-center">
-            <div class="map-container map-big">
-              <app-map [markerCoordinates]="markerCoordinates" [mapOptions]="mapOptions" width="100%" height="100%" mapId="map"></app-map>
+        <div class="row flex-fill">
+          <div class="col-xl-7 d-flex justify-content-center flex-fill">
+            <div class="map-container map-big d-flex flex-column">
+              <app-route-map
+                [routes]="currentRoutes"
+                [activeRouteSegment]="activeSegment"
+                [mapSegmentation]="true"
+                class="flex-fill mb-3"
+              ></app-route-map>
             </div>
           </div>
-          <div class="col-auto d-flex justify-content-end flex-column">
-            <div class="map-legend">
-              <h2>Legenda:</h2>
+          <div class="col-xl-5 d-flex flex-column">
+            <div id="route-info-container">
+              <app-business-trip-detail-route-info
+                [businessTripDuration]="businessTrip.duration"
+                [routes]="businessTrip.routes"
+                [routesByDay]="routesByDay"
+                (routeChanged)="onRouteChanged($event)"
+                (segmentClicked)="onSegmentClicked($event)"
+              ></app-business-trip-detail-route-info>
             </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <app-business-trip-detail-route-info
-              [businessTripDuration]="businessTrip.duration"
-              [routes]="businessTrip.routes"
-              [routesByDay]="routesByDay"
-            ></app-business-trip-detail-route-info>
           </div>
         </div>
       </div>

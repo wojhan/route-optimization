@@ -17,6 +17,7 @@ import { CompaniesModule } from './modules/dashboard/pages/companies/companies.m
 import { RequisitionsModule } from './modules/dashboard/pages/requisitions/requisitions.module';
 import { MyBusinessTripsModule } from './modules/dashboard/pages/my-business-trips/my-business-trips.module';
 import { BusinessTripsModule } from './modules/business-trips/business-trips.module';
+import { MapModule } from '@route-optimizer/modules/map/map.module';
 
 registerLocaleData(localePl, localePlExtra);
 
@@ -32,6 +33,7 @@ registerLocaleData(localePl, localePlExtra);
     RequisitionsModule,
     MyBusinessTripsModule,
     BusinessTripsModule,
+    MapModule,
     LoginModule,
     RegistrationModule,
     ToastrModule.forRoot()
