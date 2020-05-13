@@ -12,6 +12,9 @@ import { BusinessTripDetailRouteInfoSegmentComponent } from './pages/business-tr
 import { BusinessTripsResolver } from './business-trips.resolver';
 import { MapModule } from '@route-optimizer/modules/map/map.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { MyBusinessTripsPage } from './pages/my-business-trips/my-business-trips.page';
+import { BusinessTripCardsComponent } from './pages/my-business-trips/components/business-trip-cards/business-trip-cards.component';
+import { BusinessTripCardComponent } from './pages/my-business-trips/components/business-trip-card/business-trip-card.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +23,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     BusinessTripDetailFailureComponent,
     BusinessTripDetailPage,
     BusinessTripDetailRouteInfoComponent,
-    BusinessTripDetailRouteInfoSegmentComponent
+    BusinessTripDetailRouteInfoSegmentComponent,
+    MyBusinessTripsPage,
+    BusinessTripCardsComponent,
+    BusinessTripCardComponent
   ],
   providers: [BusinessTripsResolver],
   imports: [MapModule, RouterModule, FontAwesomeModule, CommonModule, SharedModule]

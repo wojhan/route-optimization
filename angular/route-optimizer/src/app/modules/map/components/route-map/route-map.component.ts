@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
@@ -15,7 +15,7 @@ import { WayPoint } from '@route-optimizer/modules/map/components/route-map/WayP
   templateUrl: './route-map.component.html',
   styleUrls: ['./route-map.component.scss']
 })
-export class RouteMapComponent implements AfterViewInit, OnChanges {
+export class RouteMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() mapId = 'map';
   @Input() mapOptions: L.MapOptions = environment.map.defaultMapOptions as L.MapOptions;
   @Input() routes: Array<Route[]>;
@@ -35,6 +35,12 @@ export class RouteMapComponent implements AfterViewInit, OnChanges {
   activeMarkerPane;
 
   constructor(private mapService: MapService) {}
+
+  ngOnDestroy() {
+    if (this.routeMap) {
+      this.routeMap.remove();
+    }
+  }
 
   ngAfterViewInit() {
     this.initMap();
