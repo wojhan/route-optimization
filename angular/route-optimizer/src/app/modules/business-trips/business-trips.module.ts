@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 import { SharedModule } from '@route-optimizer/shared/shared.module';
 import { BusinessTripsPage } from './pages/business-trips.page';
@@ -8,6 +10,8 @@ import { BusinessTripDetailPage } from './pages/business-trip-detail/business-tr
 import { BusinessTripDetailRouteInfoComponent } from './pages/business-trip-detail/components/business-trip-detail-route-info/business-trip-detail-route-info.component';
 import { BusinessTripDetailRouteInfoSegmentComponent } from './pages/business-trip-detail/components/business-trip-detail-route-info-segment/business-trip-detail-route-info-segment.component';
 import { BusinessTripsResolver } from './business-trips.resolver';
+import { MapModule } from '@route-optimizer/modules/map/map.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -19,6 +23,6 @@ import { BusinessTripsResolver } from './business-trips.resolver';
     BusinessTripDetailRouteInfoSegmentComponent
   ],
   providers: [BusinessTripsResolver],
-  imports: [SharedModule]
+  imports: [MapModule, RouterModule, FontAwesomeModule, CommonModule, SharedModule]
 })
 export class BusinessTripsModule {}

@@ -46,7 +46,7 @@ import { ProgressBarComponent } from './components/progress-bar/progress-bar.com
     LdsRollerComponent,
     BreadcrumbModule,
     PaginatorComponent,
-    MapComponent,
+    // MapComponent,
     ProgressBarComponent
   ]
 })

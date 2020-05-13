@@ -1,0 +1,10 @@
+<div class="d-flex align-items-center">
+  <div [ngClass]="markerClasses">
+    <span *ngIf="useFa">
+      <i class="fas {{ content }}"></i>
+    </span>
+    <span *ngIf="!useFa">
+      {{ content }}
+    </span>
+  </div>
+</div>

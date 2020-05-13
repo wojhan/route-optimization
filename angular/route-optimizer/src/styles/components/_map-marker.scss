@@ -1,0 +1,47 @@
+.map-marker {
+  background-size: 25px 40px;
+  background-repeat: no-repeat;
+}
+
+.map-marker-outside {
+  background-size: 25px 40px;
+  background-repeat: no-repeat;
+  width: 25px;
+  height: 40px;
+  outline: none;
+  display: flex;
+  justify-content: center;
+
+  span {
+    font-size: 11px;
+    width: 25px;
+    line-height: 40px;
+    text-align: center;
+    margin-left: 0;
+    margin-top: -7px;
+  }
+
+  .ng-fa-icon {
+    margin: 0 !important;
+  }
+
+  &.company-marker {
+    background-image: url($base-url+'images/map-markers/company-marker.svg');
+  }
+
+  &.depot-marker {
+    background-image: url($base-url+'images/map-markers/depot-marker.svg');
+  }
+
+  &.hotel-marker {
+    background-image: url($base-url+'images/map-markers/hotel-marker.svg');
+  }
+
+  &.start-marker {
+    background-image: url($base-url+'images/map-markers/start-marker.svg');
+  }
+
+  &.finish-marker {
+    background-image: url($base-url+'images/map-markers/finish-marker.svg');
+  }
+}

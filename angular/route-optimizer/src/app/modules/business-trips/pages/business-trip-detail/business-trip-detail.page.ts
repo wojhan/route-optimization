@@ -12,6 +12,7 @@ import { environment } from '@route-optimizer/environment/environment';
 import { ModalService } from '@route-optimizer/core/services/modal.service';
 import { BusinessTripWSInfo } from '@route-optimizer/core/models/BusinessTripWSInfo';
 import { BusinessTripMessageType } from '@route-optimizer/core/enums/BusinessTripMessageType';
+import { Route } from '@route-optimizer/core/models/Route';
 
 @Component({
   selector: 'app-business-trip-detail',
@@ -24,10 +25,12 @@ export class BusinessTripDetailPage implements OnInit, OnDestroy {
   businessTrip: BusinessTrip;
   businessTripInfo: BusinessTripWSInfo;
 
-  mapOptions: MapOptions = environment.map.defaultMapOptions;
+  mapOptions: MapOptions = environment.map.defaultMapOptions as MapOptions;
   markerCoordinates = [];
 
   routesByDay = [];
+  currentRoutes = [];
+  activeSegment: Route;
 
   constructor(
     private businessTripService: BusinessTripService,
@@ -41,6 +44,7 @@ export class BusinessTripDetailPage implements OnInit, OnDestroy {
     const id = +this.route.snapshot.paramMap.get('id');
     this.businessTrip = this.route.snapshot.data.businessTrip;
     this.updateRoutes();
+    this.currentRoutes = this.routesByDay;
 
     this.businessTripWsSubject = this.businessTripService.getBusinessTripWS(id);
     this.businessTripInfo = { state: undefined };
@@ -108,5 +112,17 @@ export class BusinessTripDetailPage implements OnInit, OnDestroy {
           });
         }
       });
+  }
+
+  onRouteChanged(index: number) {
+    if (index >= 0) {
+      this.currentRoutes = [this.routesByDay[index]];
+    } else {
+      this.currentRoutes = this.routesByDay;
+    }
+  }
+
+  onSegmentClicked(route: Route) {
+    this.activeSegment = route;
   }
 }

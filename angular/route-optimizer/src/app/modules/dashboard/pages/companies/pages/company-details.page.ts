@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { untilComponentDestroyed } from '@w11k/ngx-componentdestroyed';
-import { MapOptions, LatLng } from 'leaflet';
 import { filter, switchMap } from 'rxjs/operators';
+import * as L from 'leaflet';
 
 import { MatDialog } from '@angular/material';
 import { Company } from '@route-optimizer/core/models/Company';
@@ -18,8 +18,8 @@ import { CompanyService } from '@route-optimizer/core/services/company.service';
 })
 export class CompanyDetailsPage implements OnInit, OnDestroy {
   company: Company;
-  mapOptions: MapOptions;
-  markerCoordinates = [LatLng];
+  mapOptions: L.MapOptions;
+  markerCoordinates = [];
 
   constructor(
     private companyService: CompanyService,
@@ -41,9 +41,9 @@ export class CompanyDetailsPage implements OnInit, OnDestroy {
     this.mapOptions = {
       center: [this.company.latitude, this.company.longitude],
       zoom: environment.map.singleElementZoom
-    };
+    } as L.MapOptions;
 
-    this.markerCoordinates = [new LatLng(this.company.latitude, this.company.longitude)];
+    this.markerCoordinates = [L.latLng(this.company.latitude, this.company.longitude)];
   }
 
   canEdit(): boolean {

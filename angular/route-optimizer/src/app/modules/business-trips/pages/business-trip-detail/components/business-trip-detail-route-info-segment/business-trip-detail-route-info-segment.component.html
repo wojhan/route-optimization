@@ -1,29 +1,61 @@
-<li class="list-group-item list-group-item-light" *ngFor="let segment of routes; let i = index">
-  <div class="row d-flex justify-content-center" *ngIf="segment.routeType !== 'VISIT'">
-    <span class="badge badge-success top" *ngIf="segment.routeType === 'START'">Początek delegacji</span>
-    <span class="badge badge-primary top" *ngIf="segment.routeType === 'START_FROM_HOTEL' || segment.routeType === 'START_FROM_DEPOT'">
-      Początek trasy {{ segment.day + 1 }} dnia</span
-    >
-  </div>
-  <div class="row">
-    <div class="col-lg-1 d-flex align-items-center">#{{ i + 1 }}</div>
-    <div class="col-lg-11">
-      <div class="row">
-        <div class="col d-flex align-items-center">
-          <fa-icon [icon]="faMapMarker"></fa-icon> {{ segment.startPoint.nameShort }} ({{ segment.startPoint.street }}
-          {{ segment.startPoint.houseNo }}, {{ segment.startPoint.postcode }} {{ segment.startPoint.city }})
-        </div>
-        <div class="col d-flex align-items-center">
-          <fa-icon [icon]="faFlagCheckered"></fa-icon> {{ segment.endPoint.nameShort }} ({{ segment.endPoint.street }}
-          {{ segment.endPoint.houseNo }}, {{ segment.endPoint.postcode }} {{ segment.endPoint.city }})
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row d-flex justify-content-center" *ngIf="segment.routeType !== 'VISIT'">
-    <span class="badge badge-primary bottom" *ngIf="segment.routeType === 'FINISH_AT_HOTEL' || segment.routeType === 'FINISH_AT_DEPOT'"
-      >Koniec trasy {{ segment.day + 1 }} dnia</span
-    >
-    <span class="badge badge-success bottom" *ngIf="segment.routeType === 'FINISH'">Koniec trasy</span>
-  </div>
-</li>
+<table class="table">
+  <thead>
+    <tr class="d-flex">
+      <th class="col-5">Początek</th>
+      <th class="col-5">Koniec</th>
+      <th class="col-2 d-flex justify-content-end">Dystans</th>
+    </tr>
+  </thead>
+  <tbody>
+    <ng-container *ngFor="let route of routes; let i = index">
+      <tr *ngIf="route.routeType === 'START' || route.routeType === 'START_FROM_DEPOT' || route.routeType === 'START_FROM_HOTEL'">
+        <td colspan="3" class="d-flex justify-content-center">
+          <span class="badge badge-primary" *ngIf="route.routeType === 'START'">Początek trasy</span>
+          <span class="badge badge-warning" *ngIf="route.routeType === 'START_FROM_HOTEL' || route.routeType === 'START_FROM_DEPOT'"
+            >Początek trasy dnia {{ route.day + 1 }}</span
+          >
+        </td>
+      </tr>
+      <tr
+        [className]="segmentSelected === route ? 'table-primary route-segment-row route-selected d-flex' : 'route-segment-row d-flex'"
+        (click)="onSegmentClicked(route)"
+      >
+        <td class="col-5 d-flex align-items-center">
+          <app-map-marker [marker]="getRouteMarkerIcon(route, true)" [content]="getRouteMarkerContent(route, true)"> </app-map-marker>
+          <div class="segment-info">
+            <p class="name">{{ route.startPoint.nameShort }}</p>
+            <div class="expandable">
+              <p class="address">Adres:</p>
+              <p class="address">{{ route.startPoint.street }} {{ route.startPoint.houseNo }}</p>
+              <p class="address">{{ route.startPoint.postcode }} {{ route.startPoint.city }}</p>
+            </div>
+          </div>
+        </td>
+
+        <td class="col-5 d-flex align-items-center">
+          <app-map-marker [marker]="getRouteMarkerIcon(route, false)" [content]="getRouteMarkerContent(route, false)"> </app-map-marker>
+
+          <div class="segment-info">
+            <p class="name">{{ route.endPoint.nameShort }}</p>
+            <div class="expandable">
+              <p class="address">Adres:</p>
+              <p class="address">{{ route.endPoint.street }} {{ route.endPoint.houseNo }}</p>
+              <p class="address">{{ route.endPoint.postcode }} {{ route.endPoint.city }}</p>
+            </div>
+          </div>
+        </td>
+        <td class="col-2 d-flex justify-content-end">{{ route.distance }} km</td>
+      </tr>
+      <tr *ngIf="route.routeType === 'FINISH'">
+        <td colspan="3" class="d-flex justify-content-center">
+          <span class="badge badge-primary">Koniec trasy</span>
+        </td>
+      </tr>
+      <tr *ngIf="!allDay && (route.routeType === 'FINISH_AT_HOTEL' || route.routeType === 'FINISH_AT_DEPOT')">
+        <td colspan="3" class="d-flex justify-content-center">
+          <span class="badge badge-warning">Koniec trasy dnia {{ route.day + 1 }}</span>
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</table>

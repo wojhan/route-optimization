@@ -14,6 +14,12 @@
   height: 100%;
   min-height: 300px;
 
+  h2 {
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 15px;
+  }
+
   &.map-big {
     width: 90%;
     min-height: 600px;
@@ -37,9 +43,57 @@
   }
 }
 
+.leaflet-right {
+  display: none;
+}
+
 .map-legend {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  .map-legend-item {
+    display: flex;
+    align-items: center;
+    margin: 0 15px 15px;
+    p {
+      font-size: 0.95rem;
+      margin: 0;
+      margin-left: 10px;
+    }
+    .map-marker {
+      background-size: 20px 36px;
+      background-repeat: no-repeat;
+      width: 20px;
+      height: 36px;
+      outline: none;
+      display: flex;
+
+      span {
+        font-size: 9px;
+        width: 20px;
+        line-height: 36px;
+        text-align: center;
+        margin-left: 0;
+        margin-top: -5px;
+      }
+
+      &.company-marker {
+        background-image: url($base-url+'images/map-markers/company-marker.svg');
+      }
+      &.depot-marker {
+        background-image: url($base-url+'images/map-markers/depot-marker.svg');
+      }
+      &.hotel-marker {
+        background-image: url($base-url+'images/map-markers/hotel-marker.svg');
+      }
+      &.start-marker {
+        background-image: url($base-url+'images/map-markers/start-marker.svg');
+      }
+      &.finish-marker {
+        background-image: url($base-url+'images/map-markers/finish-marker.svg');
+      }
+    }
+  }
 }
 
 #route-info,
@@ -53,6 +107,39 @@
 }
 #route-info-content {
   margin-top: 0;
+  font-size: 0.8rem;
+  max-height: 600px;
+  overflow-y: auto;
+
+  .route-segment-row {
+    cursor: pointer;
+    .name,
+    .address {
+      letter-spacing: 0.04rem;
+    }
+
+    .name {
+      margin: 0;
+    }
+
+    .address {
+      &:first-of-type {
+        margin-top: 15px;
+      }
+      margin: 0;
+    }
+
+    .expandable {
+      display: none;
+      transition: ease 4s;
+    }
+
+    &.route-selected {
+      .expandable {
+        display: block;
+      }
+    }
+  }
 
   .ng-fa-icon {
     margin-right: 10px;
@@ -64,6 +151,7 @@
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
     letter-spacing: 0.04rem;
+    font-size: 0.8rem;
     margin: 5px 0;
 
     &.top {
@@ -74,4 +162,8 @@
       margin-bottom: 0;
     }
   }
+}
+
+.segment-info {
+  margin-left: 10px;
 }

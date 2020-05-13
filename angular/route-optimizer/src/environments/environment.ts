@@ -9,7 +9,7 @@ export const environment = {
   defaultPaginationSize: 40,
   maxPaginationSize: 100,
   numberOfBusinessTripsInCategory: 6,
-  osrmServerUrl: 'http://192.168.8.69:5000/',
+  osrmServerUrl: 'http://192.168.8.69:5000',
   nominatimServerUrl: 'https://nominatim.openstreetmap.org/',
   map: {
     defaultMapOptions: {
