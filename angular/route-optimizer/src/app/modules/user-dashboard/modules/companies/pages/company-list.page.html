@@ -1,0 +1,89 @@
+<div class="row">
+  <div class="col">
+    <h1 class="section-header">Lista firm</h1>
+  </div>
+</div>
+<div class="row mb-3">
+  <div class="col">
+    <div class="search-bar" [formGroup]="filterForm">
+      <input formControlName="search" placeholder="Szukaj..." class="form-control" />
+    </div>
+  </div>
+  <div class="col-auto">
+    <a class="btn btn-outline-primary float-right" [routerLink]="['add']">Dodaj firmę</a>
+  </div>
+</div>
+<div class="row my-5" *ngIf="companies.loading">
+  <div class="col d-flex justify-content-center">
+    <app-lds-roller></app-lds-roller>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div id="company-list" class="paginated-list">
+      <div class="row" *ngIf="!companies.loading">
+        <div class="col">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="thead-light">
+                <tr class="d-flex">
+                  <th class="col-lg-1 col-xl-1"></th>
+                  <th scope="col" class="col-lg-2 col-xl-2">Nazwa</th>
+                  <th scope="col" class="col-lg-2 col-xl-2">Nip</th>
+                  <th scope="col" class="col-lg-2 col-xl-2">Ulica</th>
+                  <th scope="col" class="col-lg-1 col-xl-1">Numer</th>
+                  <th scope="col" class="col-lg-2 col-xl-2">Kod pocztowy</th>
+                  <th scope="col" class="col-lg-2 col-xl-2">Miasto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let company of companies.data" class="d-flex">
+                  <td class="align-middle col-lg-1 col-xl-1">
+                    <div class="btn-group">
+                      <button
+                        class="btn btn-default btn-sm dropdown-toggle no-caret"
+                        type="button"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        <fa-icon [icon]="faEllipsisV"></fa-icon>
+                      </button>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" [routerLink]="[company.id]" routerLinkActive="router-link-active">Informacje</a>
+                        <a
+                          class="dropdown-item"
+                          [routerLink]="[company.id, 'edit']"
+                          routerLinkActive="router-link-active"
+                          *ngIf="canEditCompany(company)"
+                          >Edytuj</a
+                        >
+                        <a class="dropdown-item" (click)="remove(company)" *ngIf="canEditCompany(company)">Usuń</a>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="align-middle col-lg-2 col-xl-2">{{ company.nameShort }}</td>
+                  <td class="align-middle col-lg-2 col-xl-2">{{ company.nip }}</td>
+                  <td class="align-middle col-lg-2 col-xl-2">{{ company.street }}</td>
+                  <td class="align-middle col-lg-1 col-xl-1">{{ company.houseNo }}</td>
+                  <td class="align-middle col-lg-2 col-xl-2">{{ company.postcode }}</td>
+                  <td class="align-middle col-lg-2 col-xl-2">{{ company.city }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <app-paginator
+            [page]="page | async"
+            (pageChange)="onPageChanged($event)"
+            [pageUrl]="companyPageUrl"
+            class="float-right"
+          ></app-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

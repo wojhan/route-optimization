@@ -15,6 +15,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MyBusinessTripsPage } from './pages/my-business-trips/my-business-trips.page';
 import { BusinessTripCardsComponent } from './pages/my-business-trips/components/business-trip-cards/business-trip-cards.component';
 import { BusinessTripCardComponent } from './pages/my-business-trips/components/business-trip-card/business-trip-card.component';
+import { BusinessTripsRoutes } from '@route-optimizer/modules/business-trips/business-trips.routes';
+import { BaseLayoutModule } from '@route-optimizer/modules/base-layout/base-layout.module';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,6 @@ import { BusinessTripCardComponent } from './pages/my-business-trips/components/
     BusinessTripCardComponent
   ],
   providers: [BusinessTripsResolver],
-  imports: [MapModule, RouterModule, FontAwesomeModule, CommonModule, SharedModule]
+  imports: [MapModule, BaseLayoutModule, RouterModule.forChild(BusinessTripsRoutes), FontAwesomeModule, CommonModule, SharedModule]
 })
 export class BusinessTripsModule {}

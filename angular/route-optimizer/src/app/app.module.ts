@@ -13,11 +13,11 @@ import { HttpConfigInterceptor } from './core/interceptors/http-config.intercept
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { LoginModule } from './modules/login/login.module';
 import { RegistrationModule } from './modules/registration/registration.module';
-import { CompaniesModule } from './modules/dashboard/pages/companies/companies.module';
 import { RequisitionsModule } from './modules/dashboard/pages/requisitions/requisitions.module';
 import { MyBusinessTripsModule } from './modules/dashboard/pages/my-business-trips/my-business-trips.module';
 import { BusinessTripsModule } from './modules/business-trips/business-trips.module';
 import { MapModule } from '@route-optimizer/modules/map/map.module';
+import { UserResolve } from '@route-optimizer/core/UserResolve';
 
 registerLocaleData(localePl, localePlExtra);
 
@@ -28,17 +28,11 @@ registerLocaleData(localePl, localePlExtra);
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    DashboardModule,
-    CompaniesModule,
-    RequisitionsModule,
-    MyBusinessTripsModule,
-    BusinessTripsModule,
-    MapModule,
     LoginModule,
     RegistrationModule,
     ToastrModule.forRoot()
   ],
-  providers: [{ provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }],
+  providers: [UserResolve, { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
