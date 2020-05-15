@@ -1,0 +1,45 @@
+#my-business-trips-container {
+  font-family: 'Roboto', sans-serif;
+  .business-trip-card-container {
+    border: none;
+    margin-top: 30px;
+
+    a {
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    & > .card-header {
+      border: 1px solid rgba(0, 0, 0, 0.125);
+      h1 {
+        font-size: 1.2rem;
+        letter-spacing: 0.05rem;
+        margin: 0;
+        color: $white-color;
+      }
+    }
+
+    .route-processing {
+      h3 {
+        text-align: center;
+        font-size: 1.1rem;
+      }
+    }
+
+    .route-failed {
+      p {
+        margin-top: 15px;
+        margin-bottom: 0;
+        font-size: 0.95rem;
+        letter-spacing: 0.03rem;
+        text-align: center;
+      }
+
+      .fail-img {
+        max-height: 300px;
+        width: auto;
+      }
+    }
+  }
+}

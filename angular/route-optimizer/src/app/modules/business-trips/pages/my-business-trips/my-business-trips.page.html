@@ -1,0 +1,17 @@
+<div id="my-business-trips-container">
+  <div class="row" *ngFor="let filter of filters; let i = index" [hidden]="!fetched[i]">
+    <div class="col">
+      <div class="card business-trip-card-container">
+        <div class="card-header bg-primary">
+          <h1>{{titles[i]}}</h1>
+        </div>
+        <div class="card-body">
+          <app-my-business-trips-business-trip-cards
+            [timeFilter]="filter"
+            (businessTripsFetched)="onBusinessTripsFetched($event)"
+          ></app-my-business-trips-business-trip-cards>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

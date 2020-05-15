@@ -1,0 +1,12 @@
+<div class="row">
+  <div class="col d-flex justify-content-center" *ngIf="businessTrips.loading">
+    <app-lds-roller></app-lds-roller>
+  </div>
+  <ng-container *ngIf="!businessTrips.loading">
+    <ng-container *ngIf="businessTrips.data.length">
+      <div class="col-6 mb-4" *ngFor="let businessTrip of businessTrips.data">
+        <app-my-business-trips-business-trip-card [businessTrip]="businessTrip"></app-my-business-trips-business-trip-card>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

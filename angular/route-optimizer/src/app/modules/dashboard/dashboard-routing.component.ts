@@ -9,11 +9,11 @@ import { CompanyAddPage } from './pages/companies/pages/company-add.page';
 import { CompanyEditPage } from './pages/companies/pages/company-edit.page';
 import { CompanyDetailsPage } from './pages/companies/pages/company-details.page';
 import { RequistionListPage } from './pages/requisitions/pages/requistion-list.page';
-import { MyBusinessTripsPage } from './pages/my-business-trips/pages/my-business-trips.page';
 import { CompaniesResolve } from './pages/companies/companies.resolver';
 import { BusinessTripsPage } from '@route-optimizer/modules/business-trips/pages/business-trips.page';
 import { BusinessTripDetailPage } from '@route-optimizer/modules/business-trips/pages/business-trip-detail/business-trip-detail.page';
 import { BusinessTripsResolver } from '@route-optimizer/modules/business-trips/business-trips.resolver';
+import { MyBusinessTripsPage } from '@route-optimizer/modules/business-trips/pages/my-business-trips/my-business-trips.page';
 
 const dashboardRoutes: Routes = [
   {
@@ -90,6 +90,13 @@ const dashboardRoutes: Routes = [
           breadcrumb: 'Delegacje'
         },
         children: [
+          {
+            path: 'my-business-trips',
+            component: MyBusinessTripsPage,
+            data: {
+              breadcrumb: 'Moje delegacje'
+            }
+          },
           {
             path: ':id',
             component: BusinessTripDetailPage,

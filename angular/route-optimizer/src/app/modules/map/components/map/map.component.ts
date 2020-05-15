@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { Map, Marker, MapOptions, LatLng, featureGroup } from 'leaflet';
 import { ToastrService } from 'ngx-toastr';
 
@@ -9,22 +9,24 @@ import { MapService } from '@route-optimizer/core/services/map.service';
   selector: 'app-map',
   templateUrl: './map.component.html'
 })
-export class MapComponent implements AfterViewInit, OnChanges {
+export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private map: Map;
   private markers: Marker[];
 
   @Input() width: number;
   @Input() height: number;
   @Input() mapId: string;
-  @Input() mapOptions: MapOptions;
+  @Input() mapOptions: MapOptions = environment.map.defaultMapOptions as L.MapOptions;
   @Input() lat: number = environment.map.defaultLat;
   @Input() lng: number = environment.map.defaultLng;
-  @Input() markerCoordinates: [LatLng];
+  @Input() markerCoordinates = [];
 
   constructor(private mapService: MapService, private toastr: ToastrService) {}
 
   ngAfterViewInit(): void {
-    this.initMap();
+    setTimeout(() => {
+      this.initMap();
+    }, 200);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -37,9 +39,15 @@ export class MapComponent implements AfterViewInit, OnChanges {
     }
   }
 
+  ngOnDestroy() {
+    if (this.map) {
+      this.map.remove();
+    }
+  }
+
   private initMap(): void {
     if (this.mapOptions) {
-      this.map = this.mapService.initMap(this.mapOptions);
+      this.map = this.mapService.initMap(this.mapOptions, this.mapId);
       this.updateMarkers();
     } else {
       this.toastr.error('Wystąpił błąd podczas ładowania mapy.');

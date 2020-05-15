@@ -9,6 +9,8 @@ import { Page } from '../models/Page';
 import { BusinessTrip } from '../models/BusinessTrip';
 import { DateTimeConverter } from '../helpers/DateTimeConverter';
 import { RouteType } from '../enums/RouteType';
+import { BusinessTripFilter } from '@route-optimizer/modules/business-trips/BusinessTripFilter';
+import { Route } from '@route-optimizer/core/models/Route';
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +37,33 @@ export class BusinessTripService {
 
   getBusinessTripWS(businessTripId: number): WebSocketSubject<any> {
     return webSocket(this.wsBusinessTripUrl + `${businessTripId}/`);
+  }
+
+  getBusinessTripsByFilter(filterType: BusinessTripFilter, businessTripPageSize: number, userId?: number) {
+    const now = new DateTimeConverter('yyyy-mm-dd+hh:ii:ss');
+    let filter;
+    switch (filterType) {
+      case BusinessTripFilter.FUTURE:
+        filter = { start_date__gt: now.formattedDate };
+        break;
+      case BusinessTripFilter.PAST:
+        filter = { finish_date__lt: now.formattedDate };
+        break;
+      case BusinessTripFilter.PRESENT:
+        filter = { start_date__lt: now.formattedDate, finish_date__gt: now.formattedDate };
+        break;
+    }
+
+    return this.list(userId, filter, businessTripPageSize);
+  }
+
+  getRoutesByDay(businessTrip: BusinessTrip): Array<Route[]> {
+    const routes = [];
+
+    for (let i = 0; i < businessTrip.routes.length; i++) {
+      routes.push(businessTrip.routes.filter(v => v.day === i));
+    }
+    return routes;
   }
 
   getPastBusinessTrips(businessTripsPageSize: number, userId?: number) {
