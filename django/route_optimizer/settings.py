@@ -221,6 +221,7 @@ LOGGING = {
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:4200',
     'http://localhost:8080',
+    'http://192.168.8.70:4200'
 )
 
 ASGI_APPLICATION = 'route_optimizer.routing.application'
@@ -228,13 +229,13 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('80.211.216.83', 6379)],
+            "hosts": [('redis', 6379)],
         },
     },
 }
 
-BROKER_URL = 'redis://80.211.216.83:6379'
-CELERY_RESULT_BACKEND = 'redis://80.211.216.83:6379'
+BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

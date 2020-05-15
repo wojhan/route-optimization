@@ -15,7 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # voivodeships = ['hotels', 'podlaskie']
         voivodeships = ['hotels', 'dolnośląskie',
-                        'podlaskie', 'warmińsko_mazurskie']
+                        'podlaskie']
         pages = {
             'podlaskie': 113,
             'hotels': 9,

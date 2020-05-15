@@ -3,7 +3,11 @@ from datetime import datetime
 from celery.result import AsyncResult
 from django.contrib import auth
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.utils.functional import cached_property
+
+from genetic.route_optimizer import RouteObserver
 
 
 class Profile(models.Model):
@@ -49,7 +53,7 @@ class Profile(models.Model):
 
 
 class Company(models.Model):
-    added_by = models.ForeignKey(Profile, verbose_name="dodany przez",
+    added_by = models.ForeignKey(auth.get_user_model(), verbose_name="dodany przez",
                                  on_delete=models.SET_NULL, related_name="added_companies", default=None, null=True)
     name = models.CharField(max_length=300, verbose_name='nazwa pełna')
     name_short = models.CharField(
@@ -93,7 +97,7 @@ class BusinessTrip(models.Model):
     distance_constraint = models.IntegerField(
         verbose_name="Maksymalny limit kilometrów jednego dnia")
     assignee = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
+        auth.get_user_model(), on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
     vertices_number = models.IntegerField(verbose_name="Liczba firm oraz hoteli")
     task_id = models.CharField(max_length=36, null=True)
     task_created = models.DateTimeField(verbose_name="data stworzenia zadania", null=True, blank=True)
@@ -118,13 +122,14 @@ class BusinessTrip(models.Model):
             distance += route.distance
         return distance
 
+
     @property
     def is_processed(self):
         if self.task_id is None or self.task_created is None:
             return False
 
         task = AsyncResult(self.task_id)
-        time_diff = datetime.now() - self.task_created
+        time_diff = datetime.now(self.task_created.tzinfo) - self.task_created
 
         # If task is stuck for more than one minute, let be false positive
         if task.status == 'PENDING' and time_diff.seconds >= 60:
@@ -157,7 +162,7 @@ class BusinessTrip(models.Model):
 
 
 class Requistion(models.Model):
-    created_by = models.ForeignKey(Profile, verbose_name="stworzony przez",
+    created_by = models.ForeignKey(auth.get_user_model(), verbose_name="stworzony przez",
                                    on_delete=models.SET_NULL, related_name="created_requistions", default=None, null=True, blank=True)
     estimated_profit = models.FloatField(verbose_name="oszacowany zysk")
     company = models.ForeignKey(
@@ -205,3 +210,23 @@ class Route(models.Model):
 
     def __str__(self):
         return str(self.start_point.pk) + " -> " + str(self.end_point.pk)
+
+
+@receiver(post_save, sender=BusinessTrip)
+def update_websocket(sender, instance: BusinessTrip, created, **kwargs):
+    error = instance.has_error()
+    route_observer = RouteObserver(instance.pk)
+
+    if error == 1:
+        route_observer.update_status('error', "Algorithm's error occurred")
+    if error == 2:
+        route_observer.update_status('error', "No possible route found for parameters")
+
+    if not instance.is_processed:
+        route_observer.update_status("info", "Route is being processed")
+
+@receiver(post_delete, sender=BusinessTrip)
+def delete_websocket(sender, instance, **kwargs):
+    route_observer = RouteObserver(instance.pk)
+
+    route_observer.update_status("delete")
