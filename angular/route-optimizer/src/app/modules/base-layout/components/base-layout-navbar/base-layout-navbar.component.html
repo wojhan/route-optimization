@@ -1,0 +1,11 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary border-bottom">
+  <button class="btn btn-primary" id="menu-toggle" (click)="toggleSidebar()">
+    <fa-icon [icon]="faBars"></fa-icon>
+  </button>
+  <ng-content select=".twoja-stara"></ng-content>
+
+  <section id="user-info">
+    <ng-content select=".navbar-buttons" *ngIf="currentUser.isStaff"></ng-content>
+    <button (click)="logout()" class="btn btn-outline-light btn-sm">Wyloguj się</button>
+  </section>
+</nav>

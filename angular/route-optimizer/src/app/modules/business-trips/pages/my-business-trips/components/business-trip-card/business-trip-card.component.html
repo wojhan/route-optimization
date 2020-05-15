@@ -1,6 +1,6 @@
 <div class="card h-100">
   <div class="card-header bg-light">
-    <a [routerLink]="['/dashboard', 'business-trips', businessTrip.id]">
+    <a [routerLink]="['/business-trips', businessTrip.id]">
       {{ businessTrip.startDate | date: 'dd MMMM yyyy hh:mm':undefined:'pl' }} -
       {{ businessTrip.finishDate | date: 'dd MMMM yyyy hh:mm':undefined:'pl' }}
     </a>

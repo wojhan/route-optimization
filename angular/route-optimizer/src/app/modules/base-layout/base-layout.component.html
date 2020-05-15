@@ -1,0 +1,30 @@
+<div class="d-flex" id="wrapper" [ngClass]="wrapperClasses" *ngIf="user | async as currentUser">
+  <!-- Sidebar -->
+  <ng-content select=".sidebar"></ng-content>
+  <!-- /#sidebar-wrapper -->
+
+  <!-- Page Content -->
+  <div id="page-content-wrapper">
+    <app-base-layout-navbar (toggledSidebar)="onToggledSidebar()" [currentUser]="currentUser">
+      <ng-container class="navbar-buttons">
+        <ng-content select=".navbar-buttons"></ng-content>
+      </ng-container>
+    </app-base-layout-navbar>
+    <div class="container-fluid flex-fill d-flex flex-column">
+      <div id="dashboard-content" class="d-flex flex-column flex-fill">
+        <div class="row">
+          <div class="col">
+            <p-breadcrumb [home]="home" [model]="menuItems"></p-breadcrumb>
+          </div>
+        </div>
+        <div class="row flex-fill">
+          <div class="col d-flex flex-column dashboard-router-content">
+            <ng-content select=".page-content"></ng-content>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /#page-content-wrapper -->
+</div>
+<!-- /#wrapper -->

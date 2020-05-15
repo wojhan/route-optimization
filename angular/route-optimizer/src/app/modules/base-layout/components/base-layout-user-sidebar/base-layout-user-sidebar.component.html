@@ -1,0 +1,46 @@
+<app-base-layout-sidebar>
+  <div class="sidebar-items">
+    <div class="list-group list-group-flush">
+      <a
+        [routerLink]="['/user-panel']"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="list-group-item list-group-item-action"
+      >
+        <fa-icon [icon]="faTachometerAlt"></fa-icon>
+        Panel użytkownika
+      </a>
+      <a [routerLink]="['/business-trips/my-business-trips']" routerLinkActive="active" class="list-group-item list-group-item-action"
+        >Twoje delegacje</a
+      >
+      <a [routerLink]="['/user-panel/companies']" class="list-group-item list-group-item-action">
+        <fa-icon [icon]="faBuilding"></fa-icon>
+        Firmy
+      </a>
+      <div class="list-group list-group-flush">
+        <a
+          [routerLink]="['/user-panel/companies']"
+          [routerLinkActiveOptions]="{ exact: true }"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+          >Przeglądaj</a
+        >
+        <a [routerLink]="['/user-panel/companies/add']" routerLinkActive="active" class="list-group-item list-group-item-action"
+          >Dodaj firmę</a
+        >
+      </div>
+      <a [routerLink]="['/user-panel/requisitions']" routerLinkActive="active" class="list-group-item list-group-item-action">
+        <fa-icon [icon]="faMoneyBillWave"></fa-icon>
+        Oferty
+      </a>
+      <div class="list-group list-group-flush">
+        <a [routerLink]="['/user-panel/requisitions']" routerLinkActive="active" class="list-group-item list-group-item-action"
+          >Przeglądaj</a
+        >
+        <a [routerLink]="['/user-panel/requisitions/add']" routerLinkActive="active" class="list-group-item list-group-item-action"
+          >Dodaj ofertę</a
+        >
+      </div>
+    </div>
+  </div>
+</app-base-layout-sidebar>

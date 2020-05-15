@@ -2,32 +2,38 @@ import { NgModule } from '@angular/core';
 import { DashboardRouting } from './dashboard-routing.component';
 import { SharedModule } from '../../shared/shared.module';
 import { DashboardPage } from './pages/dashboard.page';
-import { SidebarComponent } from './components/sidebar.component';
 import { DashboardHomePage } from './pages/dashboard-home.page';
-import { ProfileComponent } from './components/profile.component';
-import { UpdateProfileModal } from './components/modals/update-profile.modal';
-import { ChangePasswordModal } from './components/modals/change-password.modal';
-import { CurrentBusinessTripComponent } from './components/current-business-trip.component';
-import { LastBusinessTripComponent } from './components/last-business-trip.component';
-import { BusinessTripStatsComponent } from './components/business-trip-stats.component';
-import { InactiveUsersComponent } from './components/inactive-users.component';
-import { LastRequisitionsComponent } from './components/last-requisitions.component';
+import { DashboardProfileComponent } from './components/dashboard-profile/dashboard-profile.component';
+import { UpdateProfileModal } from './modals/update-profile.modal';
+import { ChangePasswordModal } from './modals/change-password.modal';
+import { DashboardCurrentBusinessTripComponent } from './components/dashboard-current-business-trip/dashboard-current-business-trip.component';
+import { DashboardLastBusinessTripComponent } from './components/dashboard-last-business-trip/dashboard-last-business-trip.component';
+import { DashboardBusinessTripStatsComponent } from './components/dashboard-business-trip-stats/dashboard-business-trip-stats.component';
+import { DashboardInactiveUsersComponent } from './components/dashboard-inactive-users/dashboard-inactive-users.component';
+import { DashboardLastRequisitionsComponent } from './components/dashboard-last-requisitions/dashboard-last-requisitions.component';
 
 @NgModule({
   declarations: [
-    DashboardPage,
-    DashboardHomePage,
-    SidebarComponent,
-    LastRequisitionsComponent,
-    ProfileComponent,
+    DashboardLastRequisitionsComponent,
+    DashboardProfileComponent,
     UpdateProfileModal,
     ChangePasswordModal,
-    CurrentBusinessTripComponent,
-    LastBusinessTripComponent,
-    BusinessTripStatsComponent,
-    InactiveUsersComponent
+    DashboardCurrentBusinessTripComponent,
+    DashboardLastBusinessTripComponent,
+    DashboardBusinessTripStatsComponent,
+    DashboardInactiveUsersComponent
   ],
   entryComponents: [UpdateProfileModal, ChangePasswordModal],
-  imports: [SharedModule, DashboardRouting]
+  imports: [SharedModule],
+  exports: [
+    DashboardLastRequisitionsComponent,
+    DashboardProfileComponent,
+    UpdateProfileModal,
+    ChangePasswordModal,
+    DashboardCurrentBusinessTripComponent,
+    DashboardLastBusinessTripComponent,
+    DashboardBusinessTripStatsComponent,
+    DashboardInactiveUsersComponent
+  ]
 })
 export class DashboardModule {}

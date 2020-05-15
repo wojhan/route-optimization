@@ -92,10 +92,6 @@ export class BusinessTripDetailPage implements OnInit, OnDestroy {
     }
   }
 
-  edit(): void {
-    this.router.navigate(['dashboard/business-trips', this.businessTrip.id, 'edit']);
-  }
-
   delete(): void {
     // TODO: Update method to handle delete method of business trip service
     this.modalService
