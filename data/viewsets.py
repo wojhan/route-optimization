@@ -13,8 +13,9 @@ from rest_framework.views import APIView
 
 from data import filters as data_filters
 from data import models, permissions, serializers
+
+
 # from data.utils import generate_data_for_route
-from genetic.tasks import do_generate_route
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -219,7 +220,7 @@ class RequisitionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        queryset.filter(Q(created_by=self.request.user.profile)
+        queryset.filter(Q(created_by=self.request.user)
                         | Q(created_by=None))
 
         return queryset
@@ -232,6 +233,15 @@ class CompanyViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsOwnerOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name_short', 'nip']
+
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = models.Department.objects.all()
+    serializer_class = serializers.DepartmentSerializer
+    pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAdminUser]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name", "nip"]
 
 
 class HotelViewSet(viewsets.ModelViewSet):

@@ -12,6 +12,7 @@ router.register(r'api/business-trips', viewsets.BusinessTripViewSet)
 router.register(r'api/requisitions', viewsets.RequisitionViewSet)
 router.register(r'api/hotels', viewsets.HotelViewSet)
 router.register(r'api/employees', viewsets.EmployeeViewSet, 'employee')
+router.register(r'api/departments', viewsets.DepartmentViewSet)
 router.register(
     r'api/employees/(?P<pk>[^/.])/business-trips', viewsets.EmployeeBusinessTrips, 'employee_business_trips')
 router.register(

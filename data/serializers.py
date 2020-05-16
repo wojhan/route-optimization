@@ -59,7 +59,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class CompanySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.Company
         fields = ['id', 'name', 'name_short', 'nip', 'street',
@@ -71,15 +70,20 @@ class CompanySerializer(serializers.ModelSerializer):
         }
 
 
-class HotelSerializer(serializers.HyperlinkedModelSerializer):
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Department
+        fields = ["id", "name", "nip", "street", "house_no", "postcode", "city", "latitude", "longitude"]
 
+
+class HotelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta(CompanySerializer):
         model = models.Hotel
         fields = ['id', 'name', 'name_short', 'nip', 'street',
                   'house_no', 'postcode', 'city', 'latitude', 'longitude']
 
 
-class  TokenSerializer(serializers.HyperlinkedModelSerializer):
+class TokenSerializer(serializers.HyperlinkedModelSerializer):
     is_staff = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
 
