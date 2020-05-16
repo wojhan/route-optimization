@@ -2,16 +2,16 @@ version: "3.3"
 
 services:
   django:
-    build: ./django
+    build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./django/:/usr/src/app/
+      - ./:/usr/src/app/
     ports:
       - 8000:8000
       - 4444:4444
       - 8265:8265
     env_file:
-      - ./django/.env.dev
+      - ./.django-env-dev
     depends_on:
       - db
     stdin_open: true
@@ -26,17 +26,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./.env
-  ng:
-    container_name: ng
-    build: ./angular
-    ports:
-      - "80:80"
-    volumes:
-      - ./angular/route-optimizer/:/usr/src/app/
-    environment:
-      - NODE_ENV=dev
-      - CHOKIDAR_USEPOLLING=true
+      - ./.postgres-env
   redis:
     restart: always
     image: redis:latest
@@ -51,12 +41,12 @@ services:
       - 5000:5000
   celery:
     restart: always
-    build: ./django
+    build: .
     command: celery -A route_optimizer worker -l debug
     volumes:
-      - ./django/:/usr/src/app/
+      - ./:/usr/src/app/
     env_file:
-      - ./django/.env.dev
+      - ./.django-env-dev
     depends_on:
       - db
       - redis
