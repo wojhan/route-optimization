@@ -1,7 +1,5 @@
 from datetime import datetime
 
-import channels.layers
-from asgiref.sync import async_to_sync
 from celery.result import AsyncResult
 from django.contrib import auth
 from django.db import models
@@ -10,6 +8,28 @@ from django.dispatch import receiver
 from django.utils.functional import cached_property
 
 from data import utils
+
+
+class CompanyMixin(models.Model):
+    name = models.CharField(max_length=300, verbose_name='nazwa pełna')
+    nip = models.CharField(max_length=11, verbose_name='nip', unique=True)
+    street = models.CharField(max_length=60, verbose_name='ulica', blank=True)
+    house_no = models.CharField(max_length=10, verbose_name='numer budynku')
+    postcode = models.CharField(max_length=8, verbose_name='kod pocztowy')
+    city = models.CharField(max_length=40, verbose_name='miasto')
+    voivodeship = models.CharField(max_length=20, verbose_name='województwo')
+    latitude = models.FloatField(
+        verbose_name='szerokość geograficzna', null=True)
+    longitude = models.FloatField(
+        verbose_name='długość geograficzna', null=True)
+
+    @staticmethod
+    def autocomplete_search_fields():
+        return ('name__icontains', 'street__icontains', 'city__iexact')
+
+    class Meta:
+        abstract = True
+
 
 class Profile(models.Model):
     user = models.OneToOneField(
@@ -53,26 +73,11 @@ class Profile(models.Model):
         verbose_name_plural = 'profile użytkownika'
 
 
-class Company(models.Model):
-    added_by = models.ForeignKey(auth.get_user_model(), verbose_name="dodany przez",
-                                 on_delete=models.SET_NULL, related_name="added_companies", default=None, null=True)
-    name = models.CharField(max_length=300, verbose_name='nazwa pełna')
+class Company(CompanyMixin):
     name_short = models.CharField(
         max_length=250, verbose_name='nazwa skrócona')
-    nip = models.CharField(max_length=11, verbose_name='nip', unique=True)
-    street = models.CharField(max_length=60, verbose_name='ulica', blank=True)
-    house_no = models.CharField(max_length=10, verbose_name='numer budynku')
-    postcode = models.CharField(max_length=8, verbose_name='kod pocztowy')
-    city = models.CharField(max_length=40, verbose_name='miasto')
-    voivodeship = models.CharField(max_length=20, verbose_name='województwo')
-    latitude = models.FloatField(
-        verbose_name='szerokość geograficzna', null=True)
-    longitude = models.FloatField(
-        verbose_name='długość geograficzna', null=True)
-
-    @staticmethod
-    def autocomplete_search_fields():
-        return ('name_short__icontains', 'street__icontains', 'city__iexact')
+    added_by = models.ForeignKey(auth.get_user_model(), verbose_name="dodany przez",
+                                 on_delete=models.SET_NULL, related_name="added_companies", default=None, null=True)
 
     def __str__(self):
         street = 'ul. ' + self.street if self.street != self.city else self.street
@@ -85,11 +90,19 @@ class Company(models.Model):
 
 
 class Hotel(Company):
-
+    # TODO: Change Company inheritance to CompanyMixin
     class Meta:
         verbose_name = 'hotel'
         verbose_name_plural = 'hotele'
 
+
+class Department(CompanyMixin):
+    nip = models.CharField(max_length=11, verbose_name='nip', unique=False)
+
+    class Meta:
+        ordering = ["pk"]
+        verbose_name = "filia firmy"
+        verbose_name_plural = "filie firmy"
 
 class BusinessTrip(models.Model):
     start_date = models.DateTimeField(verbose_name="data rozpoczęcia")
@@ -179,7 +192,7 @@ class Requistion(models.Model):
     class Meta:
         verbose_name = 'zapotrzebowanie'
         verbose_name_plural = 'zapotrzebowania'
-        ordering = ['-pk']
+        ordering = ['created_by', '-pk']
 
 
 class Route(models.Model):
