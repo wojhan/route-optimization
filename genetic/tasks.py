@@ -1,11 +1,17 @@
-import genetic
+import datetime
+
 from celery import task
+
+import genetic
 from data import models
 from genetic import route_optimizer, vertices
+
+
 # from genetic.route_optimizer import NotEnoughCompaniesException
 
 class RouteOptimizerException(Exception):
     pass
+
 
 @task(reject_on_worker_lost=True)
 def do_generate_route(data):
@@ -45,8 +51,7 @@ def do_generate_route(data):
                 end_point = models.Company.objects.get(pk=int(point.name))
                 distance = ro.population[-1][0].distances[route_part.route[index - 1].id, point.id][1]
                 models.Route.objects.create(start_point=start_point, end_point=end_point, distance=distance, segment_order=index, day=day, business_trip=business_trip, route_version=business_trip.route_version)
-        ro.observer.set_progress(ro.observer.total, ro.observer.total)
     finally:
-        business_trip.is_processed = True
+        business_trip.task_finished = datetime.datetime.now()
         business_trip.save()
         return 'done'

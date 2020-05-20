@@ -148,7 +148,7 @@ class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         if user.is_staff:
             return objects.filter(created_by=None)
         else:
-            return objects.filter(Q(created_by=None) | Q(created_by=user.profile))
+            return objects.filter(Q(created_by=None) | Q(created_by=user))
 
 
 class EmployeeCompanyHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -178,6 +178,9 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
     queryset = models.BusinessTrip.objects.all()
     serializer_class = serializers.BusinessTripSerializer
     permission_classes = [IsAdminUser]
+
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
     def partial_update(self, request, pk=None):
         business_trip = models.BusinessTrip.objects.get(pk=pk)

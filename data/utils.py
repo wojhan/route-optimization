@@ -1,7 +1,6 @@
 import channels.layers
 from asgiref.sync import async_to_sync
 
-from data import renderers
 
 def check_business_trip_status(business_trip):
     error = business_trip.has_error()
@@ -17,6 +16,7 @@ def check_business_trip_status(business_trip):
 
     return "SUCCEEDED", business_trip.pk
 
+
 def update_business_trip_by_ws(business_trip_id, message_type, message):
     channel_layer = channels.layers.get_channel_layer()
     group_name = 'business_trip_%s' % business_trip_id
@@ -29,6 +29,29 @@ def update_business_trip_by_ws(business_trip_id, message_type, message):
             "message": message
         }
     )
+
+
+def generate_data_for_route(business_trip, requisitions, depot, hotel_queryset, crossover_probability=0.7,
+                            mutation_probability=0.4, elitism_rate=0.1,
+                            population_size=40, iterations=1000):
+    depot = dict(name=str(depot.pk), coords=(depot.latitude, depot.longitude))
+    companies = list()
+    hotels = list()
+
+    for requisition in requisitions:
+        company = dict(name=str(requisition.company.pk),
+                       coords=(requisition.company.latitude,
+                               requisition.company.longitude),
+                       profit=requisition.estimated_profit)
+        companies.append(company)
+
+    for hotel in hotel_queryset:
+        hotels.append(dict(name=str(hotel.pk), coords=(hotel.latitude, hotel.longitude)))
+
+    return dict(business_trip_id=business_trip.id, depots=depot,
+                companies=companies, hotels=hotels, tmax=business_trip.distance_constraint, days=business_trip.duration,
+                crossover_probability=crossover_probability, mutation_probability=mutation_probability,
+                elitism_rate=elitism_rate, population_size=population_size, iterations=iterations)
 
 # def generate_data_for_route(business_trip, data, crossover_probability=0.7, mutation_probability=0.4, elitism_rate=0.1,
 #                             population_size=40, iterations=1000):
