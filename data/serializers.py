@@ -1,10 +1,13 @@
+import datetime
+
 from django.contrib import auth
 from django.core.exceptions import FieldError
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 
-from data import models
+from data import models, utils
+from genetic import tasks
 
 
 class BasicUserSerializer(serializers.ModelSerializer):
@@ -102,6 +105,9 @@ class TokenSerializer(serializers.HyperlinkedModelSerializer):
 class RequistionSerializer(serializers.ModelSerializer):
     company = CompanySerializer()
 
+    def validate(self, attrs):
+        return attrs
+
     def _validate_company(self, value):
         company = {}
 
@@ -159,8 +165,8 @@ class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
 
 
 class BusinessTripSerializer(serializers.ModelSerializer):
-    assignee = BasicUserSerializer(partial=True, required=False)
-    requistions = RequistionSerializer(many=True, partial=True, required=False)
+    assignee = BasicUserSerializer(partial=True, required=False, read_only=True)
+    requistions = RequistionSerializer(many=True, required=False, read_only=True)
     estimated_profit = serializers.ReadOnlyField()
     duration = serializers.ReadOnlyField()
 
@@ -168,77 +174,149 @@ class BusinessTripSerializer(serializers.ModelSerializer):
                              required=False, source='get_routes_for_version')
     max_distance = serializers.IntegerField(source='distance_constraint')
 
-    def _validate_company(self, value):
-        company = {}
+    def validate(self, attrs):
+        if attrs['start_date'] > attrs['finish_date']:
+            raise serializers.ValidationError({"finish_date": "Data zakończenia nie może być wcześniej niż startu"})
 
-        for key, v in value.items():
-            company[key] = v
+        return attrs
 
-        try:
-            company_obj = models.Company.objects.get_or_create(**company)
-        except FieldError:
-            raise serializers.ValidationError(
-                'Przypisana firma nie jest instancją firmy.')
+    def __update_requisitions(self, instance: 'models.BusinessTrip', update: bool = False) -> None:
+        """
+        Updates requisitions retrieved from POST, PUT or PATCH method, cleans up the existing business trip relation with requisitions
+        and then assign them to business trip once again.
 
-        return company_obj[0]
+        Raises ValidationError when no requisitions passed during POST method.
+        Raises DoesNotExist when no record match in database for any of passed requisitions.
 
-    def validate_requistions(self, value):
-        requistions = []
+        @param instance: instance of created business trip model
+        @param update: for POST method is false, otherwise is true
+        """
+        request = self.context['request']
 
-        for single_requistion in value:
-            requistion = {}
-            for key, v in single_requistion.items():
-                requistion[key] = v
+        if not "requistions" in request.data:
+            if not update:
+                raise serializers.ValidationError({"requistions": "Nie wybrano żadnej oferty"})
+            return
 
-            requistion['company'] = self._validate_company(
-                requistion['company'])
+        requisitions = self.context['request'].data['requistions']
+        requisition_ids = [requisition['id'] for requisition in requisitions]
 
+        instance.requistions.clear()
+
+        for index, requisition_id in enumerate(requisition_ids):
             try:
-                requistion_obj = models.Requistion.objects.get_or_create(
-                    **requistion)
-            except FieldError:
+                requisition = models.Requistion.objects.get(pk=requisition_id, business_trip=None)
+            except models.Requistion.DoesNotExist as e:
                 raise serializers.ValidationError(
-                    'Oferta nie jest instancją oferty.')
-            requistions.append(requistion_obj[0])
+                    {"requisitions": f"{requisitions[index]['company']['name_short']} nie jest prawidłową ofertą"})
+            else:
+                if requisition.business_trip:
+                    raise serializers.ValidationError(
+                        {"requisitions": f"{requisition} jest przypisany już do innej delegacji"})
+                requisition.business_trip = instance
+                requisition.save()
 
-        return requistions
+    def __update_assignee(self, instance: 'models.BusinessTrip') -> None:
+        """
+        Updates an assigne on business trip instance. Called only during POST method.
+        @param instance: instance of bussines trip.
+        """
+        request = self.context['request']
 
-    def validate_assignee(self, value):
-        assignee = {}
+        if not 'assignee' in request.data:
+            raise serializers.ValidationError({"assignee": "Brak przypisanego pracownika"})
 
-        for key, v in value['user'].items():
-            assignee[key] = v
+        user_id = request.data['assignee']['id']
+
         try:
-            user = auth.get_user_model().objects.get_or_create(**assignee)
-        except FieldError:
-            raise serializers.ValidationError(
-                "Przypisany nie jest instancją użytkownika")
+            user = auth.get_user_model().objects.get(pk=user_id)
+        except auth.get_user_model().DoesNotExist:
+            raise serializers.ValidationError({"assignee": "Pracownik nie istnieje w bazie danych"})
+        else:
+            instance.assignee = user
 
-        return user[0].profile
+    def __process_route(self, instance: 'models.BusinessTrip') -> None:
+        """
+        Generate data for route and then starts a task responsible for processing route. Updates instance of business trip
+        with task related data to keep track on progress.
 
-    def update(self, instance, validated_data):
-        modify_version = False
+        @param instance: instance of business trip
+        """
+        requisitions = instance.requistions.all()
+        hotels = models.Hotel.objects.all()
 
-        if 'assignee' in validated_data:
-            assignee_data = validated_data.pop('assignee')
-            instance.assignee = assignee_data
+        # TODO: Change this to correct department of business trip
+        department = models.Company.objects.get(pk=600)
 
-        if 'requistions' in validated_data:
-            requistions_data = validated_data.pop('requistions')
+        data = utils.generate_data_for_route(instance, requisitions, department, hotels, iterations=1000)
+        task = tasks.do_generate_route.delay(data)
 
-            modify_version = True
+        instance.task_id = task.task_id
+        instance.task_created = datetime.datetime.now(tz=instance.start_date.tzinfo)
+        instance.task_finished = None
 
-            for requistion in instance.requistions.all():
-                instance.requistions.remove(requistion)
+    def create(self, validated_data: dict) -> 'models.BusinessTrip':
+        """
+        Overridden method of create, custom validation and creation of requisitions and assignee. Also it starts a processing routes
+        for newly created business trip.
 
-            for requistion in requistions_data:
-                instance.requistions.add(requistion)
+        @param validated_data: dictionary storing information from body of POST method
+        @return: instance of newly created business trip model
+        """
+        # TODO: remove vertices number
+        validated_data['vertices_number'] = 0
+        instance = super().create(validated_data)
+        self.__update_requisitions(instance)
+        self.__update_assignee(instance)
+        self.__process_route(instance)
+        instance.save()
 
-        if modify_version:
+        return instance
+
+    def update(self, instance: 'models.BusinessTrip', validated_data: dict) -> 'models.BusinessTrip':
+        """
+        Overridden update method. Updates fields of business trip model.
+        Checks if changed values of existing business trip are valid and given business trip requires
+        change of generated routes. If it does, then starts a new generating task and updating the instance
+
+        @param instance: instance of business trip to be updated
+        @param validated_data: dict containing new field values during PUT or PATCH method
+        @return: instance of updated business trip model
+        """
+        self.__update_requisitions(instance, True)
+        start_date = validated_data["start_date"] if "start_date" in validated_data else instance.start_date
+        finish_date = validated_data["finish_date"] if "finish_date" in validated_data else instance.finish_date
+
+        instance.start_date = start_date
+        instance.finish_date = finish_date
+        process_route = False
+
+        # Process route if duration has changed
+        if (finish_date - start_date).days != instance.duration - 1:
+            process_route = True
+
+        # Process route if distance constraint has changed
+        if "distance_constraint" in validated_data and validated_data[
+            "distance_constraint"] != instance.distance_constraint:
+            instance.distance_constraint = validated_data["distance_constraint"]
+            process_route = True
+
+        # Process route if requisitions has changed
+        if "requistions" in self.context['request'].data:
+            process_route = True
+
+        # Process route if department has changed
+        if "department" in self.context['request'].data:
+            process_route = True
+            # TODO: update field in businesstrip model
+
+        # Increment route version if new route will be generated
+        if process_route:
             instance.route_version += 1
+            self.__process_route(instance)
 
         instance.save()
-        return super().update(instance, validated_data)
+        return instance
 
     class Meta:
         model = models.BusinessTrip

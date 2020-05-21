@@ -2,7 +2,6 @@ import logging
 import math
 import random
 from datetime import datetime
-from time import sleep
 from typing import List
 
 import channels.layers
@@ -361,4 +360,4 @@ class RouteOptimizer:
                 break
             logger.info('Finished processing iteration %d of %d' %
                         (i, self.iterations))
-            sleep(10)
+            # sleep(10)
