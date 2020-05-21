@@ -165,7 +165,6 @@ class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
 
 
 class BusinessTripSerializer(serializers.ModelSerializer):
-    assignee = BasicUserSerializer(partial=True, required=False, read_only=True)
     requistions = RequistionSerializer(many=True, required=False, read_only=True)
     estimated_profit = serializers.ReadOnlyField()
     duration = serializers.ReadOnlyField()
@@ -216,25 +215,6 @@ class BusinessTripSerializer(serializers.ModelSerializer):
                 requisition.business_trip = instance
                 requisition.save()
 
-    def __update_assignee(self, instance: 'models.BusinessTrip') -> None:
-        """
-        Updates an assigne on business trip instance. Called only during POST method.
-        @param instance: instance of bussines trip.
-        """
-        request = self.context['request']
-
-        if not 'assignee' in request.data:
-            raise serializers.ValidationError({"assignee": "Brak przypisanego pracownika"})
-
-        user_id = request.data['assignee']['id']
-
-        try:
-            user = auth.get_user_model().objects.get(pk=user_id)
-        except auth.get_user_model().DoesNotExist:
-            raise serializers.ValidationError({"assignee": "Pracownik nie istnieje w bazie danych"})
-        else:
-            instance.assignee = user
-
     def __process_route(self, instance: 'models.BusinessTrip') -> None:
         """
         Generate data for route and then starts a task responsible for processing route. Updates instance of business trip
@@ -244,9 +224,7 @@ class BusinessTripSerializer(serializers.ModelSerializer):
         """
         requisitions = instance.requistions.all()
         hotels = models.Hotel.objects.all()
-
-        # TODO: Change this to correct department of business trip
-        department = models.Company.objects.get(pk=600)
+        department = instance.department
 
         data = utils.generate_data_for_route(instance, requisitions, department, hotels, iterations=1000)
         task = tasks.do_generate_route.delay(data)
@@ -263,13 +241,10 @@ class BusinessTripSerializer(serializers.ModelSerializer):
         @param validated_data: dictionary storing information from body of POST method
         @return: instance of newly created business trip model
         """
-        # TODO: remove vertices number
-        validated_data['vertices_number'] = 0
         instance = super().create(validated_data)
         self.__update_requisitions(instance)
-        self.__update_assignee(instance)
-        self.__process_route(instance)
         instance.save()
+        self.__process_route(instance)
 
         return instance
 
@@ -310,13 +285,14 @@ class BusinessTripSerializer(serializers.ModelSerializer):
             process_route = True
 
         # Process route if department has changed
-        if "department" in self.context['request'].data:
+        if "department" in validated_data:
             process_route = True
-            # TODO: update field in businesstrip model
+            instance.department = validated_data["department"]
 
         # Increment route version if new route will be generated
         if process_route:
             instance.route_version += 1
+            instance.save()
             self.__process_route(instance)
 
         instance.save()
@@ -325,7 +301,7 @@ class BusinessTripSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.BusinessTrip
         fields = ['id', 'start_date', 'finish_date', 'duration', 'distance',
-                  'assignee', 'requistions', 'routes', 'estimated_profit', 'max_distance', 'is_processed']
+                  'assignee', 'requistions', 'routes', 'estimated_profit', 'max_distance', 'is_processed', 'department']
 
 
 class ChangePasswordSerializer(serializers.Serializer):
