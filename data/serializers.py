@@ -283,6 +283,10 @@ class BusinessTripSerializer(serializers.ModelSerializer):
         @param validated_data: dict containing new field values during PUT or PATCH method
         @return: instance of updated business trip model
         """
+
+        if not instance.is_processed:
+            raise serializers.ValidationError({"non_field_errors": ["Route is being processing"]})
+
         self.__update_requisitions(instance, True)
         start_date = validated_data["start_date"] if "start_date" in validated_data else instance.start_date
         finish_date = validated_data["finish_date"] if "finish_date" in validated_data else instance.finish_date

@@ -9,7 +9,7 @@ class IsOwner(permissions.BasePermission):
             return True
 
         if hasattr(obj, 'assignee'):
-            return obj.assignee == request.user.profile
+            return obj.assignee == request.user
 
         return False
 
@@ -26,10 +26,10 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         if hasattr(obj, 'created_by'):
-            return obj.created_by == request.user.profile
+            return obj.created_by == request.user
 
         if hasattr(obj, 'added_by'):
-            return obj.added_by == request.user.profile
+            return obj.added_by == request.user
 
         return False
 
