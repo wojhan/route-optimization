@@ -1,6 +1,5 @@
 import json
 
-from celery.result import AsyncResult
 from django.contrib.auth.models import User
 from django.db.models import Q
 from rest_framework import filters, mixins, status, viewsets
@@ -178,30 +177,6 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
     queryset = models.BusinessTrip.objects.all()
     serializer_class = serializers.BusinessTripSerializer
     permission_classes = [IsAdminUser]
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    def partial_update(self, request, pk=None):
-        business_trip = models.BusinessTrip.objects.get(pk=pk)
-        if not business_trip.task_id:
-            available = True
-        else:
-            task_result = AsyncResult(business_trip.task_id)
-            available = AsyncResult(business_trip.task_id).ready()
-
-        if available:
-            pass
-            # data = generate_data_for_route(
-            #     business_trip, request.data, iterations=1000)
-            # task = do_generate_route.delay(data)
-            # business_trip.is_processed = False
-            # business_trip.task_id = task.task_id
-            # business_trip.save()
-            # do_generate_route(data)
-
-            return super().partial_update(request, pk=pk)
-        return Response(json.dumps({"message": "Route have been processing already."}), status.HTTP_400_BAD_REQUEST)
 
     def get_permissions(self):
         if self.action == 'retrieve':
