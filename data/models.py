@@ -111,9 +111,11 @@ class BusinessTrip(models.Model):
     distance_constraint = models.IntegerField(
         verbose_name="Maksymalny limit kilometrów jednego dnia")
     assignee = models.ForeignKey(
-        auth.get_user_model(), on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany", null=True)
-    vertices_number = models.IntegerField(verbose_name="Liczba firm oraz hoteli")
-    task_id = models.CharField(max_length=36, null=True)
+        auth.get_user_model(), on_delete=models.CASCADE, related_name="business_trips", verbose_name="przypisany",
+        null=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="business_trips",
+                                   verbose_name="Punkt startowy i końcowy")
+    task_id = models.CharField(max_length=36, null=True, blank=True)
     task_created = models.DateTimeField(verbose_name="data stworzenia zadania", null=True, blank=True)
     task_finished = models.DateTimeField(verbose_name="data zakończenia zadania", null=True, blank=True)
 
