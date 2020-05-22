@@ -5,6 +5,7 @@ from channels.generic import websocket
 
 from data import models, renderers, serializers, utils
 
+
 class RouteConsumer(websocket.WebsocketConsumer):
 
     def connect(self):
@@ -30,7 +31,7 @@ class RouteConsumer(websocket.WebsocketConsumer):
             self.accept()
             message_type, message = utils.check_business_trip_status(business_trip)
             if message == business_trip.pk:
-                message = renderers.camelize(serializers.BusinessTripSerializer(business_trip).data)
+                message = renderers.camelize(serializers.BusinessTripReadOnlySerializer(business_trip).data)
             self.send_message(message_type, message)
 
     def disconnect(self, code):
@@ -63,7 +64,7 @@ class RouteConsumer(websocket.WebsocketConsumer):
         message_type = event["messageType"]
         if message_type == "SUCCEEDED":
             business_trip = models.BusinessTrip.objects.get(pk=event["message"])
-            event["message"] = renderers.camelize(serializers.BusinessTripSerializer(business_trip).data)
+            event["message"] = renderers.camelize(serializers.BusinessTripReadOnlySerializer(business_trip).data)
         event["type"] = "business_trip_message"
         self.business_trip_message(event)
 
