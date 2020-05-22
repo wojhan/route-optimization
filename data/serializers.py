@@ -164,7 +164,7 @@ class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
                   'visited_companies', 'total_distance']
 
 
-class BusinessTripSerializer(serializers.ModelSerializer):
+class BusinessTripSerializerMixin(serializers.ModelSerializer):
     requistions = RequistionSerializer(many=True, required=False, read_only=True)
     estimated_profit = serializers.ReadOnlyField()
     duration = serializers.ReadOnlyField()
@@ -172,6 +172,22 @@ class BusinessTripSerializer(serializers.ModelSerializer):
     routes = RouteSerializer(many=True, partial=True,
                              required=False, source='get_routes_for_version')
     max_distance = serializers.IntegerField(source='distance_constraint')
+
+    class Meta:
+        abstract = True
+
+
+class BusinessTripReadOnlySerializer(BusinessTripSerializerMixin):
+    assignee = BasicUserSerializer(read_only=True)
+    department = DepartmentSerializer(read_only=True)
+
+    class Meta:
+        model = models.BusinessTrip
+        fields = ['id', 'start_date', 'finish_date', 'duration', 'distance', 'assignee', 'requistions', 'routes',
+                  'estimated_profit', 'max_distance', 'is_processed', 'department']
+
+
+class BusinessTripSerializer(BusinessTripSerializerMixin):
 
     def validate(self, attrs):
         if attrs['start_date'] > attrs['finish_date']:

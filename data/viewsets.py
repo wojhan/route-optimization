@@ -186,6 +186,12 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
 
         return [permission() for permission in permission_classes]
 
+    def get_serializer_class(self):
+        if self.action in ('retrieve', 'list'):
+            return serializers.BusinessTripReadOnlySerializer
+
+        return self.serializer_class
+
 
 class RequisitionViewSet(viewsets.ModelViewSet):
     queryset = models.Requistion.objects.filter(business_trip=None)
