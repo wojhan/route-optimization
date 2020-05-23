@@ -2,6 +2,8 @@ from datetime import datetime
 
 from celery.result import AsyncResult
 from django.contrib import auth
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
@@ -144,6 +146,9 @@ class BusinessTrip(models.Model):
         if self.task_id is None or self.task_created is None:
             return True
 
+        if self.task_finished:
+            return True
+
         task = AsyncResult(self.task_id)
         time_diff = datetime.now(self.task_created.tzinfo) - self.task_created
 
@@ -198,20 +203,34 @@ class Requistion(models.Model):
 
 
 class Route(models.Model):
+    START = "START"
+    VISIT = "VISIT"
+    FINISH_AT_DEPOT = "FINISH_AT_DEPOT"
+    FINISH_AT_HOTEL = "FINISH_AT_HOTEL"
+    START_FROM_DEPOT = "START_FROM_DEPOT"
+    START_FROM_HOTEL = "START_FROM_HOTEL"
+    FINISH = "FINISH"
+
     ROUTE_TYPE_CHOICES = [
-        ("START", "Początek trasy"),
-        ("VISIT", "Odwiedzenie firmy"),
-        ("FINISH_AT_DEPOT", "Koniec podtrasy w filii"),
-        ("FINISH_AT_HOTEL", "Koniec podtrasy w hotelu"),
-        ("START_FROM_DEPOT", "Początek podtrasy w filii"),
-        ("START_FROM_HOTEL", "Początek podtrasy w hotelu"),
-        ("FINISH", "Koniec trasy")
+        (START, "Początek trasy"),
+        (VISIT, "Odwiedzenie firmy"),
+        (FINISH_AT_DEPOT, "Koniec podtrasy w filii"),
+        (FINISH_AT_HOTEL, "Koniec podtrasy w hotelu"),
+        (START_FROM_DEPOT, "Początek podtrasy w filii"),
+        (START_FROM_HOTEL, "Początek podtrasy w hotelu"),
+        (FINISH, "Koniec trasy")
     ]
 
-    start_point = models.ForeignKey(
-        Company, on_delete=models.CASCADE, related_name="+")
-    end_point = models.ForeignKey(
-        Company, on_delete=models.CASCADE, related_name="+")
+    # start point generic relation
+    start_point_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="+")
+    start_point_object_id = models.PositiveIntegerField()
+
+    # end point generic relation
+    end_point_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="+")
+    end_point_object_id = models.PositiveIntegerField()
+
+    start_point = GenericForeignKey("start_point_content_type", "start_point_object_id")
+    end_point = GenericForeignKey("end_point_content_type", "end_point_object_id")
     distance = models.FloatField()
     segment_order = models.IntegerField()
     route_version = models.IntegerField(verbose_name="Wersja", default=1)
@@ -231,6 +250,7 @@ class Route(models.Model):
 @receiver(post_save, sender=BusinessTrip)
 def update_websocket(sender, instance: BusinessTrip, created, **kwargs):
     message_type, message = utils.check_business_trip_status(instance)
+    # if message_type == FAILED
     utils.update_business_trip_by_ws(instance.pk, message_type, message)
 
 @receiver(post_delete, sender=BusinessTrip)

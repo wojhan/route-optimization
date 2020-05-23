@@ -3,7 +3,7 @@ import datetime
 from celery import task
 
 from data import models
-from genetic import route_optimizer, vertices
+from genetic import route_optimizer, vertices, routes
 
 
 class RouteOptimizerException(Exception):
@@ -39,10 +39,43 @@ def do_generate_route(data):
         ro.run()
     except:
         raise RouteOptimizerException()
+    else:
+        route = ro.population[-1][0]
+        route_part: routes.RoutePart
+        for day, route_part in enumerate(route.routes):
+            point: vertices.Vertex
+            for index, point in enumerate(route_part.route):
+                if index == 0:
+                    continue
+
+                start_point_vertex = route_part.route[index - 1]
+                start_point = start_point_vertex.model.objects.get(pk=int(start_point_vertex.name))
+                end_point_vertex = point
+                end_point = end_point_vertex.model.objects.get(pk=int(end_point_vertex.name))
+
+                distance = route.distances[end_point_vertex.id, start_point_vertex.id][1]
+
+                route_type = models.Route.VISIT
+                if start_point_vertex.stop_type == 'depot' and end_point_vertex.stop_type == 'company':
+                    route_type = models.Route.START if day == 0 else models.Route.START_FROM_DEPOT
+                if start_point_vertex.stop_type == 'hotel' and end_point_vertex.stop_type == 'company':
+                    route_type = models.Route.START_FROM_HOTEL
+                if start_point_vertex.stop_type == 'company' and end_point_vertex.stop_type == 'hotel':
+                    route_type = models.Route.FINISH_AT_HOTEL
+                if start_point_vertex.stop_type == 'company' and end_point_vertex.stop_type == 'depot':
+                    route_type = models.Route.FINISH if day == ro.population[-1][
+                        0].days - 1 else models.Route.FINISH_AT_DEPOT
+
+                models.Route.objects.create(start_point=start_point,
+                                            end_point=end_point,
+                                            distance=distance,
+                                            day=day,
+                                            segment_order=index - 1,
+                                            route_version=business_trip.route_version,
+                                            business_trip=business_trip,
+                                            route_type=route_type)
     finally:
         business_trip.task_finished = datetime.datetime.now()
         business_trip.save()
-
-    # TODO: Generate route with correct route segment types
 
     return business_trip_id
