@@ -1,7 +1,6 @@
 import datetime
 
 from django.contrib import auth
-from django.core.exceptions import FieldError
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
@@ -66,11 +65,6 @@ class CompanySerializer(serializers.ModelSerializer):
         model = models.Company
         fields = ['id', 'name', 'name_short', 'nip', 'street',
                   'house_no', 'postcode', 'city', 'latitude', 'longitude', 'added_by']
-        extra_kwargs = {
-            'nip': {
-                'validators': []
-            }
-        }
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -80,7 +74,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class HotelSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta(CompanySerializer):
+    class Meta:
         model = models.Hotel
         fields = ['id', 'name', 'name_short', 'nip', 'street',
                   'house_no', 'postcode', 'city', 'latitude', 'longitude']
@@ -102,48 +96,23 @@ class TokenSerializer(serializers.HyperlinkedModelSerializer):
         return reverse('profile-detail', args=[obj.user.profile.id], request=self.context['request'])
 
 
-class RequistionSerializer(serializers.ModelSerializer):
-    company = CompanySerializer()
-
-    def validate(self, attrs):
-        return attrs
-
-    def _validate_company(self, value):
-        company = {}
-
-        for key, v in value.items():
-            company[key] = v
-
-        try:
-            company_obj = models.Company.objects.get_or_create(**company)
-        except FieldError:
-            raise serializers.ValidationError(
-                'Przypisana firma nie jest instancją firmy.')
-
-        return company_obj[0]
-
-    def create(self, validated_data: dict):
-        company = validated_data.pop('company')
-        company_obj = models.Company.objects.get_or_create(**company)[0]
-
-        validated_data['company'] = company_obj
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        company = validated_data.pop('company')
-        company_obj = models.Company.objects.get_or_create(**company)[0]
-        print(company_obj)
-
-        instance.company = company_obj
-
-        instance.save()
-
-        return super().update(instance, validated_data)
-
+class RequisitionSerializerMixin(serializers.ModelSerializer):
     class Meta:
         model = models.Requistion
         fields = ['id', 'estimated_profit', 'company',
                   'assignment_date', 'created_by']
+
+
+class RequisitionReadOnlySerializer(RequisitionSerializerMixin):
+    company = CompanySerializer(read_only=True)
+
+    class Meta(RequisitionSerializerMixin.Meta):
+        pass
+
+
+class RequisitionSerializer(RequisitionSerializerMixin):
+    class Meta(RequisitionSerializerMixin.Meta):
+        pass
 
 
 class RouteSerializer(serializers.ModelSerializer):
@@ -173,7 +142,6 @@ class RouteSerializer(serializers.ModelSerializer):
 
 
 class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.Profile
         fields = ['total_business_trips',
@@ -181,7 +149,7 @@ class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
 
 
 class BusinessTripSerializerMixin(serializers.ModelSerializer):
-    requistions = RequistionSerializer(many=True, required=False, read_only=True)
+    requistions = RequisitionSerializer(many=True, required=False, read_only=True)
     estimated_profit = serializers.ReadOnlyField()
     duration = serializers.ReadOnlyField()
 
@@ -190,17 +158,17 @@ class BusinessTripSerializerMixin(serializers.ModelSerializer):
     max_distance = serializers.IntegerField(source='distance_constraint')
 
     class Meta:
-        abstract = True
+        model = models.BusinessTrip
+        fields = ['id', 'start_date', 'finish_date', 'duration', 'distance', 'assignee', 'requistions', 'routes',
+                  'estimated_profit', 'max_distance', 'is_processed', 'department']
 
 
 class BusinessTripReadOnlySerializer(BusinessTripSerializerMixin):
     assignee = BasicUserSerializer(read_only=True)
     department = DepartmentSerializer(read_only=True)
 
-    class Meta:
-        model = models.BusinessTrip
-        fields = ['id', 'start_date', 'finish_date', 'duration', 'distance', 'assignee', 'requistions', 'routes',
-                  'estimated_profit', 'max_distance', 'is_processed', 'department']
+    class Meta(BusinessTripSerializerMixin.Meta):
+        pass
 
 
 class BusinessTripSerializer(BusinessTripSerializerMixin):
@@ -330,10 +298,8 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
         instance.save()
         return instance
 
-    class Meta:
-        model = models.BusinessTrip
-        fields = ['id', 'start_date', 'finish_date', 'duration', 'distance',
-                  'assignee', 'requistions', 'routes', 'estimated_profit', 'max_distance', 'is_processed', 'department']
+    class Meta(BusinessTripSerializerMixin.Meta):
+        pass
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -375,12 +341,12 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class RouteSerializerWithDetails(RouteSerializer):
-
     business_trip = BusinessTripSerializer()
     requisition = serializers.SerializerMethodField()
 
     def get_requisition(self, obj):
-        return RequistionSerializer(obj.end_point.requistions.filter(business_trip=obj.business_trip).first(), context=self._context).data
+        return RequisitionSerializer(obj.end_point.requistions.filter(business_trip=obj.business_trip).first(),
+                                     context=self._context).data
 
     class Meta:
         model = models.Route

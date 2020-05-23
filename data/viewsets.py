@@ -14,14 +14,27 @@ from data import filters as data_filters
 from data import models, permissions, serializers
 
 
-# from data.utils import generate_data_for_route
-
-
 class StandardResultsSetPagination(PageNumberPagination):
     page_query_param = 'page'
     page_size = 20
     page_size_query_param = 'page_size'
     max_page_size = 100
+
+
+class ReadOnlySerializerMixin(viewsets.ModelViewSet):
+    """
+    Mixin using for nested serializers.
+    It has to be set read_only_serializer_class field.
+
+    @return serializer for GET and read only serializer for POST AND PUT
+    """
+    read_only_serializer_class = None
+
+    def get_serializer_class(self):
+        if self.action in ('retrieve', 'list'):
+            return self.read_only_serializer_class
+
+        return self.serializer_class
 
 
 class CurrentUserView(APIView):
@@ -134,7 +147,7 @@ class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    serializer_class = serializers.RequistionSerializer
+    serializer_class = serializers.RequisitionSerializer
     pagination_class = StandardResultsSetPagination
     http_method_names = ['get', 'options']
 
@@ -173,9 +186,10 @@ class EmployeeCompanyHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewS
         return result
 
 
-class BusinessTripViewSet(viewsets.ModelViewSet):
+class BusinessTripViewSet(ReadOnlySerializerMixin, viewsets.ModelViewSet):
     queryset = models.BusinessTrip.objects.all()
     serializer_class = serializers.BusinessTripSerializer
+    read_only_serializer_class = serializers.BusinessTripReadOnlySerializer
     permission_classes = [IsAdminUser]
 
     def get_permissions(self):
@@ -186,16 +200,11 @@ class BusinessTripViewSet(viewsets.ModelViewSet):
 
         return [permission() for permission in permission_classes]
 
-    def get_serializer_class(self):
-        if self.action in ('retrieve', 'list'):
-            return serializers.BusinessTripReadOnlySerializer
 
-        return self.serializer_class
-
-
-class RequisitionViewSet(viewsets.ModelViewSet):
+class RequisitionViewSet(ReadOnlySerializerMixin, viewsets.ModelViewSet):
     queryset = models.Requistion.objects.filter(business_trip=None)
-    serializer_class = serializers.RequistionSerializer
+    serializer_class = serializers.RequisitionSerializer
+    read_only_serializer_class = serializers.RequisitionReadOnlySerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = [permissions.IsOwnerOrReadOnly]
     filter_backends = [filters.SearchFilter]
