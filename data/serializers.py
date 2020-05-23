@@ -147,8 +147,24 @@ class RequistionSerializer(serializers.ModelSerializer):
 
 
 class RouteSerializer(serializers.ModelSerializer):
-    start_point = CompanySerializer()
-    end_point = CompanySerializer()
+    start_point = serializers.SerializerMethodField()
+    end_point = serializers.SerializerMethodField()
+
+    def __get_serialized_data(self, data):
+        if isinstance(data, models.Department):
+            return DepartmentSerializer(data, context=self._context).data
+        if isinstance(data, models.Hotel):
+            return HotelSerializer(data, context=self._context).data
+        if isinstance(data, models.Company):
+            return CompanySerializer(data, context=self._context).data
+
+    def get_start_point(self, obj):
+        start_point = obj.start_point
+        return self.__get_serialized_data(start_point)
+
+    def get_end_point(self, obj):
+        end_point = obj.end_point
+        return self.__get_serialized_data(end_point)
 
     class Meta:
         model = models.Route

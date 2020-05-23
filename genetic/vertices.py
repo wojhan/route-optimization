@@ -1,8 +1,12 @@
 import uuid
 from typing import Tuple
 
+from data.models import Company as CompanyModel, Department as DepartmentModel, Hotel as HotelModel
+
 
 class Vertex:
+    model = None
+
     def __init__(self, name, coords):
         self.id = None
         self.uuid = str(uuid.uuid1())
@@ -11,6 +15,7 @@ class Vertex:
         self.lng = coords[1]
         self.profit = 0
         self.d_index = None
+        self.stop_type = None
 
     def get_coords(self) -> Tuple[float]:
         return (self.lat, self.lng)
@@ -20,6 +25,8 @@ class Vertex:
 
 
 class Depot(Vertex):
+    model = DepartmentModel
+
     def __init__(self, name, coords):
         super().__init__(name, coords)
         self.stop_type = 'depot'
@@ -29,6 +36,8 @@ class Depot(Vertex):
 
 
 class Company(Vertex):
+    model = CompanyModel
+
     def __init__(self, name, coords, profit):
         super().__init__(name, coords)
         self.stop_type = 'company'
@@ -39,6 +48,8 @@ class Company(Vertex):
 
 
 class Hotel(Vertex):
+    model = HotelModel
+
     def __init__(self, name, coords):
         super().__init__(name, coords)
         self.stop_type = 'hotel'
