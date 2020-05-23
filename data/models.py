@@ -142,7 +142,7 @@ class BusinessTrip(models.Model):
     @property
     def is_processed(self):
         if self.task_id is None or self.task_created is None:
-            return False
+            return True
 
         task = AsyncResult(self.task_id)
         time_diff = datetime.now(self.task_created.tzinfo) - self.task_created

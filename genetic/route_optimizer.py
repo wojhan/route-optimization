@@ -1,14 +1,12 @@
 import logging
 import math
 import random
-from datetime import datetime
 from typing import List
 
-import channels.layers
 import mpu
 import numpy as np
-from asgiref.sync import async_to_sync
 
+import data.utils
 from genetic import routes, utils, vertices
 
 logger = logging.getLogger('data')
@@ -19,64 +17,39 @@ class NotEnoughCompaniesException(Exception):
 
 
 class RouteObserver:
-    def __init__(self, business_trip_id: int) -> None:
-        """
-        Arguments:
-            business_trip_id {int} -- id of business_trip to observing a progress of actual route optimizer
-        """
-        self.group_name = 'business_trip_%s' % business_trip_id
-        self.channel_layer = channels.layers.get_channel_layer()
+    def __init__(self, business_trip_id: int, total: int) -> None:
+        self.business_trip_id = business_trip_id
         self.progress = 0
-        self.last_time = datetime.now()
-
-    def set_progress(self, current: float, total: float) -> None:
-        """
-        Setting a progress for actual processing route
-
-        Arguments:
-            current {float} -- current value of processed data
-            total {float} -- total value of data to be processed
-        """
         self.total = total
-        self.progress = current
-        self.update()
+        self.last_progress = 0
 
     def increment(self, value: int = 1) -> None:
         """
-        Increments of progress for actual processing route. It is updating
-        every 200 instructions processed using websocket messages.
+        Incremenents of progress for actual processing route. Updates only if delta is bigger than one percent.
+        @param value: incrementation value (default: 1)
+        """
+        """
+        Increments of progress for actual processing route.
 
         Keyword Arguments:
             value {int} -- incrementation value (default: {1})
         """
         self.progress += value
-        if self.progress % int(self.total / 200) == 0:
-            self.update()
 
-    def update_status(self, status, message):
-        async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                'type': 'business_trip_message',
-                'message_type': status,
-                'message': message
-            }
-        )
-        pass
+        # Notify only if more than one % difference between updates
+        if ((self.progress - self.last_progress) / self.total * 100) >= 1:
+            self.last_progress = self.progress
+            self.update()
 
     def update(self) -> None:
         """
         Sending websocket message with current progress
         """
-        now = datetime.now()
-        diff = now - self.last_time
-        left_progress = (1 - round(self.progress / self.total, 2)) * 100
-        time_left = left_progress * diff.seconds
-        self.last_time = datetime.now()
-        async_to_sync(self.channel_layer.group_send)(self.group_name, {'type': 'progress_message',
-                                                                       'message': round((self.progress / self.total),
-                                                                                        2), 'timeLeft': time_left})
+        message = {
+            "value": round(self.progress/self.total, 2),
+        }
 
+        data.utils.update_business_trip_by_ws(self.business_trip_id, "PROCESSING", message)
 
 class RouteOptimizer:
     def __init__(self, business_trip_id: int, data: dict,
@@ -94,22 +67,24 @@ class RouteOptimizer:
         self.mutation_probability = mutation_probability
         self.elitsm_rate = elitsm_rate
         self.population_size = population_size
-        self.observer = RouteObserver(business_trip_id)
         self.iterations = iterations
-
-        self.observer.set_progress(0, self.__get_total_progress())
+        self.complexity_vector = dict()
+        self.observer = RouteObserver(business_trip_id, self.__get_total_progress())
 
         logger.info('Started generating route for business trip id %d' %
                     business_trip_id)
         self.__count_distances()
 
     def __get_total_progress(self):
-        count_distance = 2 * \
-            len([self.depot] + self.companies + self.hotels)**2
-        generate_routes = self.population_size * self.generate_tries * self.days
-        breed = self.iterations * (1 + 3 * self.population_size)
+        vertices = len(self.companies + self.hotels) + 1
 
-        return count_distance + generate_routes + breed
+        complexity = (vertices**2, self.population_size, self.iterations)
+        total_complexity = sum(complexity)
+
+        self.complexity_vector["counting_distance"] = (total_complexity * 0.25) / complexity[0]
+        self.complexity_vector["generating_routes"] = (total_complexity * 0.25) / complexity[1]
+        self.complexity_vector["iterations"] = (total_complexity * 0.5) / complexity[2]
+        return total_complexity
 
     def __count_distances(self) -> dict:
         logger.info('Started counting distances for route.')
@@ -137,6 +112,7 @@ class RouteOptimizer:
                     vertex.id, vertex.profit / distance if distance != 0 else 0)
                 distances_array[i, j] = (another_vertex.id, distance)
                 distances_array[j, i] = (vertex.id, distance)
+            self.observer.increment(all_vertices_length * self.complexity_vector["counting_distance"])
 
         self.distances = distances_array
         self.profits_by_distances = profits_by_distances_array
@@ -266,9 +242,9 @@ class RouteOptimizer:
 
                 tries[current_index] += 1
                 current_index = (current_index + 1) % len(to_process)
-                self.observer.increment()
             population.append(route)
             route.count_profit()
+            self.observer.increment(self.complexity_vector["generating_routes"])
         population.sort(key=lambda x: x.profit, reverse=True)
         self.population.append(population)
 
@@ -295,7 +271,7 @@ class RouteOptimizer:
             # self.observer.increment()
 
         self.population.append(next_population)
-        self.observer.increment()
+        # self.observer.increment()
 
     def __couple_routes(self, population) -> List[List[routes.Route]]:
         couples = list()
@@ -308,7 +284,7 @@ class RouteOptimizer:
             couples.append([first, second])
             pop.remove(first)
             pop.remove(second)
-            self.observer.increment()
+            # self.observer.increment()
 
         return couples
 
@@ -341,18 +317,17 @@ class RouteOptimizer:
             self.population[-1] = self.population[-1][:elite_number]
             # self.population[-1] = []
 
-            self.observer.increment(int(self.population_size*1.5))
-
             for packed in packed_to_crossover:
                 couple = utils.crossover(packed)
                 couple[0].count_profit()
                 couple[1].count_profit()
                 self.population[-1].append(couple[0])
                 self.population[-1].append(couple[1])
-                self.observer.increment()
 
             self.population[-1].sort(key=lambda x: x.profit, reverse=True)
             entropy = self.__get_entropy(self.population[-1])
+
+            self.observer.increment(self.complexity_vector["iterations"])
 
             if 0.9 * self.population[-1][0].profit <= entropy <= 1.1 * self.population[-1][0].profit:
                 logger.info('Finished processing iteration %d of %d' %
@@ -360,4 +335,3 @@ class RouteOptimizer:
                 break
             logger.info('Finished processing iteration %d of %d' %
                         (i, self.iterations))
-            # sleep(10)

@@ -190,8 +190,9 @@ class BusinessTripReadOnlySerializer(BusinessTripSerializerMixin):
 class BusinessTripSerializer(BusinessTripSerializerMixin):
 
     def validate(self, attrs):
-        if attrs['start_date'] > attrs['finish_date']:
-            raise serializers.ValidationError({"finish_date": "Data zakończenia nie może być wcześniej niż startu"})
+        if "start_date" in attrs and "finish_date" in attrs:
+            if attrs['start_date'] > attrs['finish_date']:
+                raise serializers.ValidationError({"finish_date": "Data zakończenia nie może być wcześniej niż startu"})
 
         return attrs
 
@@ -208,12 +209,12 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
         """
         request = self.context['request']
 
-        if not "requistions" in request.data:
+        if not "requisitions" in request.data:
             if not update:
                 raise serializers.ValidationError({"requistions": "Nie wybrano żadnej oferty"})
             return
 
-        requisitions = self.context['request'].data['requistions']
+        requisitions = self.context['request'].data['requisitions']
         requisition_ids = [requisition['id'] for requisition in requisitions]
 
         instance.requistions.clear()
@@ -297,7 +298,7 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
             process_route = True
 
         # Process route if requisitions has changed
-        if "requistions" in self.context['request'].data:
+        if "requisitions" in self.context['request'].data:
             process_route = True
 
         # Process route if department has changed
@@ -308,7 +309,6 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
         # Increment route version if new route will be generated
         if process_route:
             instance.route_version += 1
-            instance.save()
             self.__process_route(instance)
 
         instance.save()

@@ -2,12 +2,9 @@ import datetime
 
 from celery import task
 
-import genetic
 from data import models
 from genetic import route_optimizer, vertices
 
-
-# from genetic.route_optimizer import NotEnoughCompaniesException
 
 class RouteOptimizerException(Exception):
     pass
@@ -35,23 +32,17 @@ def do_generate_route(data):
     ro = route_optimizer.RouteOptimizer(business_trip_id, data, tmax, days, crossover_probability=crossover_probability,
                                         mutation_probability=mutation_probability, elitsm_rate=elitism_rate,
                                         population_size=population_size, iterations=iterations)
-    #TODO: Validate random routes, if there is a error, then return information back to response
+    # TODO: Validate random routes, if there is a error, then return information back to response
     business_trip = models.BusinessTrip.objects.get(pk=business_trip_id)
     try:
         ro.generate_random_routes()
-    except genetic.route_optimizer.NotEnoughCompaniesException:
-        raise RouteOptimizerException("Not enough companies to generate a route for given number of days")
-    else:
         ro.run()
-        for day, route_part in enumerate(ro.population[-1][0].routes):
-            for index, point in enumerate(route_part.route):
-                if index == 0:
-                    continue
-                start_point = models.Company.objects.get(pk=int(route_part.route[index - 1].name))
-                end_point = models.Company.objects.get(pk=int(point.name))
-                distance = ro.population[-1][0].distances[route_part.route[index - 1].id, point.id][1]
-                models.Route.objects.create(start_point=start_point, end_point=end_point, distance=distance, segment_order=index, day=day, business_trip=business_trip, route_version=business_trip.route_version)
+    except:
+        raise RouteOptimizerException()
     finally:
         business_trip.task_finished = datetime.datetime.now()
         business_trip.save()
-        return 'done'
+
+    # TODO: Generate route with correct route segment types
+
+    return business_trip_id
