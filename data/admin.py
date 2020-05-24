@@ -7,7 +7,7 @@ class CompanyAdmin(admin.ModelAdmin):
     search_fields = ('name', 'city')
 
 
-class RequistionAdmin(admin.ModelAdmin):
+class RequisitionAdmin(admin.ModelAdmin):
     raw_id_fields = ('company',)
     autocomplete_lookup_fields = {
         'fk': ['company'],
@@ -17,6 +17,6 @@ class RequistionAdmin(admin.ModelAdmin):
 admin.site.register(models.BusinessTrip)
 admin.site.register(models.Company, CompanyAdmin)
 admin.site.register(models.Profile)
-admin.site.register(models.Requistion, RequistionAdmin)
+admin.site.register(models.Requisition, RequisitionAdmin)
 admin.site.register(models.Route)
 admin.site.register(models.Department)

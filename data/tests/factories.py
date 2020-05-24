@@ -1,6 +1,5 @@
 import datetime
 
-import factory
 import factory.fuzzy
 from django.contrib.auth import get_user_model
 from django.db.models import signals
@@ -73,7 +72,7 @@ class HotelFactory(CompanyFactory):
 
 class RequisitionFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.Requistion
+        model = models.Requisition
 
     estimated_profit = factory.fuzzy.FuzzyInteger(10, 200)
     company = factory.SubFactory(CompanyFactory)

@@ -1,10 +1,8 @@
-import factory
 import factory.fuzzy
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 
-from data.models import BusinessTrip, Company, Hotel, Profile, Requistion
-from genetic import utils
+from data.models import BusinessTrip, Company, Hotel, Profile, Requisition
 
 
 @factory.django.mute_signals(post_save)
@@ -45,9 +43,9 @@ class HotelFactory(CompanyFactory):
         model = Hotel
 
 
-class RequistionFactory(factory.django.DjangoModelFactory):
+class RequisitionFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = Requistion
+        model = Requisition
 
     estimated_profit = factory.fuzzy.FuzzyInteger(10, 200)
     company = factory.SubFactory(CompanyFactory)
