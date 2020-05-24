@@ -48,7 +48,7 @@ class Profile(models.Model):
             finish_date__lt=datetime.now())
 
         for business_trip in business_trips:
-            visited += business_trip.requistions.count()
+            visited += business_trip.requisitions.count()
 
         return visited
 
@@ -128,8 +128,8 @@ class BusinessTrip(models.Model):
     @property
     def estimated_profit(self):
         profit = 0
-        for requistion in self.requistions.all():
-            profit += requistion.estimated_profit
+        for requisition in self.requisitions.all():
+            profit += requisition.estimated_profit
 
         return profit
 
@@ -182,14 +182,16 @@ class BusinessTrip(models.Model):
         verbose_name_plural = 'delegacje'
 
 
-class Requistion(models.Model):
+class Requisition(models.Model):
     created_by = models.ForeignKey(auth.get_user_model(), verbose_name="stworzony przez",
-                                   on_delete=models.SET_NULL, related_name="created_requistions", default=None, null=True, blank=True)
+                                   on_delete=models.SET_NULL, related_name="created_requisitions", default=None,
+                                   null=True, blank=True)
     estimated_profit = models.FloatField(verbose_name="oszacowany zysk")
     company = models.ForeignKey(
-        Company, verbose_name="firma", on_delete=models.CASCADE, related_name="requistions")
+        Company, verbose_name="firma", on_delete=models.CASCADE, related_name="requisitions")
     business_trip = models.ForeignKey(
-        BusinessTrip, verbose_name="delegacja", on_delete=models.SET_NULL, related_name="requistions", null=True, blank=True)
+        BusinessTrip, verbose_name="delegacja", on_delete=models.SET_NULL, related_name="requisitions", null=True,
+        blank=True)
     assignment_date = models.DateTimeField(
         verbose_name="data przypisania", auto_now=True)
 

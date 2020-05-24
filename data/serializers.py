@@ -98,7 +98,7 @@ class TokenSerializer(serializers.HyperlinkedModelSerializer):
 
 class RequisitionSerializerMixin(serializers.ModelSerializer):
     class Meta:
-        model = models.Requistion
+        model = models.Requisition
         fields = ['id', 'estimated_profit', 'company',
                   'assignment_date', 'created_by']
 
@@ -149,7 +149,7 @@ class ProfileBusinessTripStatsSerializer(serializers.ModelSerializer):
 
 
 class BusinessTripSerializerMixin(serializers.ModelSerializer):
-    requistions = RequisitionSerializer(many=True, required=False, read_only=True)
+    requisitions = RequisitionSerializer(many=True, required=False, read_only=True)
     estimated_profit = serializers.ReadOnlyField()
     duration = serializers.ReadOnlyField()
 
@@ -159,7 +159,7 @@ class BusinessTripSerializerMixin(serializers.ModelSerializer):
 
     class Meta:
         model = models.BusinessTrip
-        fields = ['id', 'start_date', 'finish_date', 'duration', 'distance', 'assignee', 'requistions', 'routes',
+        fields = ['id', 'start_date', 'finish_date', 'duration', 'distance', 'assignee', 'requisitions', 'routes',
                   'estimated_profit', 'max_distance', 'is_processed', 'department']
 
 
@@ -195,18 +195,18 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
 
         if not "requisitions" in request.data:
             if not update:
-                raise serializers.ValidationError({"requistions": "Nie wybrano żadnej oferty"})
+                raise serializers.ValidationError({"requisitions": "Nie wybrano żadnej oferty"})
             return
 
         requisitions = self.context['request'].data['requisitions']
         requisition_ids = [requisition['id'] for requisition in requisitions]
 
-        instance.requistions.clear()
+        instance.requisitions.clear()
 
         for index, requisition_id in enumerate(requisition_ids):
             try:
-                requisition = models.Requistion.objects.get(pk=requisition_id, business_trip=None)
-            except models.Requistion.DoesNotExist as e:
+                requisition = models.Requisition.objects.get(pk=requisition_id, business_trip=None)
+            except models.Requisition.DoesNotExist as e:
                 raise serializers.ValidationError(
                     {"requisitions": f"{requisitions[index]['company']['name_short']} nie jest prawidłową ofertą"})
             else:
@@ -223,7 +223,7 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
 
         @param instance: instance of business trip
         """
-        requisitions = instance.requistions.all()
+        requisitions = instance.requisitions.all()
         hotels = models.Hotel.objects.all()
         department = instance.department
 
@@ -345,7 +345,7 @@ class RouteSerializerWithDetails(RouteSerializer):
     requisition = serializers.SerializerMethodField()
 
     def get_requisition(self, obj):
-        return RequisitionSerializer(obj.end_point.requistions.filter(business_trip=obj.business_trip).first(),
+        return RequisitionSerializer(obj.end_point.requisitions.filter(business_trip=obj.business_trip).first(),
                                      context=self._context).data
 
     class Meta:

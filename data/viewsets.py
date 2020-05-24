@@ -90,7 +90,7 @@ class CompanyEmployeeHistoryViewSet(APIView):
         company_pk = self.kwargs.get('company_pk')
         user = User.objects.get(pk=user_pk)
 
-        requisitions = models.Requistion.objects.filter(
+        requisitions = models.Requisition.objects.filter(
             company_id=company_pk, business_trip__assignee=user.profile)
 
         result = models.Route.objects.none()
@@ -155,7 +155,7 @@ class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         user_pk = self.kwargs.get('pk')
         user = User.objects.get(pk=user_pk)
 
-        objects = models.Requistion.objects.filter(business_trip=None)
+        objects = models.Requisition.objects.filter(business_trip=None)
 
         if user.is_staff:
             return objects.filter(created_by=None)
@@ -174,7 +174,7 @@ class EmployeeCompanyHistoryViewSet(mixins.ListModelMixin, viewsets.GenericViewS
         company_pk = self.kwargs.get('company_pk')
         user = User.objects.get(pk=user_pk)
 
-        requisitions = models.Requistion.objects.filter(
+        requisitions = models.Requisition.objects.filter(
             company_id=company_pk, business_trip__assignee=user.profile)
 
         result = models.Route.objects.none()
@@ -202,7 +202,7 @@ class BusinessTripViewSet(ReadOnlySerializerMixin, viewsets.ModelViewSet):
 
 
 class RequisitionViewSet(ReadOnlySerializerMixin, viewsets.ModelViewSet):
-    queryset = models.Requistion.objects.filter(business_trip=None)
+    queryset = models.Requisition.objects.filter(business_trip=None)
     serializer_class = serializers.RequisitionSerializer
     read_only_serializer_class = serializers.RequisitionReadOnlySerializer
     pagination_class = StandardResultsSetPagination
