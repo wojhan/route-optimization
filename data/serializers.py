@@ -166,6 +166,7 @@ class BusinessTripSerializerMixin(serializers.ModelSerializer):
 class BusinessTripReadOnlySerializer(BusinessTripSerializerMixin):
     assignee = BasicUserSerializer(read_only=True)
     department = DepartmentSerializer(read_only=True)
+    requisitions = RequisitionReadOnlySerializer(many=True, read_only=True)
 
     class Meta(BusinessTripSerializerMixin.Meta):
         pass
@@ -228,7 +229,8 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
         department = instance.department
 
         data = utils.generate_data_for_route(instance, requisitions, department, hotels, iterations=1000)
-        task = tasks.do_generate_route.delay(data)
+        # task = tasks.do_generate_route.delay(data)
+        task = tasks.do_generate_route.apply_async((data,), link=tasks.return_to_pool_unused_requisitions.s())
 
         instance.task_id = task.task_id
         instance.task_created = datetime.datetime.now(tz=instance.start_date.tzinfo)
@@ -244,8 +246,8 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
         """
         instance = super().create(validated_data)
         self.__update_requisitions(instance)
-        instance.save()
         self.__process_route(instance)
+        instance.save()
 
         return instance
 

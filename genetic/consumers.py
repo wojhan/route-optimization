@@ -66,6 +66,7 @@ class RouteConsumer(websocket.WebsocketConsumer):
             business_trip = models.BusinessTrip.objects.get(pk=event["message"])
             event["message"] = renderers.camelize(serializers.BusinessTripReadOnlySerializer(business_trip).data)
         event["type"] = "business_trip_message"
+        print(event)
         self.business_trip_message(event)
 
 

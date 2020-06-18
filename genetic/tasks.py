@@ -9,6 +9,14 @@ from genetic import route_optimizer, vertices, routes
 class RouteOptimizerException(Exception):
     pass
 
+@task
+def return_to_pool_unused_requisitions(route_generation_data):
+    business_trip_id = route_generation_data[0]
+    to_return_ids = route_generation_data[1]
+
+    business_trip = models.BusinessTrip.objects.get(pk=business_trip_id)
+    business_trip.requisitions.filter(company_id__in=to_return_ids).update(business_trip=None)
+    return business_trip_id
 
 @task(reject_on_worker_lost=True)
 def do_generate_route(data):
@@ -34,6 +42,7 @@ def do_generate_route(data):
                                         population_size=population_size, iterations=iterations)
     # TODO: Validate random routes, if there is a error, then return information back to response
     business_trip = models.BusinessTrip.objects.get(pk=business_trip_id)
+    to_return_ids = []
     try:
         ro.generate_random_routes()
         ro.run()
@@ -74,8 +83,12 @@ def do_generate_route(data):
                                             route_version=business_trip.route_version,
                                             business_trip=business_trip,
                                             route_type=route_type)
+
+        ids = list(map(lambda x: x.name, ro.companies))
+        to_return_ids = [ids[index - 1] for index in list(route.available_vertices)]
     finally:
         business_trip.task_finished = datetime.datetime.now()
         business_trip.save()
 
-    return business_trip_id
+
+    return business_trip_id, to_return_ids

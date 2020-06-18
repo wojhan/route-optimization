@@ -147,7 +147,7 @@ class EmployeeBusinessTrips(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class EmployeeRequisitionsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    serializer_class = serializers.RequisitionSerializer
+    serializer_class = serializers.RequisitionReadOnlySerializer
     pagination_class = StandardResultsSetPagination
     http_method_names = ['get', 'options']
 

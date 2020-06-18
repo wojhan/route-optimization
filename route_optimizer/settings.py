@@ -221,7 +221,8 @@ LOGGING = {
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:4200',
     'http://localhost:8080',
-    'http://192.168.8.70:4200'
+    'http://192.168.8.70:4200',
+    'http://192.168.8.70'
 )
 
 ASGI_APPLICATION = 'route_optimizer.routing.application'
