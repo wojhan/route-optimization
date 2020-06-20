@@ -195,6 +195,29 @@ class RouteOptimizer:
                                 raise Exception("No possible hotels dude")
                             break
 
+    def __update_hotels(self, route: routes.Route):
+        if self.days > 1:
+            route_part: routes.RoutePart
+            for day, route_part in enumerate(route.routes):
+                if day == 0:
+                    continue
+
+                #1
+                distance_previous_company_previous_hotel = route.distances[route.routes[day - 1].route[-2].id, route.routes[day - 1].route[-1].id][1]
+                #3
+                distance_previous_company_next_hotel = route.distances[route.routes[day - 1].route[-2].id, route_part.route[0].id][1]
+                # 2
+                distance_next_company_previous_hotel = route.distances[route_part.route[1].id, route.routes[day - 1].route[-1].id][1]
+                # 4
+                distance_next_company_next_hotel = route.distances[route_part.route[1].id, route_part.route[0].id][1]
+
+                if distance_previous_company_previous_hotel + distance_next_company_previous_hotel < distance_previous_company_next_hotel + distance_next_company_next_hotel:
+                    # route.replace_stop(route.routes[day - 1], -1, route.routes[day - 1].route[-1])
+                    route.replace_stop(route_part, 0, route.routes[day - 1].route[-1])
+                else:
+                    route.replace_stop(route.routes[day - 1], len(route.routes[day - 1].route) - 1, route_part.route[0])
+
+
     def generate_random_routes(self):
         logger.info('Started generating random routes. Population size = %d, number of days = %d' % (
             self.population_size, self.days))
@@ -243,6 +266,7 @@ class RouteOptimizer:
                 tries[current_index] += 1
                 current_index = (current_index + 1) % len(to_process)
             population.append(route)
+            self.__update_hotels(route)
             route.count_profit()
             self.observer.increment(self.complexity_vector["generating_routes"])
         population.sort(key=lambda x: x.profit, reverse=True)

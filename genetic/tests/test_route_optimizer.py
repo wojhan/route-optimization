@@ -157,14 +157,14 @@ class RouteOptimizerTestCase(unittest.TestCase):
         self.assertEqual(last_element_of_second_route_part,
                          expected_last_element)
 
-    # def test_generate_random_route_for_two_days_both_route_parts_has_common_hotel(self):
-    #     ro = self.__get_route_optimizer_default_object(2)
-    #
-    #     ro.generate_random_routes()
-    #
-    #     first_route_hotel = ro.population[0][0].get_route_part(0).route[-1]
-    #     second_route_hotel = ro.population[0][0].get_route_part(1).route[0]
-    #     self.assertEqual(first_route_hotel, second_route_hotel)
+    def test_generate_random_route_for_two_days_both_route_parts_has_common_hotel(self):
+        ro = self.__get_route_optimizer_default_object(2)
+
+        ro.generate_random_routes()
+
+        first_route_hotel = ro.population[0][0].get_route_part(0).route[-1]
+        second_route_hotel = ro.population[0][0].get_route_part(1).route[0]
+        self.assertEqual(first_route_hotel, second_route_hotel)
 
     def test_generate_random_route_for_two_days_has_no_duplicated_companies(self):
         ro = self.__get_route_optimizer_with_only_one_possible_company(2)
