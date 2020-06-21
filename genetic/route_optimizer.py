@@ -211,11 +211,43 @@ class RouteOptimizer:
                 # 4
                 distance_next_company_next_hotel = route.distances[route_part.route[1].id, route_part.route[0].id][1]
 
+                replaced = True
+                # if distance_previous_company_previous_hotel + distance_next_company_previous_hotel < distance_previous_company_next_hotel + distance_next_company_next_hotel:
+                #     common_hotel = route.routes[day - 1].route[-1]
+                # else:
+                #     common_hotel = route_part.route[0]
+                #
+                #
+                #
+                #
+                previous_new_distance = route.routes[day - 1].distance - distance_previous_company_previous_hotel + distance_previous_company_next_hotel
+                next_new_distance = route_part.distance - distance_next_company_next_hotel + distance_next_company_previous_hotel
+
+                # if previous_new_distance > self.max_distance and next_new_distance > self.max_distance:
+                    # print("lipa z iomus :/")
+
+
                 if distance_previous_company_previous_hotel + distance_next_company_previous_hotel < distance_previous_company_next_hotel + distance_next_company_next_hotel:
                     # route.replace_stop(route.routes[day - 1], -1, route.routes[day - 1].route[-1])
-                    route.replace_stop(route_part, 0, route.routes[day - 1].route[-1])
+                    replaced = route.replace_stop(route_part, 0, route.routes[day - 1].route[-1])
+                    while not replaced and len(route_part.route) > 2:
+                        random_index = random.randint(2, len(route_part.route) - 2) if len(route_part.route) > 3 else 1
+                        route.remove_stop(route_part, random_index)
+                        replaced = route.replace_stop(route_part, 0, route.routes[day - 1].route[-1])
+
+                    if not replaced:
+                        print("cholera")
                 else:
-                    route.replace_stop(route.routes[day - 1], len(route.routes[day - 1].route) - 1, route_part.route[0])
+                    replaced = route.replace_stop(route.routes[day - 1], len(route.routes[day - 1].route) - 1, route_part.route[0])
+                    while not replaced and len(route.routes[day - 1].route) > 2:
+                        random_index = random.randint(1, len(route.routes[day - 1].route) - 3) if len(route.routes[day - 1].route) > 3 else 1
+                        route.remove_stop(route.routes[day - 1], random_index)
+                        replaced = route.replace_stop(route.routes[day - 1], len(route.routes[day - 1].route) - 1, route_part.route[0])
+                    if not replaced:
+                        print("cholera")
+                if not replaced:
+                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
 
 
     def generate_random_routes(self):
@@ -267,6 +299,8 @@ class RouteOptimizer:
                 current_index = (current_index + 1) % len(to_process)
             population.append(route)
             self.__update_hotels(route)
+            if route.routes[0].route[-1] != route.routes[1].route[0]:
+                print("kurcze!!!")
             route.count_profit()
             self.observer.increment(self.complexity_vector["generating_routes"])
         population.sort(key=lambda x: x.profit, reverse=True)
@@ -329,10 +363,13 @@ class RouteOptimizer:
         return profit_sum / len(population)
 
     def run(self):
+        import cProfile
+        p = cProfile.Profile()
+        p.enable()
         for i in range(1, self.iterations + 1):
             self.population.append(self.population[-1].copy())
-            logger.info('Started processing %d iteration of %d' %
-                        (i, self.iterations))
+            # logger.info('Started processing %d iteration of %d' %
+            #             (i, self.iterations))
             # self.__do_elitism_operation(t_size=2)
             elite_number = math.floor(self.elitsm_rate * self.population_size)
             couples = self.__couple_routes(self.population[-1][elite_number:])
@@ -342,7 +379,12 @@ class RouteOptimizer:
             # self.population[-1] = []
 
             for packed in packed_to_crossover:
-                couple = utils.crossover(packed)
+                crossovered, couple = utils.crossover(packed)
+                if crossovered:
+                    self.__add_nearest_hotel_to_route(couple[0])
+                    self.__update_hotels(couple[0])
+                    self.__add_nearest_hotel_to_route(couple[1])
+                    self.__update_hotels(couple[1])
                 couple[0].count_profit()
                 couple[1].count_profit()
                 self.population[-1].append(couple[0])
@@ -357,5 +399,8 @@ class RouteOptimizer:
                 logger.info('Finished processing iteration %d of %d' %
                             (i, self.iterations))
                 break
-            logger.info('Finished processing iteration %d of %d' %
-                        (i, self.iterations))
+
+        p.disable()
+        p.print_stats(sort='cumtime')
+            # logger.info('Finished processing iteration %d of %d' %
+            #             (i, self.iterations))

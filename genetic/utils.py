@@ -11,7 +11,9 @@ def crossover(options):
 
     days: int = parents[0].days
 
-    if random.random() <= crossover_probability:
+    crossovered = random.random() <= crossover_probability
+
+    if crossovered:
         for day in range(days):
             parent_a_route_part: routes.RoutePart = parents[0].get_route_part(
                 day)
@@ -46,7 +48,7 @@ def crossover(options):
                 parent_b_route_part.distance += distance_diff
                 parents[1].distance += distance_diff
 
-    return [mutate([parents[0], mutation_probability]), mutate([parents[1], mutation_probability])]
+    return crossovered, [mutate([parents[0], mutation_probability]), mutate([parents[1], mutation_probability])]
 
 
 def get_indexes_all_companies_in_route(route: routes.Route, total_companies: int) -> Tuple[
