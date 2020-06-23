@@ -42,6 +42,7 @@ class Company(Vertex):
         super().__init__(name, coords)
         self.stop_type = 'company'
         self.profit = profit
+        self.nearest_hotel = None
 
     def __str__(self):
         return self.name + ' profit - ' + str(self.profit)

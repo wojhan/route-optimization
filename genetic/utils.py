@@ -72,6 +72,9 @@ def get_indexes_all_companies_in_route(route: routes.Route, total_companies: int
 
 
 def mutate_by_swap_within_the_same_route_part(route: routes.Route, route_part: routes.RoutePart, first_index: int, second_index: int):
+    if first_index == 0 or first_index == route_part.length - 1 or second_index == 0 or second_index == route_part.length - 1:
+        return
+
     if first_index > second_index:
         tmp = first_index
         first_index = second_index
@@ -124,6 +127,8 @@ def mutate_by_swap_within_the_same_route_part(route: routes.Route, route_part: r
 
 
 def mutate_by_swap_within_different_route_parts(route: routes.Route, first_route_part: routes.RoutePart, second_route_part: routes.RoutePart, first_index: int, second_index: int):
+    if first_index == 0 or first_index == first_route_part.length - 1 or second_index == 0 or second_index == second_route_part.length - 1:
+        return
     count = route.count_distance
     existing_distance_to_first = count(
         first_route_part.route[first_index - 1], first_route_part.route[first_index])

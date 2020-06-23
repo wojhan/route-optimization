@@ -116,6 +116,16 @@ class RouteOptimizer:
 
         self.distances = distances_array
         self.profits_by_distances = profits_by_distances_array
+
+        company: vertices.Company
+        for i, company in enumerate(self.companies):
+            nearest = np.sort(self.distances[company.id], order='distance')
+            for id in nearest:
+                vertex = self.vertex_ids[id[0]]
+                if isinstance(vertex, vertices.Hotel):
+                    company.nearest_hotel = vertex
+                    break
+
         logger.info('Finished counting distances for route')
 
     def __add_random_profitable_company_to_route(self, route: routes.Route, route_part: routes.RoutePart, index: int, top: int) -> None:
@@ -168,32 +178,49 @@ class RouteOptimizer:
     def __add_nearest_hotel_to_route(self, route: routes.Route):
         if self.days > 1:
             for day, route_part in enumerate(route.routes):
-                indexes = (0, route_part.length - 1)
-                nearest = (
-                    np.sort(
-                        self.distances[route_part.route[1].id], order='distance'),
-                    np.sort(
-                        self.distances[route_part.route[-2].id], order='distance'),
-                )
-                if day == 0:
-                    indexes = (route_part.length - 1,)
-                    nearest = (
-                        np.sort(self.distances[route_part.route[-2].id], order='distance'),)
-                elif day == self.days - 1:
-                    indexes = (0,)
-                    nearest = (
-                        np.sort(self.distances[route_part.route[1].id], order='distance'),)
+                if route_part.length > 2:
+                    indexes = (0, route_part.length - 1)
+                    if day == 0:
+                        indexes = (route_part.length - 1,)
+                    if day == self.days - 1:
+                        indexes = (0,)
 
-                for i, index in enumerate(indexes):
-                    for id in nearest[i]:
-                        vertex = self.vertex_ids[id[0]]
+                    for i, index in enumerate(indexes):
+                        if index == 0:
+                            hotel = route_part.route[1].nearest_hotel
+                        else:
+                            hotel = route_part.route[-2].nearest_hotel
 
-                        if isinstance(vertex, vertices.Hotel):
-                            replaced = route.replace_stop(
-                                route_part, index, vertex)
-                            if not replaced:
-                                raise Exception("No possible hotels dude")
-                            break
+                        route.replace_stop(route_part, index, hotel)
+    # def __add_nearest_hotel_to_route(self, route: routes.Route):
+    #     if self.days > 1:
+    #         for day, route_part in enumerate(route.routes):
+    #             indexes = (0, route_part.length - 1)
+    #             nearest = (
+    #                 np.sort(
+    #                     self.distances[route_part.route[1].id], order='distance'),
+    #                 np.sort(
+    #                     self.distances[route_part.route[-2].id], order='distance'),
+    #             )
+    #             if day == 0:
+    #                 indexes = (route_part.length - 1,)
+    #                 nearest = (
+    #                     np.sort(self.distances[route_part.route[-2].id], order='distance'),)
+    #             elif day == self.days - 1:
+    #                 indexes = (0,)
+    #                 nearest = (
+    #                     np.sort(self.distances[route_part.route[1].id], order='distance'),)
+    #
+    #             for i, index in enumerate(indexes):
+    #                 for id in nearest[i]:
+    #                     vertex = self.vertex_ids[id[0]]
+    #
+    #                     if isinstance(vertex, vertices.Hotel):
+    #                         replaced = route.replace_stop(
+    #                             route_part, index, vertex)
+    #                         if not replaced:
+    #                             raise Exception("No possible hotels dude")
+    #                         break
 
     def __update_hotels(self, route: routes.Route):
         if self.days > 1:
@@ -299,8 +326,6 @@ class RouteOptimizer:
                 current_index = (current_index + 1) % len(to_process)
             population.append(route)
             self.__update_hotels(route)
-            if route.routes[0].route[-1] != route.routes[1].route[0]:
-                print("kurcze!!!")
             route.count_profit()
             self.observer.increment(self.complexity_vector["generating_routes"])
         population.sort(key=lambda x: x.profit, reverse=True)
@@ -364,8 +389,8 @@ class RouteOptimizer:
 
     def run(self):
         import cProfile
-        p = cProfile.Profile()
-        p.enable()
+        # p = cProfile.Profile()
+        # p.enable()
         for i in range(1, self.iterations + 1):
             self.population.append(self.population[-1].copy())
             # logger.info('Started processing %d iteration of %d' %
@@ -400,7 +425,7 @@ class RouteOptimizer:
                             (i, self.iterations))
                 break
 
-        p.disable()
-        p.print_stats(sort='cumtime')
+        # p.disable()
+        # p.print_stats(sort='cumtime')
             # logger.info('Finished processing iteration %d of %d' %
             #             (i, self.iterations))

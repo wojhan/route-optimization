@@ -47,6 +47,7 @@ def do_generate_route(data):
         ro.generate_random_routes()
         ro.run()
     except:
+        business_trip.requisitions.clear()
         raise RouteOptimizerException()
     else:
         route = ro.population[-1][0]

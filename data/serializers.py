@@ -228,7 +228,7 @@ class BusinessTripSerializer(BusinessTripSerializerMixin):
         hotels = models.Hotel.objects.all()
         department = instance.department
 
-        data = utils.generate_data_for_route(instance, requisitions, department, hotels, iterations=1000)
+        data = utils.generate_data_for_route(instance, requisitions, department, hotels, iterations=1000, crossover_probability=0.4, mutation_probability=0.2)
         # task = tasks.do_generate_route.delay(data)
         task = tasks.do_generate_route.apply_async((data,), link=tasks.return_to_pool_unused_requisitions.s())
 

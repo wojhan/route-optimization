@@ -86,7 +86,7 @@ class Company(CompanyMixin):
         return self.name_short + ', ' + street + ' ' + self.postcode + ' ' + self.city
 
     class Meta:
-        ordering = ['name']
+        ordering = ['pk']
         verbose_name = 'firma'
         verbose_name_plural = 'firmy'
 
@@ -94,6 +94,7 @@ class Company(CompanyMixin):
 class Hotel(Company):
     # TODO: Change Company inheritance to CompanyMixin
     class Meta:
+        ordering = ['pk']
         verbose_name = 'hotel'
         verbose_name_plural = 'hotele'
 
@@ -178,6 +179,7 @@ class BusinessTrip(models.Model):
             "%d-%m-%Y") + ', ' + self.assignee.__str__()
 
     class Meta:
+        ordering = ['pk']
         verbose_name = 'delegacja'
         verbose_name_plural = 'delegacje'
 
@@ -248,6 +250,9 @@ class Route(models.Model):
     def __str__(self):
         return str(self.start_point.pk) + " -> " + str(self.end_point.pk)
 
+    class Meta:
+        ordering = ["pk"]
+
 
 @receiver(post_save, sender=BusinessTrip)
 def update_websocket(sender, instance: BusinessTrip, created, **kwargs):
@@ -258,3 +263,10 @@ def update_websocket(sender, instance: BusinessTrip, created, **kwargs):
 @receiver(post_delete, sender=BusinessTrip)
 def delete_websocket(sender, instance, **kwargs):
     utils.update_business_trip_by_ws(instance.pk, "DELETE", "Deleted")
+
+@receiver(post_save, sender=auth.get_user_model())
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    instance.profile.save()
+
