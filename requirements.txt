@@ -94,7 +94,7 @@ PyYAML==5.3
 ray==0.8.1
 redis==3.3.11
 requests==2.22.0
-rsa==4.0
+rsa==4.7
 service-identity==18.1.0
 six==1.12.0
 sqlparse==0.3.0
