@@ -68,7 +68,7 @@ pickleshare==0.7.5
 pipupgrade==1.6.7
 pluggy==0.13.1
 prompt-toolkit==3.0.0
-protobuf==3.11.3
+protobuf==3.15.0
 psycopg2-binary==2.8.3
 ptyprocess==0.6.0
 py==1.8.1
