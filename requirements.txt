@@ -78,7 +78,7 @@ pycodestyle==2.5.0
 pycparser==2.19
 Pygments==2.5.1
 PyHamcrest==1.9.0
-PyJWT==1.7.1
+PyJWT==2.4.0
 pylint==2.4.2
 pylint-django==2.0.12
 pylint-plugin-utils==0.6
