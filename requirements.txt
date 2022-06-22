@@ -60,7 +60,7 @@ mccabe==0.6.1
 more-itertools==8.0.2
 mpu==0.20.0
 msgpack==0.6.2
-numpy==1.18.1
+numpy==1.22.0
 packaging==20.1
 parso==0.5.1
 pexpect==4.7.0
